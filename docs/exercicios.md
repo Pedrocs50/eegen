@@ -1,6 +1,15 @@
 # Exercícios — desenho da solução
 
-**Status:** proposta para discutir (18/10/2026). Nada daqui foi implementado ainda.
+**Status (18/10/2026):** a **fase 1 está implementada** (migração `0003`, editor do professor em `/exercicios`, aluno em `/praticar`). As demais fases continuam como proposta.
+
+### O que a fase 1 entregou
+- **Banco:** `listas → secoes → questoes`, com o gabarito numa tabela separada que o aluno não consegue ler.
+- **Correção no servidor:** pela função `enviar_tentativa`, que ignora maiúsculas, espaços, hífens e pontuação nas pontas. Acentos contam, a menos que a questão permita ignorar. Lacunas dão nota parcial.
+- **Salvamento:** pela função `salvar_lista`, de uma vez. Ela atualiza, cria e remove seções e questões sem apagar as respostas das questões que continuam.
+- **Editor:** seis formatos (múltipla escolha, V/F, lacuna, lacuna com opções, resposta curta, completar letras); seções com texto ou "Dica"; reordenar, duplicar e apagar; pendências antes de publicar; "Testar como aluno".
+- **Aluno:** lista de exercícios com barra de progresso e melhor nota; tela de responder com a correção no estilo dos slides de "Respostas" (✓/✗, resposta esperada e dica); refazer.
+- **Visibilidade:** por enquanto, toda lista **publicada** aparece para todo aluno logado. Quando cursos e turmas voltarem, a lista passa a ser liberada por turma.
+- **Testes:** as migrações e a correção foram testadas num Postgres local (PGlite), com usuários simulados de admin e de aluno.
 
 Objetivo: o professor cria muitas listas de exercícios rápido, com ajuda de um assistente de IA, no padrão de ensino da UP English. O aluno responde com correção na hora e acompanha o próprio progresso.
 
@@ -99,6 +108,26 @@ O Opus 5.5 custa US$ 4 por milhão de tokens de entrada e US$ 20 por milhão de 
 
 São estimativas: o custo real vai aparecer nos primeiros usos. Dá para pôr um limite mensal de gasto na conta da Anthropic. Também dá para usar um modelo mais barato (Sonnet 5.5, cerca de metade do preço), se você preferir. Isso fica para medirmos.
 
+### Opções sem custo (por enquanto)
+A API do Claude não tem plano grátis. Para começar sem gastar, em ordem de recomendação:
+
+1. **"Importar do Claude" (custo zero, melhor qualidade).**
+   - Deixamos pronto um texto de pedido (com o estilo da escola e o formato JSON da lista).
+   - O professor cola esse texto no Claude que já usa (claude.ai), com o tema, o nível e, se quiser, o PDF da aula.
+   - Depois cola o resultado no botão **Importar** do editor, e a lista abre como rascunho para revisar.
+   - Funciona porque a função `salvar_lista` já recebe a lista inteira em JSON.
+   - Também posso gerar lotes de listas daqui do Claude Code, direto no banco.
+2. **Botão "Gerar com IA" usando um plano grátis de outro provedor:**
+   - **Groq:** modelos abertos, como o gpt-oss-120b. Há relatos de algo como 1.000 pedidos e 200 mil tokens por dia no plano grátis.
+   - **Google Gemini:** o plano grátis tem limites que o Google mostra no AI Studio.
+   - **Cloudflare Workers AI:** 10 mil "neurons" por dia, compartilhados entre os modelos.
+
+   Cuidados:
+   - os limites mudam com frequência e variam conforme a fonte;
+   - a qualidade em espanhol e no estilo da escola tende a ser menor;
+   - em planos grátis, o provedor pode usar o conteúdo para melhorar os modelos (confirmar nos termos). Por isso **não** mandamos respostas de alunos para esses serviços: usamos só para gerar exercícios.
+3. **Claude API (pago),** quando o volume justificar. A geração fica atrás de uma interface única na Edge Function: trocar de provedor é mudar uma configuração, não reescrever a plataforma.
+
 ### Livros, séries e músicas (para depois)
 - **Ideia:** listas temáticas, como "situações de Friends" ou "vocabulário de Harry Potter".
 - **Cuidado com direitos autorais:** não podemos copiar trechos de roteiros, livros ou letras de música. O caminho seguro é a IA criar **diálogos originais inspirados no tema**, ou o professor usar trechos curtos com a fonte citada.
@@ -181,7 +210,7 @@ Os 16 roteiros atuais em `roteiros/` viram as primeiras listas de teste, importa
 ---
 
 ## 8. Decisões em aberto
-1. **Conta da Anthropic:** quem cria, qual cartão e qual limite mensal de gasto.
+1. **IA:** começar pelo "Importar do Claude" (sem custo) e decidir depois entre um plano grátis (Groq ou Gemini) ou a API do Claude.
 2. **Refazer lista:** o aluno pode refazer à vontade, ou com limite?
 3. **Escrita livre:** a nota da IA vale direto, ou só depois que o professor confirmar?
 4. **Transcrição do listening:** o padrão é mostrar só depois de responder?

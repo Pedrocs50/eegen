@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BookMarked, BookOpen, GraduationCap, LogOut, Menu, Moon, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpen, ClipboardList, GraduationCap, PenLine, LogOut, Menu, Moon, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
@@ -13,6 +13,7 @@ const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotul
 
 const ENSINO: ItemMenu[] = [
   { para: "/professor", rotulo: "Início", icone: GraduationCap },
+  { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
   { para: "/cursos", rotulo: "Cursos", icone: BookMarked },
   { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
 ];
@@ -24,13 +25,22 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
       titulo: "Administração",
       itens: [
         { para: "/admin", rotulo: "Usuários", icone: Users },
-        { para: "/aluno", rotulo: "Visão do aluno", icone: BookOpen },
+        { para: "/praticar", rotulo: "Visão do aluno", icone: PenLine },
       ],
     },
     SOBRE,
   ],
   professor: [{ titulo: "Ensino", itens: ENSINO }, SOBRE],
-  aluno: [{ titulo: "Estudos", itens: [{ para: "/aluno", rotulo: "Meus cursos", icone: BookOpen }] }, SOBRE],
+  aluno: [
+    {
+      titulo: "Estudos",
+      itens: [
+        { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
+        { para: "/aluno", rotulo: "Meus cursos", icone: BookOpen },
+      ],
+    },
+    SOBRE,
+  ],
 };
 
 function iniciais(nome: string, email: string) {

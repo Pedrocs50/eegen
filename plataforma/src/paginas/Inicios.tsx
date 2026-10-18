@@ -34,18 +34,19 @@ function EmBreve({ icone: Icone, titulo, texto }: { icone: LucideIcon; titulo: s
   );
 }
 
-type Contagens = { cursos: number; turmas: number; alunos: number };
+type Contagens = { listas: number; cursos: number; turmas: number; alunos: number };
 
 export function InicioProfessor() {
   const { perfil } = useAuth();
   const { dados: contagens } = useConsulta<Contagens>(async () => {
-    const [cursos, turmas, alunos] = await Promise.all([
+    const [listas, cursos, turmas, alunos] = await Promise.all([
+      supabase.from("listas").select("id", { count: "exact", head: true }),
       supabase.from("cursos").select("id", { count: "exact", head: true }),
       supabase.from("turmas").select("id", { count: "exact", head: true }),
       supabase.from("matriculas").select("aluno_id", { count: "exact", head: true }),
     ]);
-    const erro = cursos.error ?? turmas.error ?? alunos.error;
-    return { data: { cursos: cursos.count ?? 0, turmas: turmas.count ?? 0, alunos: alunos.count ?? 0 }, error: erro };
+    const erro = listas.error ?? cursos.error ?? turmas.error ?? alunos.error;
+    return { data: { listas: listas.count ?? 0, cursos: cursos.count ?? 0, turmas: turmas.count ?? 0, alunos: alunos.count ?? 0 }, error: erro };
   });
 
   return (
@@ -53,12 +54,12 @@ export function InicioProfessor() {
       <CabecalhoPagina
         etiqueta="Área do professor"
         titulo={`Olá, ${primeiroNome(perfil?.nome ?? "") || "professor"}!`}
-        descricao="Monte os cursos e as aulas, abra turmas e escolha o que cada turma pode ver."
+        descricao="Crie listas de exercícios, publique para os alunos e acompanhe as respostas."
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Atalho para="/exercicios" icone={ClipboardList} titulo="Exercícios" numero={contagens?.listas} texto="Listas com múltipla escolha, V/F, lacunas e respostas curtas, com correção na hora." />
         <Atalho para="/cursos" icone={BookMarked} titulo="Cursos" numero={contagens?.cursos} texto="Cursos por idioma e nível, com as aulas dentro." />
         <Atalho para="/turmas" icone={Users} titulo="Turmas" numero={contagens?.turmas} texto={`${contagens?.alunos ?? 0} matrículas no total. Libere aulas para cada turma.`} />
-        <EmBreve icone={ClipboardList} titulo="Listas de exercícios" texto="Lacunas, múltipla escolha, por extenso e listening, com capa e áudio." />
         <EmBreve icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que a turma mais errou." />
       </div>
     </>

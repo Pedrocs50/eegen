@@ -15,12 +15,15 @@ import Cursos from "./paginas/Cursos";
 import Curso from "./paginas/Curso";
 import Turmas from "./paginas/Turmas";
 import Turma from "./paginas/Turma";
+import Listas from "./paginas/Listas";
+import EditorLista from "./paginas/EditorLista";
+import { ListasDoAluno, ResponderLista } from "./paginas/Praticar";
 import Sobre from "./paginas/Sobre";
 
 const PAGINA_INICIAL: Record<Papel, string> = {
   admin: "/professor",
   professor: "/professor",
-  aluno: "/aluno",
+  aluno: "/praticar",
 };
 
 /** Telas de quem ainda não entrou; quem já está logado vai para a sua área. */
@@ -90,6 +93,9 @@ export default function App() {
           </Route>
           <Route element={<Protegida papeis={["professor"]} />}>
             <Route path="/professor" element={<InicioProfessor />} />
+            <Route path="/exercicios" element={<Listas />} />
+            <Route path="/exercicios/nova" element={<EditorLista key="nova" />} />
+            <Route path="/exercicios/:id" element={<EditorLista />} />
             <Route path="/cursos" element={<Cursos />} />
             <Route path="/cursos/:id" element={<Curso />} />
             <Route path="/turmas" element={<Turmas />} />
@@ -100,6 +106,8 @@ export default function App() {
           </Route>
           <Route element={<Protegida papeis={["aluno", "professor"]} />}>
             <Route path="/aulas/:id" element={<AulaAluno />} />
+            <Route path="/praticar" element={<ListasDoAluno />} />
+            <Route path="/praticar/:id" element={<ResponderLista />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
