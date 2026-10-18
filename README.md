@@ -80,3 +80,12 @@ npm --prefix plataforma run dev
 ```
 
 Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professores na tela *Usuários*.
+
+## Status das partes
+
+| Parte | Status |
+|---|---|
+| Login, cadastro, papéis, tela de usuários | Pronto |
+| Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
+| Cursos, aulas e turmas | **Em espera**: veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
+| Exercícios | **Foco atual** |
