@@ -1,0 +1,38 @@
+TITLE: At the Supermarket
+LEVEL: Beginner (A1)
+
+AUDIO SCRIPT
+
+NORA: Hi, Ben. What do we need?
+BEN: We need bread and eggs.
+NORA: Do we need milk?
+BEN: Yes, please. Two bottles.
+NORA: Okay. The bread is here.
+BEN: Great. The eggs are next to the cheese.
+NORA: I can see them.
+BEN: Can we get apples too?
+NORA: Yes. Let's get six apples.
+BEN: Perfect. That is all.
+
+TRUE OR FALSE
+
+[T] They need two bottles of milk.
+[F] The eggs are next to the bread.
+[T] They decide to buy six apples.
+
+MULTIPLE CHOICE
+
+? What do Nora and Ben need first?
+* Bread and eggs
+- Fish and rice
+- Coffee and tea
+
+? Where are the eggs?
+* Next to the cheese
+- Near the milk
+- By the apples
+
+? How many apples do they get?
+* Six
+- Two
+- Ten

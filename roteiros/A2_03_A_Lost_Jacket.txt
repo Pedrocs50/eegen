@@ -1,0 +1,39 @@
+TITLE: A Lost Jacket
+LEVEL: Elementary (A2)
+
+AUDIO SCRIPT
+
+MAYA: Excuse me, I think I left my jacket here yesterday.
+MANAGER: Can you describe it?
+MAYA: It is black, with a small red button near the pocket.
+MANAGER: Was there anything inside?
+MAYA: Yes, my train card and a pair of gloves.
+MANAGER: Let me check our lost-property box.
+MAYA: Thank you.
+MANAGER: Is this it?
+MAYA: Yes, that is my jacket. I am so relieved.
+MANAGER: Please write your name and phone number here.
+MAYA: No problem.
+
+TRUE OR FALSE
+
+[T] Maya lost her jacket yesterday.
+[F] The jacket is blue.
+[T] Her train card was inside the jacket.
+
+MULTIPLE CHOICE
+
+? What colour is Maya’s jacket?
+* Black
+- Blue
+- Red
+
+? What is near the pocket?
+* A red button
+- A name tag
+- A zip
+
+? What must Maya write down?
+* Her name and phone number
+- Her address and age
+- Her email password

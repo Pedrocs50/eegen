@@ -1,0 +1,36 @@
+TITLE: Negotiating a Publishing Contract
+LEVEL: Advanced (C1)
+
+AUDIO SCRIPT
+
+EDITOR: We are enthusiastic about the manuscript, but the first print run needs to be modest. The market for this subject is specialised.
+AUTHOR: I understand the risk, although a small print run could make the book harder to find when reviews appear.
+EDITOR: That is why we propose a simultaneous digital release. If demand exceeds expectations, we can reprint quickly without asking readers to wait.
+AUTHOR: I would also like the contract to protect my right to use short extracts in my teaching.
+EDITOR: That is reasonable, provided the extracts are clearly credited and do not replace the book itself.
+AUTHOR: One final point: the proposed deadline is ambitious because I am still checking several sources.
+EDITOR: We would rather receive a carefully verified manuscript in September than a rushed one in July. Let us amend the schedule.
+AUTHOR: In that case, I am happy to move forward.
+
+TRUE OR FALSE
+
+[F] The editor wants a very large first print run.
+[T] The contract will allow credited extracts for teaching.
+[F] The editor prefers a rushed July manuscript.
+
+MULTIPLE CHOICE
+
+? Why does the editor propose a modest print run?
+* The subject has a specialised market
+- The author requested it
+- Paper is unavailable
+
+? What would happen if demand increases?
+* The book could be reprinted quickly
+- The digital edition would end
+- The contract would be cancelled
+
+? Why is the author concerned about the deadline?
+* Sources still need checking
+- The book is already late
+- The editor is unavailable

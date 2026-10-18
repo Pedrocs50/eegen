@@ -1,0 +1,37 @@
+TITLE: Changing a Hotel Booking
+LEVEL: Pre-Intermediate (B1)
+
+AUDIO SCRIPT
+
+AGENT: Good afternoon, Harbour Hotel. How may I assist you?
+OLIVER: I have a booking for Friday, but my flight has been cancelled.
+AGENT: I am sorry to hear that. Would you like to move the booking to Saturday?
+OLIVER: Yes, if possible. I will arrive late, probably around ten in the evening.
+AGENT: That is fine. Your room will be available until midnight.
+OLIVER: Is there an extra charge for changing the date?
+AGENT: No, because you called more than twenty-four hours before arrival.
+OLIVER: Excellent. Could you send me the new confirmation by email?
+AGENT: Certainly. I will send it in the next few minutes.
+
+TRUE OR FALSE
+
+[T] Oliver’s flight was cancelled.
+[F] He will arrive before six in the evening.
+[F] The hotel charges him to change the date.
+
+MULTIPLE CHOICE
+
+? Which day does Oliver move his booking to?
+* Saturday
+- Thursday
+- Sunday
+
+? Until when will the room be available?
+* Midnight
+- Ten o’clock
+- Six o’clock
+
+? How will Oliver receive the confirmation?
+* By email
+- By post
+- By text message

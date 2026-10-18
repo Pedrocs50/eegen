@@ -1,0 +1,39 @@
+TITLE: Greetings at the Cafe
+LEVEL: Below Beginner (Pre-A1)
+
+AUDIO SCRIPT
+
+MIA: Hello.
+SAM: Hello.
+MIA: Coffee?
+SAM: Yes, please.
+MIA: Small or big?
+SAM: Small, please.
+MIA: Milk?
+SAM: Yes, milk please.
+MIA: Here you are.
+SAM: Thank you.
+MIA: You are welcome.
+
+TRUE OR FALSE
+
+[T] Sam orders a small coffee.
+[F] Sam does not want milk.
+[T] Mia gives Sam his drink.
+
+MULTIPLE CHOICE
+
+? What does Sam order?
+* Coffee
+- Tea
+- Juice
+
+? What size does Sam choose?
+* Small
+- Big
+- Medium
+
+? Who says ‘Thank you’?
+* Sam
+- Mia
+- Nobody

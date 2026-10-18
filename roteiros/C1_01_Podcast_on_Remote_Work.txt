@@ -1,0 +1,36 @@
+TITLE: Podcast on Remote Work
+LEVEL: Advanced (C1)
+
+AUDIO SCRIPT
+
+HOST: Your report argues that remote work should remain flexible rather than mandatory. Why?
+DR LEE: Because the evidence is mixed. Many employees value autonomy and avoid commuting, yet some teams lose the informal contact that helps newer staff learn.
+HOST: So a fully remote policy is not automatically more productive?
+DR LEE: Exactly. Productivity depends less on location than on clear objectives, appropriate tools, and managers who trust people without monitoring every minor activity.
+HOST: What is the most common mistake organisations make?
+DR LEE: They copy another company's policy without asking what their own employees actually need. A small design team and a large call centre may require entirely different arrangements.
+HOST: What would you recommend to a company starting from scratch?
+DR LEE: Run a short trial, collect both performance data and staff feedback, then adjust the policy rather than treating the first version as permanent.
+
+TRUE OR FALSE
+
+[F] Dr Lee thinks remote work should always be compulsory.
+[T] Clear objectives are more important than location alone.
+[F] Dr Lee recommends treating the first policy as permanent.
+
+MULTIPLE CHOICE
+
+? What can newer staff lose in fully remote teams?
+* Informal contact
+- Their salaries
+- Their equipment
+
+? What mistake do organisations make?
+* Copying another company’s policy
+- Collecting feedback
+- Setting clear objectives
+
+? What should a company do first?
+* Run a short trial
+- Close its office
+- Buy more computers

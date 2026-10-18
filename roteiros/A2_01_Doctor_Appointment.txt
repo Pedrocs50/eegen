@@ -1,0 +1,38 @@
+TITLE: Doctor Appointment
+LEVEL: Elementary (A2)
+
+AUDIO SCRIPT
+
+RECEPTIONIST: Good morning. How can I help you?
+DAVID: I would like an appointment with Dr Patel.
+RECEPTIONIST: Is it urgent?
+DAVID: No, but I have had a sore throat for three days.
+RECEPTIONIST: Dr Patel is free tomorrow at eleven.
+DAVID: Can I come after work instead?
+RECEPTIONIST: She has an appointment at four thirty.
+DAVID: That is perfect.
+RECEPTIONIST: Please bring your health card.
+DAVID: I will. Thank you.
+
+TRUE OR FALSE
+
+[T] David has had a sore throat for three days.
+[F] David chooses an appointment at eleven tomorrow.
+[T] He needs to bring his health card.
+
+MULTIPLE CHOICE
+
+? Who does David want to see?
+* Dr Patel
+- Dr Green
+- A dentist
+
+? What time is David’s appointment?
+* Four thirty
+- Eleven
+- Six
+
+? Why does David change the first appointment?
+* He wants to come after work
+- It is too urgent
+- He is travelling

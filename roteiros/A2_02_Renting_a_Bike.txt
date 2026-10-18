@@ -1,0 +1,38 @@
+TITLE: Renting a Bike
+LEVEL: Elementary (A2)
+
+AUDIO SCRIPT
+
+CLERK: Welcome to Riverside Bikes. How long do you need the bike?
+KIM: For one day, please.
+CLERK: Would you like a helmet as well?
+KIM: Yes, and a map of the river path.
+CLERK: Certainly. The blue route is easy and takes about an hour.
+KIM: That sounds nice. How much is the rental?
+CLERK: Fifteen euros, including the helmet.
+KIM: Can I pay by card?
+CLERK: Of course. Please return the bike before six o'clock.
+KIM: I will. Thanks for your help.
+
+TRUE OR FALSE
+
+[T] Kim rents a bike for one day.
+[F] The blue route is difficult.
+[T] The helmet is included in the price.
+
+MULTIPLE CHOICE
+
+? What extra item does Kim request?
+* A helmet
+- A tent
+- A lock only
+
+? How much is the rental?
+* Fifteen euros
+- Five euros
+- Twenty-five euros
+
+? When must Kim return the bike?
+* Before six o’clock
+- Before noon
+- The next morning

@@ -1,0 +1,37 @@
+TITLE: After Work
+LEVEL: Beginner (A1)
+
+AUDIO SCRIPT
+
+JAMES: Hi, Ana. Are you busy after work?
+ANA: No, I am free today.
+JAMES: Do you want to play tennis?
+ANA: Sorry, I do not play tennis.
+JAMES: No problem. Do you like pizza?
+ANA: Yes, I love pizza.
+JAMES: Great. Let's meet at Pizza House at seven.
+ANA: Seven is good. See you there.
+JAMES: See you later.
+
+TRUE OR FALSE
+
+[T] Ana is free after work.
+[F] Ana loves playing tennis.
+[T] They meet at seven.
+
+MULTIPLE CHOICE
+
+? What does James first suggest?
+* Playing tennis
+- Going shopping
+- Watching a film
+
+? What food does Ana like?
+* Pizza
+- Salad
+- Soup
+
+? Where will they meet?
+* Pizza House
+- The tennis club
+- Ana’s office

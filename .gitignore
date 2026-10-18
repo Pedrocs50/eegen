@@ -1,0 +1,7 @@
+# Binários e arquivos gerados (refeitos com: py gerador.py)
+ffmpeg.exe
+audios/
+planilhas/
+tts_*/
+__pycache__/
+*.pyc

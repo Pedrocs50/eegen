@@ -1,0 +1,36 @@
+TITLE: The Group Project
+LEVEL: Pre-Intermediate (B1)
+
+AUDIO SCRIPT
+
+TOM: Have you finished your part of the science project?
+SARA: Almost. I have researched the causes of air pollution, but I still need to make the slides.
+TOM: I can help you with that after lunch.
+SARA: Thanks. Did Ben send the survey results?
+TOM: Not yet. He said his internet stopped working last night.
+SARA: We need them before Friday, or we cannot finish the report.
+TOM: I will message him now and ask for them by tomorrow morning.
+SARA: Good plan. Then we can practise our presentation on Thursday.
+
+TRUE OR FALSE
+
+[F] Sara has completed the slides.
+[T] Ben had an internet problem.
+[T] They plan to practise on Thursday.
+
+MULTIPLE CHOICE
+
+? What has Sara researched?
+* The causes of air pollution
+- The history of science
+- School rules
+
+? What information is missing?
+* The survey results
+- The slides
+- The project title
+
+? When does Tom want the results?
+* Tomorrow morning
+- Friday afternoon
+- Next week

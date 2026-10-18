@@ -1,0 +1,38 @@
+TITLE: My New Class
+LEVEL: Below Beginner (Pre-A1)
+
+AUDIO SCRIPT
+
+TEACHER: Hello. I am Ms Green.
+LUCAS: Hello. I am Lucas.
+TEACHER: Are you new?
+LUCAS: Yes, I am.
+TEACHER: Welcome, Lucas.
+LUCAS: Thank you.
+TEACHER: This is your book.
+LUCAS: My book?
+TEACHER: Yes. It is blue.
+LUCAS: Great. Thank you.
+
+TRUE OR FALSE
+
+[T] Lucas is new in the class.
+[F] The book is red.
+[T] Ms Green is the teacher.
+
+MULTIPLE CHOICE
+
+? What is the teacher’s name?
+* Ms Green
+- Ms Brown
+- Ms Lucas
+
+? What colour is the book?
+* Blue
+- Red
+- Green
+
+? Who receives a book?
+* Lucas
+- Ms Green
+- A parent

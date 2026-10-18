@@ -1,0 +1,36 @@
+TITLE: The Train Service Debate
+LEVEL: Advanced (C1)
+
+AUDIO SCRIPT
+
+MODERATOR: Critics say the proposed night train is too expensive for the number of passengers it will carry. How do you respond?
+COUNCILLOR: The estimate looks only at ticket sales. It ignores reduced road congestion, safer journeys for late-shift workers, and the fact that reliable transport can support local businesses.
+MODERATOR: But those benefits are difficult to measure, are they not?
+COUNCILLOR: They are not as immediate as fare revenue, certainly, but that does not make them imaginary. We can compare accident rates and traffic levels before and after the service begins.
+MODERATOR: Would you cancel the plan if demand remained low after a year?
+COUNCILLOR: I would revise the timetable first. A service that runs at inconvenient times may appear unpopular even when the underlying need is real.
+MODERATOR: So you favour evaluation, but not a single measure of success.
+COUNCILLOR: Precisely. Public transport should be assessed through its wider social effect as well as its balance sheet.
+
+TRUE OR FALSE
+
+[F] The estimate includes reduced road congestion.
+[T] The councillor would revise the timetable before cancelling the plan.
+[F] He evaluates public transport only by fare revenue.
+
+MULTIPLE CHOICE
+
+? Which group may benefit from the night train?
+* Late-shift workers
+- Only tourists
+- Schoolchildren at noon
+
+? Why might a service appear unpopular?
+* Its times may be inconvenient
+- Tickets are free
+- Roads are empty
+
+? What should be included in assessment?
+* Wider social effect
+- Only ticket sales
+- Only staff salaries

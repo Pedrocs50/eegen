@@ -1,0 +1,39 @@
+TITLE: Bus to the Park
+LEVEL: Beginner (A1)
+
+AUDIO SCRIPT
+
+DRIVER: Hello. Where are you going?
+ELLA: To the park, please.
+DRIVER: The city park?
+ELLA: Yes, the city park.
+DRIVER: Take bus number twelve.
+ELLA: Where does it stop?
+DRIVER: It stops in front of the park.
+ELLA: How much is the ticket?
+DRIVER: Two pounds.
+ELLA: Here you are.
+DRIVER: Thank you. The bus leaves at ten.
+
+TRUE OR FALSE
+
+[T] Ella wants to go to the city park.
+[F] She needs bus number twenty.
+[T] The ticket costs two pounds.
+
+MULTIPLE CHOICE
+
+? Which bus should Ella take?
+* Number twelve
+- Number ten
+- Number two
+
+? Where does the bus stop?
+* In front of the park
+- At the station
+- Behind the school
+
+? When does the bus leave?
+* At ten
+- At twelve
+- At two
