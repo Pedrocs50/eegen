@@ -18,6 +18,8 @@ import {
   type TipoEstimulo,
 } from "../lib/exercicios";
 import EditorQuestao from "../componentes/EditorQuestao";
+import PainelClaude from "../componentes/PainelClaude";
+import type { ResultadoImportacao } from "../lib/importar";
 import { Aviso, Botao, Etiqueta, TextoCarregando } from "../componentes/ui";
 
 const CONTROLE =
@@ -63,6 +65,8 @@ export default function EditorLista() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
+  // Aberto de início só nas listas novas, que é quando gerar com o Claude mais ajuda.
+  const [painelClaude, setPainelClaude] = useState(nova);
 
   useEffect(() => {
     if (nova) return;
@@ -117,6 +121,25 @@ export default function EditorLista() {
       else nova.add(idQuestao);
       return nova;
     });
+
+  function importar({ dados, secoes, avisos, totalQuestoes }: ResultadoImportacao) {
+    if (!lista) return;
+    const vazia = !lista.secoes.some((s) => s.questoes.length > 0 || s.estimulo.texto);
+    atualizar({
+      ...lista,
+      titulo: lista.titulo || dados.titulo,
+      tema: lista.tema || dados.tema,
+      descricao: lista.descricao || dados.descricao,
+      // Numa lista vazia, idioma e nível vêm da resposta; numa lista em andamento, os do topo continuam.
+      idioma: vazia && dados.idioma ? dados.idioma : lista.idioma,
+      nivel: vazia && dados.nivel ? dados.nivel : lista.nivel,
+      origem: "claude",
+      secoes: vazia ? secoes : [...lista.secoes, ...secoes],
+    });
+    setPainelClaude(false);
+    const extra = avisos.length ? ` Atenção: ${avisos.join(" ")}` : "";
+    setAviso(`Importadas ${totalQuestoes} questões em ${secoes.length} seções. Revise e clique em Salvar.${extra}`);
+  }
 
   async function salvar(status = lista!.status): Promise<boolean> {
     if (!lista) return false;
@@ -210,6 +233,8 @@ export default function EditorLista() {
           />
         </label>
       </section>
+
+      <PainelClaude lista={lista} aberto={painelClaude} aoAlternar={() => setPainelClaude(!painelClaude)} aoImportar={importar} />
 
       {erro && <div className="mt-4"><Aviso>{erro}</Aviso></div>}
       {aviso && <div className="mt-4"><Aviso tipo="sucesso">{aviso}</Aviso></div>}

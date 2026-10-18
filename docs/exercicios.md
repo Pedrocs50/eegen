@@ -108,10 +108,23 @@ O Opus 5.5 custa US$ 4 por milhão de tokens de entrada e US$ 20 por milhão de 
 
 São estimativas: o custo real vai aparecer nos primeiros usos. Dá para pôr um limite mensal de gasto na conta da Anthropic. Também dá para usar um modelo mais barato (Sonnet 5.5, cerca de metade do preço), se você preferir. Isso fica para medirmos.
 
+### Como usar o "Criar com o Claude" (já disponível)
+1. Em **Exercícios → Nova lista**, escolha o idioma e o nível no topo. O painel "Criar com o Claude" já vem aberto.
+2. Preencha o tema, o foco (opcional) e quantas questões quer de cada tipo. Marque "Dica", "texto de leitura" ou "vou anexar o PDF da aula", se for o caso.
+3. Clique em **Copiar pedido** e depois em **Abrir o Claude**. Se marcou o PDF, anexe o arquivo no Claude. Cole o pedido e envie.
+4. Copie a resposta inteira do Claude (pode vir com texto em volta) e cole no **Passo 2**. Clique em **Importar para a lista**.
+5. Revise as questões (pendências aparecem com ⚠), clique em **Testar como aluno** e, por fim, em **Publicar**.
+
+Detalhes:
+- O formato de importação está em `plataforma/src/lib/importar.ts` (`EXEMPLO_IMPORTACAO`); o texto do pedido está em `plataforma/src/lib/pedidoClaude.ts`.
+- O conversor tolera bloco ```json, texto antes e depois, vírgula sobrando e aspas curvas.
+- Questões de formato desconhecido são puladas com aviso.
+- Numa lista vazia, a importação preenche título, tema, frase, idioma e nível. Numa lista com questões, as seções entram no final.
+
 ### Opções sem custo (por enquanto)
 A API do Claude não tem plano grátis. Para começar sem gastar, em ordem de recomendação:
 
-1. **"Importar do Claude" (custo zero, melhor qualidade).**
+1. **"Importar do Claude" (custo zero, melhor qualidade). ✅ Implementado: painel "Criar com o Claude" no editor.**
    - Deixamos pronto um texto de pedido (com o estilo da escola e o formato JSON da lista).
    - O professor cola esse texto no Claude que já usa (claude.ai), com o tema, o nível e, se quiser, o PDF da aula.
    - Depois cola o resultado no botão **Importar** do editor, e a lista abre como rascunho para revisar.
