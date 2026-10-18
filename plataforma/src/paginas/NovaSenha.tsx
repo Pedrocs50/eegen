@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
-import { Aviso, Botao, Campo, CartaoAuth } from "../componentes/ui";
+import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
 
 export default function NovaSenha() {
   const { sessao } = useAuth();
@@ -12,10 +12,10 @@ export default function NovaSenha() {
 
   if (!sessao) {
     return (
-      <CartaoAuth titulo="Link inválido" rodape={<Link to="/entrar" className="font-semibold text-white underline">Voltar para o login</Link>}>
+      <CartaoAuth titulo="Link inválido" rodape={<LinkTexto para="/entrar">Voltar para o login</LinkTexto>}>
         <Aviso>
           Este link expirou ou já foi usado. Peça um novo em{" "}
-          <Link to="/esqueci-senha" className="font-semibold underline">Esqueci minha senha</Link>.
+          <Link to="/esqueci-senha" className="font-semibold text-erro underline">Esqueci minha senha</Link>.
         </Aviso>
       </CartaoAuth>
     );

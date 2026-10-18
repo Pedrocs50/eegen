@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <title>UP English · Exercícios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,700;1,400&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <title>UP English</title>
+    <script>
+      // Aplica o tema antes de desenhar a página, para não piscar o claro no modo escuro.
+      try {
+        if (localStorage.getItem("tema") === "escuro") document.documentElement.classList.add("dark");
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

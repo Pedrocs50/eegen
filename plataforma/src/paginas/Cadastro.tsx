@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
 import { supabase, traduzirErro } from "../lib/supabase";
-import { Aviso, Botao, Campo, CartaoAuth } from "../componentes/ui";
+import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
 
 export default function Cadastro() {
   const [erro, setErro] = useState("");
@@ -34,11 +33,11 @@ export default function Cadastro() {
 
   if (emailEnviado) {
     return (
-      <CartaoAuth titulo="Confirme seu e-mail" rodape={<Link to="/entrar" className="font-semibold text-white underline">Voltar para o login</Link>}>
+      <CartaoAuth titulo="Confirme seu e-mail" rodape={<LinkTexto para="/entrar">Voltar para o login</LinkTexto>}>
         <Aviso tipo="sucesso">
           Enviamos um link de confirmação para <strong>{emailEnviado}</strong>. Abra o e-mail e clique no link para ativar sua conta.
         </Aviso>
-        <p className="mt-4 text-sm text-slate-600">Não chegou? Confira a caixa de spam.</p>
+        <p className="mt-4 text-sm text-suave">Não chegou? Confira a caixa de spam.</p>
       </CartaoAuth>
     );
   }
@@ -47,7 +46,7 @@ export default function Cadastro() {
     <CartaoAuth
       titulo="Criar conta"
       subtitulo="Depois do cadastro, confirme seu e-mail para entrar."
-      rodape={<>Já tem conta? <Link to="/entrar" className="font-semibold text-white underline">Entrar</Link></>}
+      rodape={<>Já tem conta? <LinkTexto para="/entrar">Entrar</LinkTexto></>}
     >
       <form onSubmit={enviar} className="space-y-4">
         {erro && <Aviso>{erro}</Aviso>}

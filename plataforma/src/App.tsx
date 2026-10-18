@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router";
 import { ProvedorAuth, useAuth } from "./lib/auth";
 import type { Papel } from "./lib/supabase";
 import Painel from "./componentes/Painel";
-import { Aviso, Botao, CartaoAuth, Carregando } from "./componentes/ui";
+import { Aviso, Botao, CartaoAuth, Carregando, Marca } from "./componentes/ui";
 import Entrar from "./paginas/Entrar";
 import Cadastro from "./paginas/Cadastro";
 import EsqueciSenha from "./paginas/EsqueciSenha";
 import NovaSenha from "./paginas/NovaSenha";
 import Admin from "./paginas/Admin";
 import { InicioAluno, InicioProfessor } from "./paginas/Inicios";
+import Sobre from "./paginas/Sobre";
 
 const PAGINA_INICIAL: Record<Papel, string> = {
   admin: "/admin",
@@ -43,6 +44,24 @@ function Protegida({ papeis }: { papeis: Papel[] }) {
   return <Painel />;
 }
 
+/** "Sobre a professora" abre dentro do painel para quem está logado e numa página simples para visitantes. */
+function PaginaSobre() {
+  const { sessao, perfil, carregando } = useAuth();
+  if (carregando) return <Carregando />;
+  if (sessao && perfil) return <Painel><Sobre /></Painel>;
+  return (
+    <div className="min-h-dvh">
+      <header className="flex items-center justify-between border-b border-borda bg-lateral px-4 py-3 sm:px-8">
+        <Link to="/entrar" aria-label="UP English, página inicial"><Marca /></Link>
+        <Link to="/entrar" className="rounded-xl bg-marca px-4 py-2 text-sm font-semibold text-sobre-marca hover:bg-marca-hover">Entrar</Link>
+      </header>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
+        <Sobre />
+      </main>
+    </div>
+  );
+}
+
 function Inicio() {
   const { sessao, perfil, carregando } = useAuth();
   if (carregando) return <Carregando />;
@@ -60,6 +79,7 @@ export default function App() {
           <Route path="/cadastro" element={<SoDeslogado><Cadastro /></SoDeslogado>} />
           <Route path="/esqueci-senha" element={<SoDeslogado><EsqueciSenha /></SoDeslogado>} />
           <Route path="/nova-senha" element={<NovaSenha />} />
+          <Route path="/sobre" element={<PaginaSobre />} />
           <Route element={<Protegida papeis={["admin"]} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>

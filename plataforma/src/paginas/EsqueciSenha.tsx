@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
 import { supabase, traduzirErro } from "../lib/supabase";
-import { Aviso, Botao, Campo, CartaoAuth } from "../componentes/ui";
+import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
 
 export default function EsqueciSenha() {
   const [erro, setErro] = useState("");
@@ -25,7 +24,7 @@ export default function EsqueciSenha() {
     <CartaoAuth
       titulo="Recuperar senha"
       subtitulo="Enviaremos um link para você criar uma senha nova."
-      rodape={<Link to="/entrar" className="font-semibold text-white underline">Voltar para o login</Link>}
+      rodape={<LinkTexto para="/entrar">Voltar para o login</LinkTexto>}
     >
       {enviado ? (
         <Aviso tipo="sucesso">Se existir uma conta com esse e-mail, o link já está a caminho. Confira também o spam.</Aviso>

@@ -1,56 +1,151 @@
-import { NavLink, Outlet } from "react-router";
+import { useEffect, useState, type ReactNode } from "react";
+import { NavLink, Outlet, useLocation } from "react-router";
+import { BookOpen, GraduationCap, LogOut, Menu, Moon, Sun, UserRound, Users, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
+import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
 
-const LINKS: Record<Papel, { para: string; rotulo: string }[]> = {
+type ItemMenu = { para: string; rotulo: string; icone: LucideIcon };
+type SecaoMenu = { titulo: string; itens: ItemMenu[] };
+
+const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotulo: "Sobre a professora", icone: UserRound }] };
+
+const MENUS: Record<Papel, SecaoMenu[]> = {
   admin: [
-    { para: "/admin", rotulo: "Usuários" },
-    { para: "/professor", rotulo: "Área do professor" },
-    { para: "/aluno", rotulo: "Visão do aluno" },
+    { titulo: "Administração", itens: [{ para: "/admin", rotulo: "Usuários", icone: Users }] },
+    {
+      titulo: "Ensino",
+      itens: [
+        { para: "/professor", rotulo: "Área do professor", icone: GraduationCap },
+        { para: "/aluno", rotulo: "Visão do aluno", icone: BookOpen },
+      ],
+    },
+    SOBRE,
   ],
-  professor: [{ para: "/professor", rotulo: "Início" }],
-  aluno: [{ para: "/aluno", rotulo: "Meus cursos" }],
+  professor: [{ titulo: "Ensino", itens: [{ para: "/professor", rotulo: "Início", icone: GraduationCap }] }, SOBRE],
+  aluno: [{ titulo: "Estudos", itens: [{ para: "/aluno", rotulo: "Meus cursos", icone: BookOpen }] }, SOBRE],
 };
 
-/** Moldura das áreas logadas: barra superior com navegação e conta. */
-export default function Painel() {
+function iniciais(nome: string, email: string) {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return email.slice(0, 2).toUpperCase();
+  return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : "")).toUpperCase();
+}
+
+function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
   const { perfil, sair } = useAuth();
+  const { tema, alternar } = useTema();
   if (!perfil) return null;
 
   return (
-    <div className="min-h-dvh">
-      <header className="bg-marinho-800 text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <Marca claro />
-          <nav className="order-last flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto" aria-label="Principal">
-            {LINKS[perfil.papel].map((link) => (
-              <NavLink
-                key={link.para}
-                to={link.para}
-                end
-                className={({ isActive }) =>
-                  `whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-semibold ${isActive ? "bg-white/15 text-white" : "text-marinho-100 hover:bg-white/10"}`
-                }
-              >
-                {link.rotulo}
-              </NavLink>
-            ))}
-          </nav>
-          <div className="ml-auto flex items-center gap-3 text-sm">
-            <span className="hidden text-right leading-tight sm:block">
-              <span className="block font-semibold">{perfil.nome || perfil.email}</span>
-              <span className="block text-xs text-marinho-100">{NOMES_PAPEIS[perfil.papel]}</span>
-            </span>
-            <button onClick={sair} className="rounded-lg border border-white/30 px-3 py-1.5 font-semibold hover:bg-white/10">
-              Sair
-            </button>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between px-5 py-5">
+        <Marca />
+        {aoFechar && (
+          <button onClick={aoFechar} aria-label="Fechar menu" className="grid size-10 place-items-center rounded-xl text-suave hover:bg-fundo lg:hidden">
+            <X className="size-5" />
+          </button>
+        )}
+      </div>
+
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-2" aria-label="Principal">
+        {MENUS[perfil.papel].map((secao) => (
+          <div key={secao.titulo}>
+            <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">{secao.titulo}</p>
+            <ul className="space-y-1">
+              {secao.itens.map(({ para, rotulo, icone: Icone }) => (
+                <li key={para}>
+                  <NavLink
+                    to={para}
+                    end
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 text-sm transition ${
+                        isActive
+                          ? "border-marca bg-destaque-suave font-semibold text-marca"
+                          : "border-transparent text-suave hover:bg-fundo hover:text-texto"
+                      }`
+                    }
+                  >
+                    <Icone className="size-5 shrink-0" />
+                    {rotulo}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
           </div>
+        ))}
+      </nav>
+
+      <div className="space-y-3 border-t border-borda p-3">
+        <button
+          onClick={alternar}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-suave hover:bg-fundo hover:text-texto"
+        >
+          {tema === "claro" ? <Moon className="size-5" /> : <Sun className="size-5" />}
+          {tema === "claro" ? "Tema escuro" : "Tema claro"}
+        </button>
+        <div className="flex items-center gap-3 rounded-xl bg-fundo p-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-marca text-sm font-bold text-sobre-marca">
+            {iniciais(perfil.nome, perfil.email)}
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-sm font-semibold">{perfil.nome || perfil.email}</span>
+            <span className="block text-xs text-suave">{NOMES_PAPEIS[perfil.papel]}</span>
+          </span>
+          <button onClick={sair} aria-label="Sair" title="Sair" className="grid size-9 shrink-0 place-items-center rounded-lg text-suave hover:bg-superficie hover:text-erro">
+            <LogOut className="size-5" />
+          </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Moldura das áreas logadas: menu lateral fixo no computador e gaveta no celular. */
+export default function Painel({ children }: { children?: ReactNode }) {
+  const [aberto, setAberto] = useState(false);
+  const local = useLocation();
+
+  useEffect(() => setAberto(false), [local.pathname]);
+
+  return (
+    <div className="min-h-dvh lg:pl-72">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-borda bg-lateral lg:block">
+        <ConteudoMenu />
+      </aside>
+
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-borda bg-lateral/95 px-4 py-3 backdrop-blur lg:hidden">
+        <Marca />
+        <button onClick={() => setAberto(true)} aria-label="Abrir menu" aria-expanded={aberto} className="grid size-10 place-items-center rounded-xl text-texto hover:bg-fundo">
+          <Menu className="size-6" />
+        </button>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <Outlet />
-      </main>
+
+      {aberto && (
+        <div className="fixed inset-0 z-30 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <button className="absolute inset-0 bg-marinho-900/50" aria-label="Fechar menu" onClick={() => setAberto(false)} />
+          <aside className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-lateral shadow-xl">
+            <ConteudoMenu aoFechar={() => setAberto(false)} />
+          </aside>
+        </div>
+      )}
+
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8 lg:py-10">{children ?? <Outlet />}</main>
+    </div>
+  );
+}
+
+/** Cabeçalho padrão das páginas internas: etiqueta pequena, título serifado e descrição. */
+export function CabecalhoPagina({ etiqueta, titulo, descricao, acoes }: { etiqueta?: string; titulo: string; descricao?: string; acoes?: ReactNode }) {
+  return (
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        {etiqueta && <p className="text-[11px] font-bold tracking-[0.14em] text-destaque uppercase">{etiqueta}</p>}
+        <h1 className="mt-1 text-3xl font-bold text-marca">{titulo}</h1>
+        {descricao && <p className="mt-2 max-w-2xl text-suave">{descricao}</p>}
+      </div>
+      {acoes}
     </div>
   );
 }

@@ -1,16 +1,93 @@
 @import "tailwindcss";
 
+/* Tema escuro ativado pela classe .dark no <html> (ver lib/tema.tsx). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Cores da UP English, tiradas dos materiais de aula.
+ * As semânticas (fundo, texto, marca...) mudam com o tema; marinho e azul são fixas.
+ */
+:root {
+  --c-fundo: #f5f4f0;
+  --c-superficie: #ffffff;
+  --c-lateral: #ffffff;
+  --c-texto: #1b2a3f;
+  --c-suave: #5b6878;
+  --c-borda: #e4e1d8;
+  --c-marca: #1d3a5e;
+  --c-marca-hover: #284b78;
+  --c-sobre-marca: #ffffff;
+  --c-destaque: #336fae; /* #5291cc dos slides, escurecido para dar contraste em texto */
+  --c-destaque-suave: #e8f0f9;
+  --c-creme: #f5f0e1;
+  --c-coral: #b85f5e;
+  --c-coral-suave: #f8e7e6;
+  --c-sucesso: #2e7d5b;
+  --c-sucesso-suave: #e3f2ea;
+  --c-erro: #c2414a;
+  --c-erro-suave: #fbe7e8;
+  color-scheme: light;
+}
+
+.dark {
+  --c-fundo: #0e1928;
+  --c-superficie: #15243a;
+  --c-lateral: #122033;
+  --c-texto: #e6ecf3;
+  --c-suave: #9aaabd;
+  --c-borda: #26384f;
+  --c-marca: #7ea7d9;
+  --c-marca-hover: #9bbce3;
+  --c-sobre-marca: #0e1928;
+  --c-destaque: #7ea7d9;
+  --c-destaque-suave: #1b3150;
+  --c-creme: #1a2b42;
+  --c-coral: #e49897;
+  --c-coral-suave: #3a2630;
+  --c-sucesso: #6fcb9f;
+  --c-sucesso-suave: #163528;
+  --c-erro: #f08a90;
+  --c-erro-suave: #3b1e24;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-fundo: var(--c-fundo);
+  --color-superficie: var(--c-superficie);
+  --color-lateral: var(--c-lateral);
+  --color-texto: var(--c-texto);
+  --color-suave: var(--c-suave);
+  --color-borda: var(--c-borda);
+  --color-marca: var(--c-marca);
+  --color-marca-hover: var(--c-marca-hover);
+  --color-sobre-marca: var(--c-sobre-marca);
+  --color-destaque: var(--c-destaque);
+  --color-destaque-suave: var(--c-destaque-suave);
+  --color-creme: var(--c-creme);
+  --color-coral: var(--c-coral);
+  --color-coral-suave: var(--c-coral-suave);
+  --color-sucesso: var(--c-sucesso);
+  --color-sucesso-suave: var(--c-sucesso-suave);
+  --color-erro: var(--c-erro);
+  --color-erro-suave: var(--c-erro-suave);
+}
+
 @theme {
-  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
-  --color-marinho-50: #eef3f9;
-  --color-marinho-100: #d5e1ef;
-  --color-marinho-600: #2c5285;
-  --color-marinho-700: #24466f;
-  --color-marinho-800: #1f3a60;
-  --color-marinho-900: #162a46;
-  --color-coral-500: #e85a5a;
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  /* Georgia é a fonte dos títulos dos materiais; Gelasio é a versão web dela. */
+  --font-serif: Georgia, "Gelasio", ui-serif, serif;
+  --color-marinho-800: #1d3a5e;
+  --color-marinho-900: #142b47;
+  --color-azul-300: #7ea7d9;
+  --color-azul-500: #5291cc;
 }
 
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
+  @apply bg-fundo font-sans text-texto antialiased;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-serif;
 }
