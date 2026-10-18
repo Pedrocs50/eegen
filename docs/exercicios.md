@@ -128,6 +128,28 @@ A API do Claude não tem plano grátis. Para começar sem gastar, em ordem de re
    - em planos grátis, o provedor pode usar o conteúdo para melhorar os modelos (confirmar nos termos). Por isso **não** mandamos respostas de alunos para esses serviços: usamos só para gerar exercícios.
 3. **Claude API (pago),** quando o volume justificar. A geração fica atrás de uma interface única na Edge Function: trocar de provedor é mudar uma configuração, não reescrever a plataforma.
 
+### Técnicas aproveitadas do Emma's Librarian
+O repositório [mastrien/emmas_librarian](https://github.com/mastrien/emmas_librarian) (app de artigos científicos com IA) já resolve problemas que vamos ter. O que levamos para cá:
+
+| Técnica de lá | Como fica aqui |
+|---|---|
+| **Um adaptador por provedor** com a mesma interface (`complete(prompt, modelo)`) para OpenAI, Gemini, Anthropic e Ollama | Na Edge Function: um adaptador "compatível com OpenAI" cobre de uma vez Groq, Gemini, Ollama e OpenRouter, e outro cobre o Claude. Trocar de provedor é configuração. |
+| **Modelo por habilidade** (tabela `ai_model_config`: resumo, extração e metadados podem usar modelos diferentes) | Tabela `config_ia`: `gerar_lista`, `ajustar_questao` e `corrigir_escrita`, cada uma com o seu provedor e modelo, editável pelo admin. Ex.: gerar com Groq grátis hoje e passar para o Claude depois, sem mexer no código. |
+| **Conserto de JSON** (`jsonRepair`): tira o bloco ```json, vírgula sobrando, quebra de linha dentro de texto, JSON dentro de string | Essencial com modelos grátis, que não garantem o formato. Depois do conserto, validamos com o esquema da lista. Se falhar, pedimos de novo uma vez, mandando os erros encontrados. |
+| **Repetir com espera crescente no erro 429** (cota estourada) | Os planos grátis estouram cota fácil. Repetimos 2 ou 3 vezes com espera crescente e, se ainda falhar, mostramos "limite do plano grátis atingido, tente em alguns minutos". |
+| **Erros com código e detalhe** (`ERR_INVALID_AI_RESPONSE`, o valor que veio errado e o formato esperado) | O professor vê uma mensagem clara; o detalhe técnico vai para o histórico de gerações. |
+| **Resposta com evidência** (trecho + página que justificam cada resposta) | Ao gerar a partir do PDF da aula, cada questão traz "baseado no slide N", para o professor conferir rápido. |
+| **Conjuntos de perguntas reutilizáveis** (globais ou por projeto) | **Modelos de pedido** salvos: "Listening B1 padrão", "Revisão de vocabulário"… o professor reaproveita com um clique. |
+| **Resultado da IA guardado no banco** (não gera de novo o que já existe) | Tabela `geracoes_ia` com o pedido, o resultado e o custo; o rascunho pode ser reaberto. |
+| **Embeddings locais grátis** (MiniLM via transformers.js) | Agora não precisamos: os PDFs das aulas cabem inteiros no pedido. Fica para depois, para achar questões **parecidas ou repetidas** no banco de questões. |
+| **Testes de banco contra um banco real** (não simulado) | Já fizemos isso com PGlite para a migração `0003`. Próximo passo: guardar esse teste no repositório e rodar no GitHub Actions. |
+
+O que **não** copiamos:
+- **Chaves de API:** lá elas ficam salvas no próprio app, o que serve para programa de computador. Aqui ficam só no servidor, nunca no navegador.
+- **Montagem dos pedidos:** lá os pedidos são montados colando texto direto dentro do JSON de exemplo, e isso quebra com aspas.
+- **Texto do PDF:** lá ele é cortado em 80 mil caracteres sem aviso.
+- **Tempo de espera:** lá é de 30 s, curto para gerar uma lista inteira.
+
 ### Livros, séries e músicas (para depois)
 - **Ideia:** listas temáticas, como "situações de Friends" ou "vocabulário de Harry Potter".
 - **Cuidado com direitos autorais:** não podemos copiar trechos de roteiros, livros ou letras de música. O caminho seguro é a IA criar **diálogos originais inspirados no tema**, ou o professor usar trechos curtos com a fonte citada.
