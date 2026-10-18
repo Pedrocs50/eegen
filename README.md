@@ -65,3 +65,18 @@ Só os áudios de roteiros alterados são refeitos (o resto vem do cache da exec
 
 Para baixar: aba **Actions** → execução mais recente → **Artifacts** → `materiais`.
 Para rodar na mão ou regerar tudo: **Actions** → *Gerar áudios e planilha* → **Run workflow**.
+
+## Plataforma web (`plataforma/`)
+
+React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
+
+1. No Supabase: **SQL Editor** → cole [`supabase/migrations/0001_perfis_e_papeis.sql`](supabase/migrations/0001_perfis_e_papeis.sql) → **Run**.
+2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
+3. Rode:
+
+```bash
+npm --prefix plataforma install
+npm --prefix plataforma run dev
+```
+
+Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professores na tela *Usuários*.

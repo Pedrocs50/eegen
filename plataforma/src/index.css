@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-marinho-50: #eef3f9;
+  --color-marinho-100: #d5e1ef;
+  --color-marinho-600: #2c5285;
+  --color-marinho-700: #24466f;
+  --color-marinho-800: #1f3a60;
+  --color-marinho-900: #162a46;
+  --color-coral-500: #e85a5a;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased;
+}

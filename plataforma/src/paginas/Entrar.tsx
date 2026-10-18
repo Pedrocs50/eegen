@@ -1,0 +1,42 @@
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
+import { supabase, traduzirErro } from "../lib/supabase";
+import { Aviso, Botao, Campo, CartaoAuth } from "../componentes/ui";
+
+export default function Entrar() {
+  const navegar = useNavigate();
+  const [erro, setErro] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  async function enviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const dados = new FormData(evento.currentTarget);
+    setErro("");
+    setEnviando(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: String(dados.get("email")).trim(),
+      password: String(dados.get("senha")),
+    });
+    setEnviando(false);
+    if (error) setErro(traduzirErro(error.message));
+    else navegar("/", { replace: true });
+  }
+
+  return (
+    <CartaoAuth
+      titulo="Entrar"
+      subtitulo="Acesse seus cursos e exercícios."
+      rodape={<>Ainda não tem conta? <Link to="/cadastro" className="font-semibold text-white underline">Criar conta</Link></>}
+    >
+      <form onSubmit={enviar} className="space-y-4">
+        {erro && <Aviso>{erro}</Aviso>}
+        <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" placeholder="voce@email.com" required />
+        <Campo rotulo="Senha" name="senha" type="password" autoComplete="current-password" required />
+        <div className="text-right text-sm">
+          <Link to="/esqueci-senha" className="font-semibold text-marinho-600 hover:underline">Esqueci minha senha</Link>
+        </div>
+        <Botao type="submit" carregando={enviando} className="w-full">Entrar</Botao>
+      </form>
+    </CartaoAuth>
+  );
+}
