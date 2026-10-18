@@ -88,4 +88,4 @@ Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professor
 | Login, cadastro, papéis, tela de usuários | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
 | Cursos, aulas e turmas | **Em espera**: veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
-| Exercícios | **Foco atual** |
+| Exercícios | **Foco atual**: desenho em [docs/exercicios.md](docs/exercicios.md) |
