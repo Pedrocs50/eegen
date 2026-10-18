@@ -122,6 +122,8 @@ Detalhes:
 - Numa lista vazia, a importação preenche título, tema, frase, idioma e nível. Numa lista com questões, as seções entram no final.
 
 ### Opções sem custo (por enquanto)
+
+> **Atualização:** a opção 2 virou o **Assistente UP** (Gemini grátis, com Groq como alternativa), dentro do editor. Detalhes e publicação em [assistente-ia.md](assistente-ia.md).
 A API do Claude não tem plano grátis. Para começar sem gastar, em ordem de recomendação:
 
 1. **"Importar do Claude" (custo zero, melhor qualidade). ✅ Implementado: painel "Criar com o Claude" no editor.**

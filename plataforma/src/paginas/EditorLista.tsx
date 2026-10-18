@@ -19,6 +19,7 @@ import {
 } from "../lib/exercicios";
 import EditorQuestao from "../componentes/EditorQuestao";
 import PainelClaude from "../componentes/PainelClaude";
+import PainelAssistente from "../componentes/PainelAssistente";
 import type { ResultadoImportacao } from "../lib/importar";
 import { Aviso, Botao, Etiqueta, TextoCarregando } from "../componentes/ui";
 
@@ -65,8 +66,9 @@ export default function EditorLista() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
-  // Aberto de início só nas listas novas, que é quando gerar com o Claude mais ajuda.
-  const [painelClaude, setPainelClaude] = useState(nova);
+  // O assistente abre sozinho nas listas novas, que é quando gerar com IA mais ajuda.
+  const [painelAssistente, setPainelAssistente] = useState(nova);
+  const [painelClaude, setPainelClaude] = useState(false);
 
   useEffect(() => {
     if (nova) return;
@@ -122,9 +124,9 @@ export default function EditorLista() {
       return nova;
     });
 
-  function importar({ dados, secoes, avisos, totalQuestoes }: ResultadoImportacao) {
+  function importar({ dados, secoes, avisos, totalQuestoes }: ResultadoImportacao, modo: "auto" | "substituir" | "adicionar" = "auto") {
     if (!lista) return;
-    const vazia = !lista.secoes.some((s) => s.questoes.length > 0 || s.estimulo.texto);
+    const vazia = modo === "substituir" || (modo === "auto" && !lista.secoes.some((s) => s.questoes.length > 0 || s.estimulo.texto));
     atualizar({
       ...lista,
       titulo: lista.titulo || dados.titulo,
@@ -133,10 +135,11 @@ export default function EditorLista() {
       // Numa lista vazia, idioma e nível vêm da resposta; numa lista em andamento, os do topo continuam.
       idioma: vazia && dados.idioma ? dados.idioma : lista.idioma,
       nivel: vazia && dados.nivel ? dados.nivel : lista.nivel,
-      origem: "claude",
+      origem: modo === "auto" ? "claude" : "assistente",
       secoes: vazia ? secoes : [...lista.secoes, ...secoes],
     });
     setPainelClaude(false);
+    setPainelAssistente(false);
     const extra = avisos.length ? ` Atenção: ${avisos.join(" ")}` : "";
     setAviso(`Importadas ${totalQuestoes} questões em ${secoes.length} seções. Revise e clique em Salvar.${extra}`);
   }
@@ -234,6 +237,7 @@ export default function EditorLista() {
         </label>
       </section>
 
+      <PainelAssistente lista={lista} aberto={painelAssistente} aoAlternar={() => setPainelAssistente(!painelAssistente)} aoUsar={importar} />
       <PainelClaude lista={lista} aberto={painelClaude} aoAlternar={() => setPainelClaude(!painelClaude)} aoImportar={importar} />
 
       {erro && <div className="mt-4"><Aviso>{erro}</Aviso></div>}

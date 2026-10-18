@@ -1,4 +1,4 @@
-import { IDIOMAS, nomeNivel, type Idioma } from "./dados";
+import { IDIOMAS, nomeNivel, type Idioma } from "./idiomas";
 import { FORMATOS, type Formato } from "./exercicios";
 import { EXEMPLO_IMPORTACAO } from "./importar";
 
@@ -67,7 +67,7 @@ ${o.leitura ? "- Inclua 1 seção de leitura (tipo \"texto\") com um texto origi
 - lacuna_opcoes: ___ no "enunciado"; "opcoes" é uma lista de opções por lacuna; "corretas" é o índice certo de cada lacuna.
 - resposta_curta: "aceitas" lista todas as respostas aceitáveis (com e sem hífen, contrações etc.).
 - completar_letras: a palavra com _ no lugar de cada grupo de letras que falta (ex.: "Co_bustible"); "respostas" por lacuna.
-- Em espanhol, acentos importam (Éste x Este). Use "ignorar_acentos": true só quando o acento não for o ponto do exercício.
+- Acentos contam (Éste x Este). NÃO coloque versões sem acento em "respostas"/"aceitas"; se o acento não for o ponto do exercício, use "ignorar_acentos": true.
 - "habilidade": listening, reading, grammar, vocabulary ou writing.
 - Tipos de seção: "questoes" (só questões), "texto" (campo "texto" para ler + questões) ou "dica" (campo "texto", sem questões).
 

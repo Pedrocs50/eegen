@@ -1,4 +1,4 @@
-import type { Idioma } from "./dados";
+import type { Idioma } from "./idiomas";
 
 export type Formato =
   | "multipla_escolha"

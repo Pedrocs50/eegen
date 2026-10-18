@@ -70,7 +70,7 @@ Para rodar na mão ou regerar tudo: **Actions** → *Gerar áudios e planilha* �
 
 React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...`, `0002_...`, `0003_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0004_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 
@@ -88,4 +88,5 @@ Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professor
 | Login, cadastro, papéis, tela de usuários | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
 | Cursos, aulas e turmas | **Em espera**: veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
-| Exercícios | **Foco atual**: fase 1 pronta (editor + aluno respondendo); próximas fases em [docs/exercicios.md](docs/exercicios.md) |
+| Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |
+| Assistente UP (IA grátis no editor) | Pronto para publicar: veja [docs/assistente-ia.md](docs/assistente-ia.md) |

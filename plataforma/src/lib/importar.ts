@@ -1,4 +1,4 @@
-import type { Idioma } from "./dados";
+import type { Idioma } from "./idiomas";
 import {
   FORMATOS,
   HABILIDADES,

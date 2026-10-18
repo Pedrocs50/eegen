@@ -123,7 +123,9 @@ export default function Painel({ children }: { children?: ReactNode }) {
   const [aberto, setAberto] = useState(false);
   const local = useLocation();
 
-  useEffect(() => setAberto(false), [local.pathname]);
+  useEffect(() => {
+    setAberto(false);
+  }, [local.pathname]);
 
   return (
     <div className="min-h-dvh lg:pl-72">

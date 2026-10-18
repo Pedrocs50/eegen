@@ -3,6 +3,7 @@ import { useAuth } from "../lib/auth";
 import { NOMES_PAPEIS, supabase, traduzirErro, type Papel, type Perfil } from "../lib/supabase";
 import { Aviso } from "../componentes/ui";
 import { CabecalhoPagina } from "../componentes/Painel";
+import ConfigIA from "../componentes/ConfigIA";
 
 const PAPEIS: Papel[] = ["admin", "professor", "aluno"];
 
@@ -62,6 +63,8 @@ export default function Admin() {
           </div>
         ))}
       </div>
+
+      <ConfigIA />
 
       <Aviso tipo="info">
         Novos cadastros entram como aluno. Para criar um professor, peça que ele se cadastre e mude o papel aqui.

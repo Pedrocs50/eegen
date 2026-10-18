@@ -60,12 +60,12 @@ export default function PainelClaude({ lista, aberto, aoAlternar, aoImportar }: 
   }
 
   return (
-    <section className="mt-6 overflow-hidden rounded-2xl border border-destaque/40 bg-destaque-suave">
+    <section className="mt-3 overflow-hidden rounded-2xl border border-borda bg-superficie">
       <button onClick={aoAlternar} aria-expanded={aberto} className="flex w-full items-center gap-3 p-4 text-left sm:p-5">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-marca text-sobre-marca"><Sparkles className="size-5" /></span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-creme text-suave"><Sparkles className="size-5" /></span>
         <span className="flex-1">
-          <span className="block font-serif text-lg font-bold text-marca">Criar com o Claude</span>
-          <span className="block text-sm text-suave">Monte o pedido, cole no Claude e importe a resposta. Sem custo extra.</span>
+          <span className="block font-serif text-lg font-bold text-marca">Usar outro chat de IA</span>
+          <span className="block text-sm text-suave">Copie o pedido para o Claude, ChatGPT ou Gemini e cole a resposta aqui.</span>
         </span>
         <ChevronDown className={`size-5 text-suave transition ${aberto ? "rotate-180" : ""}`} />
       </button>
