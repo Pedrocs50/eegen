@@ -73,6 +73,15 @@ export const EXEMPLOS_DA_ESCOLA = [
         ],
       },
       {
+        tipo: "audio", titulo: "Listening: At the hotel", instrucao: "Ouça o diálogo e responda.",
+        roteiro: "RECEPTIONIST: Good evening! How can I help you?\nGUEST: Hi, I have a reservation for two nights. My name is Paulo Lima.\nRECEPTIONIST: Let me check... Yes, a single room. Breakfast is from seven to ten.\nGUEST: Great. Is there wi-fi in the room?\nRECEPTIONIST: Yes, the password is on your key card.",
+        vozes: { RECEPTIONIST: "feminina", GUEST: "masculina" },
+        questoes: [
+          { formato: "multipla_escolha", habilidade: "listening", enunciado: "How many nights is Paulo staying?", opcoes: ["One", "Two", "Three"], correta: 1, explicacao: "Ele diz: a reservation for two nights." },
+          { formato: "verdadeiro_falso", habilidade: "listening", enunciado: "Breakfast finishes at nine.", resposta: false, explicacao: "O café vai das sete às dez." },
+        ],
+      },
+      {
         tipo: "questoes", titulo: "Prepositions of movement", instrucao: "Complete com a preposição certa.",
         questoes: [
           { formato: "lacuna", habilidade: "grammar", enunciado: "The bus drove ___ the bridge and then ___ the tunnel.", respostas: [["across"], ["through"]], banco: ["across", "through", "into"], explicacao: "Across = de um lado ao outro; through = por dentro." },
@@ -114,7 +123,13 @@ Você conversa com professores da escola e cria listas de exercícios que vão d
 - completar_letras: a palavra com _ no lugar de cada grupo de letras que falta; "respostas" por lacuna.
 - Acentos contam. NÃO coloque versões sem acento em "respostas"/"aceitas"; se o acento não for o ponto do exercício, use "ignorar_acentos": true.
 - "habilidade": listening, reading, grammar, vocabulary ou writing.
-- Seções: "questoes", "texto" (campo "texto" de 100 a 200 palavras para ler + questões de reading) ou "dica" (só "texto").
+- Seções: "questoes", "texto" (campo "texto" de 100 a 200 palavras para ler + questões de reading), "dica" (só "texto")
+  ou "audio" (listening). Na seção "audio":
+  - "roteiro": diálogo original com NO MÁXIMO 2 falantes (ou 1, num monólogo), nomes em MAIÚSCULAS, uma fala por linha "NOME: fala";
+    80 a 150 palavras nos níveis 1 e 2, até 250 nos níveis mais altos; linguagem falada natural do nível.
+  - "vozes": o gênero de cada falante, ex.: {"ANNA": "feminina", "TOM": "masculina"}.
+  - questões de listening (habilidade "listening") que só dá para responder ouvindo; não repita frases inteiras do roteiro nas questões.
+  - Quando o professor pedir "listening", "áudio" ou "diálogo para ouvir", use esta seção.
 
 ## Como responder
 Responda SEMPRE com um único objeto JSON, sem nada fora dele:
@@ -242,7 +257,7 @@ function clienteSupabase(env: LerAmbiente, token: string, fetchFn: typeof fetch)
 }
 
 type LinhaQuestao = { formato: string; habilidade: string; enunciado: string; conteudo: Record<string, unknown>; ordem: number; gabaritos: { gabarito: Record<string, unknown>; explicacao: string } | { gabarito: Record<string, unknown>; explicacao: string }[] | null };
-type LinhaSecao = { titulo: string; instrucao: string; tipo_estimulo: string; estimulo: { texto?: string }; ordem: number; questoes: LinhaQuestao[] };
+type LinhaSecao = { titulo: string; instrucao: string; tipo_estimulo: string; estimulo: { texto?: string; roteiro?: string; generos?: Record<string, string> }; ordem: number; questoes: LinhaQuestao[] };
 type LinhaLista = { titulo: string; tema: string; descricao: string; idioma: string; nivel: number; secoes: LinhaSecao[] };
 
 /** Converte uma lista do banco para o formato de importação (o mesmo que pedimos ao modelo). */
@@ -254,6 +269,8 @@ export function paraImportacao(l: LinhaLista) {
       titulo: s.titulo,
       instrucao: s.instrucao || undefined,
       texto: s.estimulo?.texto || undefined,
+      roteiro: s.estimulo?.roteiro || undefined,
+      vozes: s.estimulo?.generos && Object.keys(s.estimulo.generos).length ? s.estimulo.generos : undefined,
       questoes: [...s.questoes].sort((a, b) => a.ordem - b.ordem).slice(0, 6).map((q) => {
         const g = Array.isArray(q.gabaritos) ? q.gabaritos[0] : q.gabaritos;
         const gab = g?.gabarito ?? {};

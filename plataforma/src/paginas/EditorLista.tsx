@@ -11,6 +11,7 @@ import {
   novaSecao,
   novoId,
   problemasDaQuestao,
+  problemasDoAudio,
   type Formato,
   type Lista,
   type Questao,
@@ -18,6 +19,8 @@ import {
   type TipoEstimulo,
 } from "../lib/exercicios";
 import EditorQuestao from "../componentes/EditorQuestao";
+import EditorAudio from "../componentes/EditorAudio";
+import { falantesDoRoteiro } from "../lib/vozes";
 import PainelClaude from "../componentes/PainelClaude";
 import PainelAssistente from "../componentes/PainelAssistente";
 import type { ResultadoImportacao } from "../lib/importar";
@@ -96,6 +99,11 @@ export default function EditorLista() {
     const lista_ = [] as string[];
     if (!lista.titulo.trim()) lista_.push("A lista precisa de um título.");
     let numero = 0;
+    lista.secoes.forEach((secao, i) => {
+      if (secao.tipo_estimulo !== "audio") return;
+      const estimulo = secao.estimulo;
+      for (const p of problemasDoAudio(estimulo, falantesDoRoteiro(estimulo.roteiro ?? ""))) lista_.push(`Seção ${i + 1} (áudio): ${p}`);
+    });
     for (const secao of lista.secoes) {
       for (const q of secao.questoes) {
         numero += 1;
@@ -270,7 +278,7 @@ export default function EditorLista() {
                 aria-label="Tipo da seção"
                 className="h-9 rounded-lg border border-borda bg-superficie px-2 text-xs"
               >
-                {Object.entries(ESTIMULOS).map(([v, n]) => <option key={v} value={v} disabled={v === "audio"}>{n}</option>)}
+                {Object.entries(ESTIMULOS).map(([v, n]) => <option key={v} value={v}>{n}</option>)}
               </select>
               <div className="flex">
                 <Botao variante="fantasma" className="h-9 px-2" onClick={() => mudarLista({ secoes: mover(lista.secoes, indiceSecao, indiceSecao - 1) })} aria-label="Subir seção"><ArrowUp className="size-4" /></Botao>
@@ -299,6 +307,13 @@ export default function EditorLista() {
                   className={`${CONTROLE} bg-superficie`}
                   aria-label="Texto da seção"
                 />
+              </div>
+            )}
+
+            {secao.tipo_estimulo === "audio" && (
+              <div className="m-4 rounded-xl border-l-4 border-marca bg-creme p-4 sm:m-5">
+                <p className="mb-3 text-xs font-bold text-suave uppercase">Listening</p>
+                <EditorAudio estimulo={secao.estimulo} aoMudar={(estimulo) => mudarSecao(indiceSecao, { ...secao, estimulo })} />
               </div>
             )}
 

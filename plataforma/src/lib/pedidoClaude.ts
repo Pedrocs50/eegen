@@ -69,7 +69,9 @@ ${o.leitura ? "- Inclua 1 seção de leitura (tipo \"texto\") com um texto origi
 - completar_letras: a palavra com _ no lugar de cada grupo de letras que falta (ex.: "Co_bustible"); "respostas" por lacuna.
 - Acentos contam (Éste x Este). NÃO coloque versões sem acento em "respostas"/"aceitas"; se o acento não for o ponto do exercício, use "ignorar_acentos": true.
 - "habilidade": listening, reading, grammar, vocabulary ou writing.
-- Tipos de seção: "questoes" (só questões), "texto" (campo "texto" para ler + questões) ou "dica" (campo "texto", sem questões).
+- Tipos de seção: "questoes" (só questões), "texto" (campo "texto" para ler + questões), "dica" (campo "texto", sem questões)
+  ou "audio" (listening: campo "roteiro" com um diálogo original de 1 ou 2 falantes, nomes em MAIÚSCULAS, uma fala por linha "NOME: fala",
+  de 80 a 200 palavras; campo "vozes" com o gênero de cada falante, "feminina" ou "masculina"; questões de listening sobre o que se ouve).
 
 ## Formato da resposta
 Responda APENAS com um bloco \`\`\`json contendo um objeto neste formato (o exemplo mostra todos os formatos; siga as quantidades pedidas acima, não as do exemplo):

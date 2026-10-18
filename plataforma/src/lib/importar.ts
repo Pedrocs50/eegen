@@ -1,4 +1,5 @@
 import type { Idioma } from "./idiomas";
+import { completarVozes, falantesDoRoteiro } from "./vozes";
 import {
   FORMATOS,
   HABILIDADES,
@@ -36,6 +37,14 @@ export const EXEMPLO_IMPORTACAO = {
         { formato: "resposta_curta", habilidade: "vocabulary", enunciado: "Escreva por extenso: 41", aceitas: ["forty-one", "forty one"], explicacao: "Dezenas e unidades com hífen." },
         { formato: "completar_letras", habilidade: "vocabulary", enunciado: "Co_bustible", respostas: [["m"]], explicacao: "Antes de B e P usamos M." },
       ],
+    },
+    {
+      tipo: "audio",
+      titulo: "Listening: Late for the meeting",
+      instrucao: "Ouça o áudio e responda.",
+      roteiro: "ANNA: Hi Tom, where are you? The meeting started ten minutes ago.\nTOM: Sorry, Anna! My train stopped between two stations.\nANNA: Don't worry. Can you join by video?\nTOM: Yes, I'll call in from my phone.",
+      vozes: { ANNA: "feminina", TOM: "masculina" },
+      questoes: [{ formato: "verdadeiro_falso", habilidade: "listening", enunciado: "Tom missed the meeting because of the train.", resposta: true, explicacao: "Ele diz que o trem parou entre duas estações." }],
     },
     {
       tipo: "texto",
@@ -117,6 +126,17 @@ function converterQuestao(bruta: Objeto, padrao: Habilidade): Questao | string {
   }
 }
 
+/** Seção de listening importada: roteiro, gênero sugerido de cada falante e vozes já escolhidas a partir dele. */
+function estimuloDeAudio(bruta: Objeto) {
+  const roteiro = texto(bruta.roteiro).trim();
+  const generos: Record<string, string> = {};
+  if (bruta.vozes && typeof bruta.vozes === "object") {
+    for (const [falante, genero] of Object.entries(bruta.vozes as Objeto)) generos[falante.trim()] = texto(genero);
+  }
+  const transcricao = ["antes", "depois", "nunca"].includes(texto(bruta.transcricao)) ? (texto(bruta.transcricao) as "antes" | "depois" | "nunca") : "depois";
+  return { roteiro, generos, vozes: completarVozes(falantesDoRoteiro(roteiro), {}, generos), transcricao };
+}
+
 export type ResultadoImportacao = {
   dados: Pick<Lista, "titulo" | "tema" | "descricao"> & { idioma?: Idioma; nivel?: number };
   secoes: Secao[];
@@ -142,10 +162,13 @@ export function converterImportacao(bruto: unknown): ResultadoImportacao {
       ...novaSecao(),
       titulo: texto(brutaSecao.titulo),
       instrucao: texto(brutaSecao.instrucao),
-      tipo_estimulo: tipo === "dica" ? "dica" : tipo === "texto" ? "texto" : "nenhum",
-      estimulo: tipo === "dica" || tipo === "texto" ? { texto: texto(brutaSecao.texto) } : {},
+      tipo_estimulo: tipo === "dica" ? "dica" : tipo === "texto" ? "texto" : tipo === "audio" ? "audio" : "nenhum",
+      estimulo: tipo === "dica" || tipo === "texto" ? { texto: texto(brutaSecao.texto) } : tipo === "audio" ? estimuloDeAudio(brutaSecao) : {},
     };
-    const padrao: Habilidade = tipo === "texto" ? "reading" : "grammar";
+    if (tipo === "audio" && falantesDoRoteiro(secao.estimulo.roteiro ?? "").length > 2) {
+      avisos.push(`Seção ${i + 1}: o roteiro tem mais de 2 falantes; divida antes de gerar o áudio.`);
+    }
+    const padrao: Habilidade = tipo === "texto" ? "reading" : tipo === "audio" ? "listening" : "grammar";
     const questoes = Array.isArray(brutaSecao.questoes) ? (brutaSecao.questoes as Objeto[]) : [];
     if (secao.tipo_estimulo === "dica" && questoes.length > 0) {
       avisos.push(`Seção ${i + 1} é uma dica: as ${questoes.length} questões dela foram ignoradas.`);

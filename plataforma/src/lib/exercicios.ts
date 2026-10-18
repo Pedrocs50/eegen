@@ -32,7 +32,7 @@ export const ESTIMULOS: Record<TipoEstimulo, string> = {
   nenhum: "Só questões",
   texto: "Texto para ler",
   dica: "Dica (cartão, sem questões)",
-  audio: "Áudio (em breve)",
+  audio: "Áudio (listening)",
 };
 
 /** Gabarito por formato. Fica numa tabela que o aluno não consegue ler. */
@@ -61,12 +61,26 @@ export type Questao = {
   explicacao: string;
 };
 
+/** Conteúdo da seção. Texto e dica usam "texto"; áudio usa roteiro, vozes e o MP3 gerado. */
+export type Estimulo = {
+  texto?: string;
+  roteiro?: string;
+  vozes?: Record<string, string>;
+  /** Gênero sugerido pelo assistente para cada falante, usado para escolher as vozes. */
+  generos?: Record<string, string>;
+  audio_url?: string;
+  /** Roteiro + vozes usados no áudio atual; se mudarem, o áudio está desatualizado. */
+  audio_assinatura?: string;
+  duracao?: number;
+  transcricao?: "depois" | "antes" | "nunca";
+};
+
 export type Secao = {
   id: string;
   titulo: string;
   instrucao: string;
   tipo_estimulo: TipoEstimulo;
-  estimulo: { texto?: string };
+  estimulo: Estimulo;
   questoes: Questao[];
 };
 
@@ -131,6 +145,22 @@ export function novaLista(): Lista {
     status: "rascunho",
     secoes: [{ ...novaSecao(), titulo: "Exercícios práticos" }],
   };
+}
+
+/** Texto que identifica o áudio gerado (comparação síncrona, sem precisar do hash). */
+export function assinaturaAudio(roteiro: string, vozes: Record<string, string> = {}) {
+  const linhas = roteiro.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).join("\n");
+  return `${Object.keys(vozes).sort().map((f) => `${f}=${vozes[f]}`).join(";")}|${linhas}`;
+}
+
+/** Pendências de uma seção de áudio antes de publicar. */
+export function problemasDoAudio(e: Estimulo, falantes: string[]): string[] {
+  if (!e.roteiro?.trim()) return ["Escreva o roteiro do áudio."];
+  if (falantes.length === 0) return ["O roteiro precisa de falas no formato NOME: fala."];
+  if (falantes.length > 2) return [`O áudio tem ${falantes.length} falantes; o máximo é 2.`];
+  if (!e.audio_url) return ["Gere o áudio."];
+  if (e.audio_assinatura !== assinaturaAudio(e.roteiro, e.vozes)) return ["O roteiro ou as vozes mudaram: gere o áudio de novo."];
+  return [];
 }
 
 /** Problemas que impedem o aluno de responder direito. Vazio = questão pronta. */

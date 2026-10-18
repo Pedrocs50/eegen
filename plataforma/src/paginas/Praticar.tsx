@@ -7,6 +7,7 @@ import { IDIOMAS, nomeNivel, useConsulta, type Idioma } from "../lib/dados";
 import { respondida, type Lista, type Questao, type Resposta, type Secao } from "../lib/exercicios";
 import { CabecalhoPagina } from "../componentes/Painel";
 import QuestaoAluno, { type Correcao } from "../componentes/QuestaoAluno";
+import PlayerListening from "../componentes/PlayerListening";
 import { Aviso, Botao, Etiqueta, EstadoVazio, Pontilhado, TextoCarregando } from "../componentes/ui";
 
 type ListaDisponivel = { id: string; titulo: string; tema: string; descricao: string; idioma: Idioma; nivel: number; questoes: { count: number }[] };
@@ -180,6 +181,7 @@ export function ResponderLista() {
             {secao.tipo_estimulo === "texto" && secao.estimulo.texto && (
               <div className="mt-4 rounded-xl border-l-4 border-marca bg-creme p-5 leading-relaxed whitespace-pre-line">{secao.estimulo.texto}</div>
             )}
+            {secao.tipo_estimulo === "audio" && <PlayerListening estimulo={secao.estimulo} enviado={!!resultado} />}
             {secao.tipo_estimulo === "dica" && secao.estimulo.texto && (
               <div className="mt-4 flex gap-3 rounded-2xl bg-coral-suave p-5">
                 <Lightbulb className="size-6 shrink-0 text-coral" aria-hidden="true" />

@@ -64,7 +64,10 @@ export default function Admin() {
         ))}
       </div>
 
-      <ConfigIA />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <ConfigIA habilidade="gerar_lista" />
+        <ConfigIA habilidade="gerar_audio" />
+      </div>
 
       <Aviso tipo="info">
         Novos cadastros entram como aluno. Para criar um professor, peça que ele se cadastre e mude o papel aqui.
