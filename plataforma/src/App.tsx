@@ -9,11 +9,16 @@ import Cadastro from "./paginas/Cadastro";
 import EsqueciSenha from "./paginas/EsqueciSenha";
 import NovaSenha from "./paginas/NovaSenha";
 import Admin from "./paginas/Admin";
-import { InicioAluno, InicioProfessor } from "./paginas/Inicios";
+import { InicioProfessor } from "./paginas/Inicios";
+import { AulaAluno, InicioAluno } from "./paginas/AreaAluno";
+import Cursos from "./paginas/Cursos";
+import Curso from "./paginas/Curso";
+import Turmas from "./paginas/Turmas";
+import Turma from "./paginas/Turma";
 import Sobre from "./paginas/Sobre";
 
 const PAGINA_INICIAL: Record<Papel, string> = {
-  admin: "/admin",
+  admin: "/professor",
   professor: "/professor",
   aluno: "/aluno",
 };
@@ -85,9 +90,16 @@ export default function App() {
           </Route>
           <Route element={<Protegida papeis={["professor"]} />}>
             <Route path="/professor" element={<InicioProfessor />} />
+            <Route path="/cursos" element={<Cursos />} />
+            <Route path="/cursos/:id" element={<Curso />} />
+            <Route path="/turmas" element={<Turmas />} />
+            <Route path="/turmas/:id" element={<Turma />} />
           </Route>
           <Route element={<Protegida papeis={["aluno"]} />}>
             <Route path="/aluno" element={<InicioAluno />} />
+          </Route>
+          <Route element={<Protegida papeis={["aluno", "professor"]} />}>
+            <Route path="/aulas/:id" element={<AulaAluno />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

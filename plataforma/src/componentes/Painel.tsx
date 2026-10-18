@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BookOpen, GraduationCap, LogOut, Menu, Moon, Sun, UserRound, Users, X, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpen, GraduationCap, LogOut, Menu, Moon, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
@@ -11,19 +11,25 @@ type SecaoMenu = { titulo: string; itens: ItemMenu[] };
 
 const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotulo: "Sobre a professora", icone: UserRound }] };
 
+const ENSINO: ItemMenu[] = [
+  { para: "/professor", rotulo: "Início", icone: GraduationCap },
+  { para: "/cursos", rotulo: "Cursos", icone: BookMarked },
+  { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
+];
+
 const MENUS: Record<Papel, SecaoMenu[]> = {
   admin: [
-    { titulo: "Administração", itens: [{ para: "/admin", rotulo: "Usuários", icone: Users }] },
+    { titulo: "Ensino", itens: ENSINO },
     {
-      titulo: "Ensino",
+      titulo: "Administração",
       itens: [
-        { para: "/professor", rotulo: "Área do professor", icone: GraduationCap },
+        { para: "/admin", rotulo: "Usuários", icone: Users },
         { para: "/aluno", rotulo: "Visão do aluno", icone: BookOpen },
       ],
     },
     SOBRE,
   ],
-  professor: [{ titulo: "Ensino", itens: [{ para: "/professor", rotulo: "Início", icone: GraduationCap }] }, SOBRE],
+  professor: [{ titulo: "Ensino", itens: ENSINO }, SOBRE],
   aluno: [{ titulo: "Estudos", itens: [{ para: "/aluno", rotulo: "Meus cursos", icone: BookOpen }] }, SOBRE],
 };
 
@@ -58,7 +64,7 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
                 <li key={para}>
                   <NavLink
                     to={para}
-                    end
+                    end={para === "/professor" || para === "/aluno"}
                     className={({ isActive }) =>
                       `flex items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 text-sm transition ${
                         isActive
@@ -131,7 +137,7 @@ export default function Painel({ children }: { children?: ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8 lg:py-10">{children ?? <Outlet />}</main>
+      <main className="max-w-6xl px-4 py-8 sm:px-8 lg:px-12 lg:py-10">{children ?? <Outlet />}</main>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { Link } from "react-router";
 import { BookOpenCheck, Eye, EyeOff, Headphones, Languages, type LucideIcon } from "lucide-react";
 
@@ -147,4 +147,63 @@ export function Carregando() {
 /** Link discreto usado nos rodapés das telas de acesso. */
 export function LinkTexto({ para, children }: { para: string; children: ReactNode }) {
   return <Link to={para} className="font-semibold text-destaque hover:underline">{children}</Link>;
+}
+
+const ESTILO_CONTROLE =
+  "w-full rounded-xl border border-borda bg-superficie px-3.5 text-texto placeholder:text-suave/70 focus:border-destaque focus:outline-none focus:ring-4 focus:ring-destaque-suave";
+
+type PropsSelecao = SelectHTMLAttributes<HTMLSelectElement> & { rotulo: string; children: ReactNode };
+
+export function CampoSelecao({ rotulo, id, children, ...resto }: PropsSelecao) {
+  const idCampo = id ?? resto.name;
+  return (
+    <div>
+      <label htmlFor={idCampo} className="mb-1.5 block text-sm font-semibold text-texto">{rotulo}</label>
+      <select id={idCampo} {...resto} className={`h-12 ${ESTILO_CONTROLE}`}>{children}</select>
+    </div>
+  );
+}
+
+type PropsAreaTexto = TextareaHTMLAttributes<HTMLTextAreaElement> & { rotulo: string; dica?: string };
+
+export function CampoAreaTexto({ rotulo, dica, id, ...resto }: PropsAreaTexto) {
+  const idCampo = id ?? resto.name;
+  return (
+    <div>
+      <label htmlFor={idCampo} className="mb-1.5 block text-sm font-semibold text-texto">{rotulo}</label>
+      <textarea id={idCampo} rows={3} {...resto} className={`py-3 ${ESTILO_CONTROLE}`} />
+      {dica && <p className="mt-1.5 text-xs text-suave">{dica}</p>}
+    </div>
+  );
+}
+
+/** Caixa branca padrão das telas internas. */
+export function Cartao({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`rounded-2xl border border-borda bg-superficie p-5 sm:p-6 ${className}`}>{children}</div>;
+}
+
+export function Etiqueta({ children, tom = "azul" }: { children: ReactNode; tom?: "azul" | "creme" | "coral" | "verde" }) {
+  const estilos = {
+    azul: "bg-destaque-suave text-marca",
+    creme: "bg-creme text-suave",
+    coral: "bg-coral-suave text-coral",
+    verde: "bg-sucesso-suave text-sucesso",
+  }[tom];
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${estilos}`}>{children}</span>;
+}
+
+/** Espaço vazio que convida a criar o primeiro item, em vez de só dizer "nada aqui". */
+export function EstadoVazio({ icone: Icone, titulo, texto, acao }: { icone: LucideIcon; titulo: string; texto: string; acao?: ReactNode }) {
+  return (
+    <div className="rounded-2xl border-2 border-dashed border-borda px-6 py-12 text-center">
+      <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-destaque-suave text-marca"><Icone className="size-6" /></span>
+      <h2 className="mt-4 text-xl font-bold text-marca">{titulo}</h2>
+      <p className="mx-auto mt-1 max-w-md text-sm text-suave">{texto}</p>
+      {acao && <div className="mt-5">{acao}</div>}
+    </div>
+  );
+}
+
+export function TextoCarregando({ children = "Carregando…" }: { children?: ReactNode }) {
+  return <p className="py-10 text-center text-suave" role="status">{children}</p>;
 }

@@ -35,5 +35,7 @@ export function traduzirErro(mensagem: string): string {
   if (texto.includes("password should be at least")) return "A senha precisa ter pelo menos 8 caracteres.";
   if (texto.includes("same as the old")) return "A nova senha precisa ser diferente da anterior.";
   if (texto.includes("failed to fetch")) return "Sem conexão com o servidor. Verifique sua internet.";
+  if (texto.includes("row-level security") || texto.includes("permission denied")) return "Você não tem permissão para fazer isso.";
+  if (texto.includes("violates foreign key")) return "Esse item está ligado a outros dados e não pode ser alterado assim.";
   return mensagem;
 }
