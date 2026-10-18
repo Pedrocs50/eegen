@@ -77,6 +77,20 @@ Hoje o áudio sai do `gerador.py` (edge-tts + FFmpeg) no computador ou no GitHub
 
 ---
 
+### Atualização (18/10/2026): teste com o TTS do Gemini
+Com a mesma chave grátis do Gemini, testamos o roteiro `B1_01_Weekend_Trip_Plans`:
+- `gemini-3.8-flash-tts`: 30 s de diálogo gerados em 14 s, **dois falantes num pedido só**, Leo com voz masculina americana e Priya feminina britânica. Fala clara e numa velocidade boa para B1, sem cortes. Às vezes acrescenta interjeições naturais ("Hmm").
+- Formato do pedido: cada fala é uma parte com `speechMetadata.speaker`, e a voz de cada falante vai em `multiSpeakerVoiceConfig`. Este modelo não aceita instrução de sistema.
+- `gemini-2.5-flash-preview-tts`: também funciona (o falante vai no próprio texto), mas o sotaque não seguiu o pedido.
+- Saída em PCM 24 kHz: emendar falas e pausas é só juntar bytes, sem FFmpeg. Em MP3, ~210 KB por 30 s.
+
+**Caminho proposto para a fase 2:**
+1. **Edge Function `audio`:** recebe o roteiro e as vozes e chama o Gemini TTS. Até 2 falantes por pedido; com mais falantes, divide em trechos e junta o PCM. Devolve WAV.
+2. **No navegador:** converte o WAV para MP3 (lamejs, JavaScript puro) e envia ao Storage do Supabase, num bucket `audios` que só a equipe pode gravar.
+3. **Vozes:** o professor escolhe a voz de cada falante numa lista com gênero e sotaque, e o assistente sugere as vozes pelo nome dos personagens.
+4. **Cache:** mesmo roteiro e mesmas vozes reaproveitam o áudio; o `gerador.py` (edge-tts) continua como alternativa para lotes no computador.
+5. **Cuidado:** os limites grátis de TTS costumam ser menores que os de texto. Contamos na mesma cota de `geracoes_ia`, com habilidade `gerar_audio`.
+
 ## 3. Assistente de IA para o professor
 
 ### O que ele faz

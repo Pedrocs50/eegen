@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
-import { Bot, ChevronDown, ListPlus, Replace, Send, Sparkles } from "lucide-react";
+import { Bot, ChevronDown, ListPlus, RefreshCw, Replace, Send, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { FORMATOS, type Formato, type Lista } from "../lib/exercicios";
 import { converterImportacao, type ResultadoImportacao } from "../lib/importar";
+import { sortearSugestoes } from "../lib/sugestoes";
 import { Aviso, Botao } from "./ui";
 
 type ItemConversa =
@@ -12,11 +13,6 @@ type ItemConversa =
 
 type RespostaFuncao = { mensagem: string; lista: Record<string, unknown> | null; restantes?: number; erro?: string };
 
-const SUGESTOES = [
-  "12 questões de present perfect com contexto de viagem",
-  "Lista de revisão de vocabulário de trabalho, com um texto curto para ler",
-  "Exercícios de demonstrativos (este, ese, aquel) com dicas entre parênteses",
-];
 
 type Props = {
   lista: Lista;
@@ -48,6 +44,11 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: 
   const [erro, setErro] = useState("");
   const [restantes, setRestantes] = useState<number | null>(null);
   const fim = useRef<HTMLDivElement>(null);
+  // Novas ideias a cada abertura e quando o idioma ou o nível mudam.
+  const [sugestoes, setSugestoes] = useState(() => sortearSugestoes(lista.idioma, lista.nivel));
+  useEffect(() => {
+    setSugestoes(sortearSugestoes(lista.idioma, lista.nivel));
+  }, [lista.idioma, lista.nivel]);
   const listaVazia = !lista.secoes.some((s) => s.questoes.length > 0 || s.estimulo.texto);
 
   // Chaves de propósito: scrollIntoView devolve uma Promise nos navegadores novos, e o React não aceita isso como retorno.
@@ -109,11 +110,17 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: 
           <div className="max-h-[28rem] space-y-4 overflow-y-auto p-4 sm:p-5" aria-live="polite">
             {conversa.length === 0 && (
               <div>
-                <p className="text-sm text-suave">
-                  O assistente usa o idioma e o nível do topo da lista. Exemplos de pedido:
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm text-suave">O assistente usa o idioma e o nível do topo da lista. Algumas ideias:</p>
+                  <button
+                    onClick={() => setSugestoes(sortearSugestoes(lista.idioma, lista.nivel))}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-destaque hover:bg-destaque-suave"
+                  >
+                    <RefreshCw className="size-3.5" /> Outras ideias
+                  </button>
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {SUGESTOES.map((s) => (
+                  {sugestoes.map((s) => (
                     <button key={s} onClick={() => enviar(s)} className="rounded-full border border-borda px-3 py-1.5 text-left text-xs font-semibold text-texto hover:border-destaque hover:text-destaque">
                       {s}
                     </button>
@@ -173,6 +180,7 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: 
             <label htmlFor="pedido-assistente" className="sr-only">Pedido para o assistente</label>
             <textarea
               id="pedido-assistente"
+              maxLength={1500}
               rows={2}
               value={entrada}
               onChange={(e) => setEntrada(e.target.value)}
