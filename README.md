@@ -23,6 +23,7 @@ py gerador.py --validar        # só confere os roteiros
 py gerador.py --so-planilha    # não chama o TTS
 py gerador.py --so-audio --forcar --rate=-10% --pausa 600
 py gerador.py --seed 2         # outro sorteio das alternativas
+py gerador.py --paralelo 10    # mais falas ao mesmo tempo no TTS
 ```
 
 Áudios só são refeitos quando as falas, vozes, velocidade ou pausa mudam.
@@ -53,3 +54,14 @@ MULTIPLE CHOICE
 - `TITLE`, `LEVEL` e `VOICE` são opcionais (título e nível saem do nome `A1_02_Titulo.txt`).
 - `*` marca a alternativa correta; `-` as erradas (2 a 5 alternativas).
 - `>` logo abaixo de uma questão define a explicação dela.
+
+O TTS roda várias falas ao mesmo tempo (`--paralelo`, padrão 6). Se o serviço começar a recusar, diminua o número.
+
+## Geração automática (GitHub Actions)
+
+A cada push na `main` que altere `roteiros/`, `gerador.py` ou `requirements.txt`, o workflow
+[`gerar.yml`](.github/workflows/gerar.yml) valida os roteiros e gera áudios e planilha.
+Só os áudios de roteiros alterados são refeitos (o resto vem do cache da execução anterior).
+
+Para baixar: aba **Actions** → execução mais recente → **Artifacts** → `materiais`.
+Para rodar na mão ou regerar tudo: **Actions** → *Gerar áudios e planilha* → **Run workflow**.

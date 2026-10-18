@@ -1,0 +1,59 @@
+name: Gerar áudios e planilha
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "roteiros/**"
+      - "gerador.py"
+      - "requirements.txt"
+      - ".github/workflows/gerar.yml"
+  workflow_dispatch:
+    inputs:
+      forcar:
+        description: "Regerar todos os áudios"
+        type: boolean
+        default: false
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar FFmpeg e dependências
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -r requirements.txt
+
+      # Reaproveita os áudios da última execução: só os roteiros alterados vão para o TTS.
+      - name: Restaurar áudios anteriores
+        uses: actions/cache@v4
+        with:
+          path: audios
+          key: audios-${{ github.run_id }}
+          restore-keys: audios-
+
+      - name: Validar roteiros
+        run: python gerador.py --validar
+
+      - name: Gerar áudios e planilha
+        run: python gerador.py ${{ inputs.forcar && '--forcar' || '' }}
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Publicar materiais
+        uses: actions/upload-artifact@v4
+        with:
+          name: materiais
+          path: |
+            audios/**/*.mp3
+            planilhas/exercicios.xlsx
+          if-no-files-found: error

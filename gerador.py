@@ -11,6 +11,7 @@ Uso:
     python gerador.py --validar        # só confere os roteiros
     python gerador.py --so-planilha    # não chama o TTS
     python gerador.py --so-audio --forcar --rate=-10% --pausa 600
+    python gerador.py --paralelo 10    # mais falas ao mesmo tempo no TTS
 
 Formato do roteiro (UTF-8; também aceita Windows-1252/Latin-1):
 
@@ -267,12 +268,13 @@ def assinatura_audio(roteiro: Roteiro, pausa_ms: int, rate: str) -> str:
     return hashlib.sha256(dados.encode("utf-8")).hexdigest()
 
 
-async def sintetizar(texto: str, voz: str, saida: Path, rate: str) -> None:
+async def sintetizar(texto: str, voz: str, saida: Path, rate: str, limite: asyncio.Semaphore) -> None:
     """Gera um trecho e repete tentativas em falhas transitórias de rede."""
     ultimo_erro: Exception | None = None
     for tentativa in range(1, TENTATIVAS_TTS + 1):
         try:
-            await edge_tts.Communicate(texto, voz, rate=rate).save(str(saida))
+            async with limite:
+                await edge_tts.Communicate(texto, voz, rate=rate).save(str(saida))
             if saida.exists() and saida.stat().st_size > 0:
                 return
             raise RuntimeError("O serviço retornou um arquivo de áudio vazio.")
@@ -280,9 +282,8 @@ async def sintetizar(texto: str, voz: str, saida: Path, rate: str) -> None:
             ultimo_erro = erro
             saida.unlink(missing_ok=True)
             if tentativa < TENTATIVAS_TTS:
-                espera = tentativa * 2
-                print(f"    tentativa {tentativa} falhou; repetindo em {espera}s...")
-                await asyncio.sleep(espera)
+                # A espera fica fora do semáforo para não travar as outras falas.
+                await asyncio.sleep(tentativa * 2)
     raise RuntimeError(f"TTS falhou após {TENTATIVAS_TTS} tentativas: {ultimo_erro}") from ultimo_erro
 
 
@@ -299,37 +300,44 @@ def juntar_trechos(trechos: list[Path], destino: Path, pausa_ms: int) -> None:
         raise RuntimeError(resultado.stderr.strip() or "FFmpeg falhou ao juntar os trechos.")
 
 
-async def gerar_audio(roteiro: Roteiro, pausa_ms: int, rate: str) -> bool:
-    """Gera um único MP3. Retorna False sem derrubar os outros roteiros."""
+async def gerar_audio(roteiro: Roteiro, pausa_ms: int, rate: str, limite: asyncio.Semaphore) -> bool:
+    """Gera um único MP3 com as falas sintetizadas em paralelo.
+
+    Retorna False sem derrubar os outros roteiros.
+    """
     vozes = mapa_vozes(roteiro)
-    print(f"[+] {roteiro.nome}: {len(roteiro.falas)} falas, {len(vozes)} voz(es)")
     roteiro.audio.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="tts_", dir=BASE_DIR) as pasta_temporaria:
-        trechos: list[Path] = []
-        for indice, (falante, texto) in enumerate(roteiro.falas, start=1):
-            trecho = Path(pasta_temporaria) / f"{indice:03d}.mp3"
-            try:
-                await sintetizar(texto, vozes[falante], trecho, rate)
-                trechos.append(trecho)
-            except Exception as erro:
+        trechos = [Path(pasta_temporaria) / f"{indice:03d}.mp3" for indice in range(1, len(roteiro.falas) + 1)]
+        resultados = await asyncio.gather(
+            *(sintetizar(texto, vozes[falante], trecho, rate, limite)
+              for (falante, texto), trecho in zip(roteiro.falas, trechos)),
+            return_exceptions=True,
+        )
+        prontos = []
+        for indice, ((falante, _), trecho, resultado) in enumerate(zip(roteiro.falas, trechos, resultados), start=1):
+            if isinstance(resultado, BaseException):
                 # Uma fala defeituosa não impede o restante do lote.
-                print(f"    [!] fala {indice} de {falante} ignorada: {erro}")
+                print(f"    [!] {roteiro.nome}: fala {indice} de {falante} ignorada: {resultado}")
+            else:
+                prontos.append(trecho)
 
-        if not trechos:
+        if not prontos:
             print(f"[ERRO] {roteiro.nome}: nenhuma fala pôde ser sintetizada.")
             return False
 
         arquivo_parcial = roteiro.audio.with_suffix(".part.mp3")
         try:
-            juntar_trechos(trechos, arquivo_parcial, pausa_ms)
+            await asyncio.to_thread(juntar_trechos, prontos, arquivo_parcial, pausa_ms)
             arquivo_parcial.replace(roteiro.audio)
         except Exception as erro:
             arquivo_parcial.unlink(missing_ok=True)
             print(f"[ERRO] {roteiro.nome}: não foi possível salvar o MP3: {erro}")
             return False
 
-    completo = len(trechos) == len(roteiro.falas)
-    print(f"    -> {roteiro.audio.relative_to(BASE_DIR)} ({'ok' if completo else 'com falas ignoradas'})")
+    completo = len(prontos) == len(roteiro.falas)
+    print(f"[+] {roteiro.audio.relative_to(BASE_DIR)}: {len(roteiro.falas)} falas, "
+          f"{len(vozes)} voz(es) ({'ok' if completo else 'com falas ignoradas'})")
     # Áudio com falas faltando não entra no cache, para ser refeito na próxima vez.
     return completo
 
@@ -341,21 +349,34 @@ def ler_cache() -> dict[str, str]:
         return {}
 
 
-async def gerar_audios(roteiros: list[Roteiro], pausa_ms: int, rate: str, forcar: bool) -> int:
+async def gerar_audios(roteiros: list[Roteiro], pausa_ms: int, rate: str, forcar: bool, paralelo: int) -> int:
     """Gera os MP3s que mudaram desde a última vez. Retorna quantos falharam."""
     cache = ler_cache()
-    falhas = 0
+    limite = asyncio.Semaphore(paralelo)
+    pendentes: list[tuple[Roteiro, str]] = []
     for roteiro in roteiros:
         assinatura = assinatura_audio(roteiro, pausa_ms, rate)
         if not forcar and roteiro.audio.exists() and cache.get(roteiro.nome) == assinatura:
             print(f"[=] {roteiro.nome}: áudio já está atualizado")
-            continue
-        if await gerar_audio(roteiro, pausa_ms, rate):
+        else:
+            pendentes.append((roteiro, assinatura))
+    if not pendentes:
+        return 0
+
+    print(f"Gerando {len(pendentes)} áudio(s) com até {paralelo} falas ao mesmo tempo...")
+    falhas = 0
+
+    async def gerar_e_registrar(roteiro: Roteiro, assinatura: str) -> None:
+        nonlocal falhas
+        if await gerar_audio(roteiro, pausa_ms, rate, limite):
+            # Gravado a cada áudio pronto, para não perder progresso se cancelar.
             cache[roteiro.nome] = assinatura
             PASTA_AUDIOS.mkdir(parents=True, exist_ok=True)
             CACHE_AUDIOS.write_text(json.dumps(cache, indent=1, ensure_ascii=False), encoding="utf-8")
         else:
             falhas += 1
+
+    await asyncio.gather(*(gerar_e_registrar(roteiro, assinatura) for roteiro, assinatura in pendentes))
     return falhas
 
 
@@ -485,12 +506,15 @@ async def main() -> int:
     parser.add_argument("--forcar", action="store_true", help="regera todos os áudios, mesmo os atualizados")
     parser.add_argument("--pausa", type=int, default=450, help="silêncio entre falas, em ms (padrão: 450)")
     parser.add_argument("--rate", default="-5%", help="velocidade de fala do edge-tts (padrão: -5%%)")
+    parser.add_argument("--paralelo", type=int, default=6, help="falas sintetizadas ao mesmo tempo (padrão: 6)")
     parser.add_argument("--seed", default="1", help="semente do embaralhamento das alternativas (padrão: 1)")
     parser.add_argument("--saida", type=Path, default=PLANILHA_PADRAO, help="caminho do .xlsx gerado")
     args = parser.parse_args()
 
     if args.pausa < 0:
         parser.error("--pausa deve ser zero ou maior.")
+    if args.paralelo < 1:
+        parser.error("--paralelo deve ser 1 ou maior.")
     if not PASTA_ROTEIROS.is_dir():
         print(f"[ERRO] Pasta de roteiros não encontrada: {PASTA_ROTEIROS}")
         return 1
@@ -530,7 +554,7 @@ async def main() -> int:
 
     falhas = 0
     if precisa_audio:
-        falhas = await gerar_audios(roteiros, args.pausa, args.rate, args.forcar)
+        falhas = await gerar_audios(roteiros, args.pausa, args.rate, args.forcar, args.paralelo)
     if precisa_planilha:
         for roteiro in roteiros:
             embaralhar(roteiro, args.seed)
