@@ -231,6 +231,34 @@ geracoes_ia    id, professor_id, pedido, resultado, custo_estimado, criado_em   
 
 ---
 
+## Referência de conteúdo: ESL Lounge (listening)
+Analisamos as páginas de listening do [ESL Lounge](https://www.esl-lounge.com/student/listening-business.php) em 18/10/2026. O design não serve de referência; o jeito de montar os exercícios, sim.
+
+**Como cada listening é organizado:**
+- código (B1L2), título e a situação numa frase ("Jenny descreve a conferência a que foi em Londres");
+- **foco de linguagem** ("dialogue about a bad business trip, past simple/continuous");
+- **sotaque** (americano, britânico, australiano), **duração**, **nível CEFR** (às vezes entre dois níveis, como A2/B1);
+- **dois quizzes sobre o mesmo áudio** e a **transcrição** numa página à parte;
+- um acervo com filtros combináveis: sotaque × nível × **categoria** (rotina, casa, família, socializar, compras, trabalho, estudos, viagem, lazer, direções, temas globais, histórias).
+
+**Formatos de exercício que eles usam:**
+| Formato deles | Exemplo | Como fica aqui |
+|---|---|---|
+| Completar as anotações (no máximo 3 palavras) | Notas da personagem sobre a viagem: "Hotel: it was too ___ during the night" | Já dá: seção de **texto** com lacunas, instrução "no máximo 3 palavras" e várias respostas aceitas |
+| Múltipla escolha marcada por parte do áudio | "(Part Two) What was the problem?" | Já dá: uma **seção por parte** do áudio |
+| **True / False / Not stated** | "The office supply company is closed next week." → Not stated | **Novo:** opção "não mencionado" no verdadeiro ou falso (bom para listening e reading) |
+| **Associação** (pessoas ↔ ações) | "Match the people with the actions" | **Novo formato** (já previsto na fase 2): ligar colunas, com itens sobrando para não virar eliminação |
+| Associar conversa ↔ descrição | 5 conversas curtas, 5 descrições | O mesmo formato de associação |
+
+**Ideias para a nossa plataforma:**
+1. **Ficha do listening:** situação, foco de linguagem, sotaque(s), duração e categoria. Ela aparece para o aluno e serve de filtro. As categorias deles cabem bem no nosso público adulto; "Trabalho e carreira" e "Viagem" devem ser as mais usadas.
+2. **Dois quizzes por áudio:** quiz 1 de compreensão geral (múltipla escolha, V/F/NM), quiz 2 de detalhe (anotações, associação). Na nossa estrutura, são duas seções da mesma lista com o mesmo áudio.
+3. **Transcrição liberada depois do envio,** para o aluno conferir o que não entendeu (já previsto).
+4. **Vários sotaques no mesmo áudio:** já temos vozes britânicas, americanas e australianas no gerador.
+5. **Assistente UP:** quando os formatos novos existirem, ensinar a ele a "receita" de dois quizzes e a ficha do listening.
+
+Nada foi copiado do site: só usamos a estrutura como referência.
+
 ## 7. Ordem de construção sugerida
 
 | Fase | Entrega | Por quê nesta ordem |
