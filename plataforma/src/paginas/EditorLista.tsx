@@ -401,7 +401,8 @@ export default function EditorLista() {
                       <button
                         key={formato}
                         onClick={() => {
-                          const q = novaQuestao(formato);
+                          // A habilidade segue a seção (áudio → listening, texto → reading); a professora pode trocar na questão.
+                          const q = novaQuestao(formato, secao.tipo_estimulo === "audio" ? "listening" : secao.tipo_estimulo === "texto" ? "reading" : undefined);
                           mudarSecao(indiceSecao, { ...secao, questoes: [...secao.questoes, q] });
                           setAbertas((a) => new Set(a).add(q.id));
                         }}
