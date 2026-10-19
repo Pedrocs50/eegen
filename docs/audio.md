@@ -39,7 +39,7 @@ Consequências:
 - **MP3 no navegador:** 30 s de áudio viram 234 KB em ~0,5 s.
 
 ## Como publicar
-1. **SQL Editor** → rodar `supabase/migrations/0005_audios.sql`. Ele cria o bucket `audios`, as permissões, a configuração de voz e a cota por habilidade.
+1. **SQL Editor** → rodar `supabase/migrations/0005_audios.sql` e depois `0006_leitura_audios.sql` (permissão de leitura que o upload com substituição exige). Ele cria o bucket `audios`, as permissões, a configuração de voz e a cota por habilidade.
 2. **Edge Functions → Deploy a new function → Via Editor**:
    - nome **`audio`**;
    - colar `supabase/functions/audio/index.ts`;

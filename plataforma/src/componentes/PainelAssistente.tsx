@@ -31,7 +31,8 @@ function resumoDosFormatos(resultado: ResultadoImportacao) {
 async function mensagemDeErro(erro: unknown): Promise<string> {
   if (erro instanceof FunctionsHttpError) {
     const corpo = await erro.context.json().catch(() => null);
-    if (corpo?.erro) return corpo.erro;
+    // O detalhe técnico vai junto para o professor poder mandar o print quando algo falhar.
+    if (corpo?.erro) return corpo.detalhe && corpo.detalhe !== corpo.erro ? `${corpo.erro} (Detalhe: ${String(corpo.detalhe).slice(0, 400)})` : corpo.erro;
   }
   return "Não foi possível falar com o assistente. Verifique sua conexão e tente de novo.";
 }
