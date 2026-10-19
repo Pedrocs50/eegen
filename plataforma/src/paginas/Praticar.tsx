@@ -30,7 +30,7 @@ const CEFR = ["A1", "A2", "B1", "B1+/B2", "B2", "C1"];
 function BarraProgresso({ feitas, total, rotulo }: { feitas: number; total: number; rotulo: string }) {
   return (
     <div
-      className="h-2 overflow-hidden rounded-full bg-fundo"
+      className="h-2 overflow-hidden rounded-full bg-borda"
       role="progressbar"
       aria-label={rotulo}
       aria-valuenow={feitas}
