@@ -37,6 +37,7 @@ Consequências:
 - **Função completa** (Supabase simulado): 2 falantes em 5 s; 1 falante em 4 s; 3 falantes recusado; voz inválida e roteiro sem falante recusados.
 - **Fluxo completo:** o assistente criou um listening de hotel (A2) com gêneros → a importação escolheu Kore e Puck → a função gerou 39 s de áudio com o modelo de reserva (o principal tinha esgotado nos testes).
 - **MP3 no navegador:** 30 s de áudio viram 234 KB em ~0,5 s.
+- **Em produção (19/10/2026):** o Assistente UP escreveu o listening "Checking in at the Grand Hotel", e a plataforma gerou e salvou 38 s de áudio no bucket. O professor ouviu no editor.
 
 ## Como publicar
 1. **SQL Editor** → rodar `supabase/migrations/0005_audios.sql` e depois `0006_leitura_audios.sql` (permissão de leitura que o upload com substituição exige). Ele cria o bucket `audios`, as permissões, a configuração de voz e a cota por habilidade.

@@ -90,4 +90,4 @@ Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professor
 | Cursos, aulas e turmas | **Em espera**: veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
 | Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |
 | Assistente UP (IA grátis no editor) | Publicado: veja [docs/assistente-ia.md](docs/assistente-ia.md) |
-| Áudio dos listenings (Gemini TTS) | Pronto para publicar: veja [docs/audio.md](docs/audio.md) |
+| Áudio dos listenings (Gemini TTS) | Publicado e testado: veja [docs/audio.md](docs/audio.md) |
