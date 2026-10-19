@@ -68,7 +68,11 @@ Para rodar na mão ou regerar tudo: **Actions** → *Gerar áudios e planilha* �
 
 ## Plataforma web (`plataforma/`)
 
+**No ar:** https://upenglish.pages.dev
+
 React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
+
+### Rodar no computador
 
 1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0009_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
@@ -83,13 +87,33 @@ Testes do banco (todas as migrações num Postgres local): `npm --prefix platafo
 
 Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professores na tela *Usuários*.
 
+### Publicação (Cloudflare Pages)
+
+O site é publicado sozinho a cada envio para a `main`: o Cloudflare Pages baixa o repositório, roda o build e troca a versão no ar em 1 ou 2 minutos. Se o build falhar, a versão anterior continua no ar.
+
+| Configuração no Cloudflare | Valor |
+|---|---|
+| Projeto | `upenglish` (Workers & Pages) |
+| Production branch | `main` |
+| Root directory | `plataforma` |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Variáveis | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `NODE_VERSION=24` |
+
+- As variáveis entram no build. Se mudar alguma, faça um novo deploy (**Deployments** → **Retry deployment**).
+- Só a chave **publishable** vai para o site. A chave secret/service_role nunca entra aqui nem no repositório.
+- [`plataforma/public/_redirects`](plataforma/public/_redirects) faz os links internos (`/praticar/...`, `/aulas/...`) abrirem direto.
+- As chaves do Gemini ficam só nos segredos das funções do Supabase, não no Cloudflare.
+- No Supabase, em **Authentication → URL Configuration**, o *Site URL* e as *Redirect URLs* precisam apontar para `https://upenglish.pages.dev`, senão os e-mails de confirmação e de nova senha levam para `localhost`.
+
 ## Status das partes
 
 | Parte | Status |
 |---|---|
+| Site no ar (Cloudflare Pages) | Publicado em https://upenglish.pages.dev |
 | Login, cadastro, papéis, tela de usuários (com bloqueio) e página de Configurações | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
-| Cursos, aulas e turmas | **Em espera**: veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
+| Cursos, aulas e turmas | **Em espera** (só o admin vê): aulas com PDF e exercícios prontas; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
 | Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |
 | Assistente UP (IA grátis no editor) | Publicado: veja [docs/assistente-ia.md](docs/assistente-ia.md) |
 | Áudio dos listenings (Gemini TTS) | Publicado e testado: veja [docs/audio.md](docs/audio.md) |
