@@ -14,11 +14,16 @@ export type Mensagem = { papel: Papel; texto: string };
 type Idioma = "ingles" | "espanhol";
 type Provedor = "gemini" | "groq";
 type Config = { provedor: Provedor; modelo: string; limite_diario: number };
-type Resultado = { texto: string; tokensEntrada: number; tokensSaida: number };
+type Resultado = { texto: string; tokensEntrada: number; tokensSaida: number; modelo?: string };
 export type RespostaAssistente = { mensagem: string; lista: Record<string, unknown> | null };
 type LerAmbiente = (nome: string) => string | undefined;
 
 const CONFIG_PADRAO: Config = { provedor: "gemini", modelo: "gemini-flash-latest", limite_diario: 30 };
+/**
+ * Modelo de reserva do Gemini: entra quando o principal está sobrecarregado (503) ou sem cota (429).
+ * Em 19/10/2026 os modelos Flash ficaram fora por "high demand" enquanto o Flash-Lite respondia normalmente.
+ */
+const MODELO_RESERVA_GEMINI = "gemini-3.5-flash-lite";
 const MAX_MENSAGENS = 10;
 const MAX_CARACTERES_PEDIDO = 1500;
 const NOMES_IDIOMA: Record<Idioma, string> = { ingles: "Inglês", espanhol: "Espanhol" };
@@ -193,8 +198,23 @@ async function chamarGroq(modelo: string, sistema: string, mensagens: Mensagem[]
   return { texto: dados.choices?.[0]?.message?.content ?? "", tokensEntrada: dados.usage?.prompt_tokens ?? 0, tokensSaida: dados.usage?.completion_tokens ?? 0 };
 }
 
-/** Chama o provedor e repete com espera crescente quando a cota grátis ou o serviço estão sobrecarregados. */
+/**
+ * Chama o modelo configurado; se o Gemini continuar sobrecarregado ou sem cota depois das novas tentativas,
+ * usa o modelo de reserva. O resultado diz qual modelo respondeu.
+ */
 export async function chamarModelo(config: Config, sistema: string, mensagens: Mensagem[], env: LerAmbiente, fetchFn: typeof fetch = fetch): Promise<Resultado> {
+  try {
+    return { ...(await chamarComRepeticao(config, sistema, mensagens, env, fetchFn)), modelo: config.modelo };
+  } catch (erro) {
+    const indisponivel = erro instanceof ErroHttp && (erro.status === 503 || erro.status === 429);
+    if (!indisponivel || config.provedor !== "gemini" || config.modelo === MODELO_RESERVA_GEMINI) throw erro;
+    const reserva = { ...config, modelo: MODELO_RESERVA_GEMINI };
+    return { ...(await chamarComRepeticao(reserva, sistema, mensagens, env, fetchFn)), modelo: MODELO_RESERVA_GEMINI };
+  }
+}
+
+/** Chama o provedor e repete com espera crescente quando a cota grátis ou o serviço estão sobrecarregados. */
+async function chamarComRepeticao(config: Config, sistema: string, mensagens: Mensagem[], env: LerAmbiente, fetchFn: typeof fetch = fetch): Promise<Resultado> {
   const chave = env(config.provedor === "gemini" ? "GEMINI_API_KEY" : "GROQ_API_KEY");
   if (!chave) throw new ErroHttp(500, `A chave de API do ${config.provedor} não está configurada nos segredos da Edge Function.`);
   const chamar = config.provedor === "gemini" ? chamarGemini : chamarGroq;
@@ -203,7 +223,7 @@ export async function chamarModelo(config: Config, sistema: string, mensagens: M
       return await chamar(config.modelo, sistema, mensagens, chave, fetchFn);
     } catch (erro) {
       const temporario = erro instanceof ErroHttp && (erro.status === 429 || erro.status === 503);
-      if (!temporario || tentativa >= 2) throw erro;
+      if (!temporario || tentativa >= 1) throw erro;
       await new Promise((r) => setTimeout(r, 2000 * 2 ** tentativa));
     }
   }
@@ -362,6 +382,7 @@ export async function atender(req: Request, env: LerAmbiente, fetchFn: typeof fe
       resposta = interpretarResposta(resultado.texto);
     }
 
+    config = { ...config, modelo: resultado.modelo ?? config.modelo };
     await registrar(supabase, config, ultimaMensagem, true, "", tokensEntrada, tokensSaida, inicio);
     return json({ ...resposta, provedor: config.provedor, modelo: config.modelo, restantes: Math.max(config.limite_diario - usadas - 1, 0) });
   } catch (erro) {
