@@ -4,6 +4,7 @@ import { ClipboardList, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Idioma } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
+import CopiarLink from "../componentes/CopiarLink";
 import { Aviso, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 
 type ListaResumo = {
@@ -68,8 +69,8 @@ export default function Listas() {
           </div>
           <ul className="divide-y divide-borda overflow-hidden rounded-2xl border border-borda bg-superficie">
             {visiveis.map((lista) => (
-              <li key={lista.id}>
-                <Link to={`/exercicios/${lista.id}`} className="flex flex-col gap-2 p-4 transition hover:bg-fundo sm:flex-row sm:items-center sm:gap-4">
+              <li key={lista.id} className="flex items-center pr-3 transition hover:bg-fundo">
+                <Link to={`/exercicios/${lista.id}`} className="flex min-w-0 flex-1 flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-serif text-lg font-bold text-marca">{lista.titulo}</p>
                     <p className="text-sm text-suave">
@@ -80,6 +81,7 @@ export default function Listas() {
                   <span className="text-sm text-suave">{lista.questoes[0]?.count ?? 0} questões</span>
                   <Etiqueta tom={lista.status === "publicada" ? "verde" : "creme"}>{lista.status === "publicada" ? "Publicada" : "Rascunho"}</Etiqueta>
                 </Link>
+                <CopiarLink idLista={lista.id} compacto publicada={lista.status === "publicada"} />
               </li>
             ))}
           </ul>

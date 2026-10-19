@@ -20,6 +20,7 @@ import {
 } from "../lib/exercicios";
 import EditorQuestao from "../componentes/EditorQuestao";
 import EditorAudio from "../componentes/EditorAudio";
+import CopiarLink from "../componentes/CopiarLink";
 import { falantesDoRoteiro } from "../lib/vozes";
 import PainelClaude from "../componentes/PainelClaude";
 import PainelAssistente from "../componentes/PainelAssistente";
@@ -454,6 +455,7 @@ export default function EditorLista() {
                     : "Lista nova"}
           </span>
           <Botao variante="fantasma" onClick={apagar} aria-label="Apagar lista" title="Apagar lista"><Trash2 className="size-4" /></Botao>
+          {persistida && <CopiarLink idLista={lista.id} publicada={lista.status === "publicada"} />}
           <Botao variante="secundario" onClick={testarComoAluno} disabled={salvando}><Eye className="size-4" /> Testar como aluno</Botao>
           {lista.status === "publicada" ? (
             <Botao variante="secundario" onClick={() => salvar("rascunho")} carregando={salvando}>Voltar a rascunho</Botao>

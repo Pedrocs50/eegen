@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
+import { useLocation } from "react-router";
 import { supabase, traduzirErro } from "../lib/supabase";
+import { comVolta, lerVolta } from "../lib/volta";
 import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
 
 export default function Cadastro() {
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [emailEnviado, setEmailEnviado] = useState("");
+  const volta = lerVolta(useLocation().search);
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -23,7 +26,8 @@ export default function Cadastro() {
       password: senha,
       options: {
         data: { nome: String(dados.get("nome")).trim() },
-        emailRedirectTo: `${window.location.origin}/`,
+        // O link do e-mail de confirmação já leva para onde a pessoa queria ir (ex.: o exercício compartilhado).
+        emailRedirectTo: `${window.location.origin}${volta ?? "/"}`,
       },
     });
     setEnviando(false);
@@ -33,7 +37,7 @@ export default function Cadastro() {
 
   if (emailEnviado) {
     return (
-      <CartaoAuth titulo="Confirme seu e-mail" rodape={<LinkTexto para="/entrar">Voltar para o login</LinkTexto>}>
+      <CartaoAuth titulo="Confirme seu e-mail" rodape={<LinkTexto para={comVolta("/entrar", volta)}>Voltar para o login</LinkTexto>}>
         <Aviso tipo="sucesso">
           Enviamos um link de confirmação para <strong>{emailEnviado}</strong>. Abra o e-mail e clique no link para ativar sua conta.
         </Aviso>
@@ -46,7 +50,7 @@ export default function Cadastro() {
     <CartaoAuth
       titulo="Criar conta"
       subtitulo="Depois do cadastro, confirme seu e-mail para entrar."
-      rodape={<>Já tem conta? <LinkTexto para="/entrar">Entrar</LinkTexto></>}
+      rodape={<>Já tem conta? <LinkTexto para={comVolta("/entrar", volta)}>Entrar</LinkTexto></>}
     >
       <form onSubmit={enviar} className="space-y-4">
         {erro && <Aviso>{erro}</Aviso>}

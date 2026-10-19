@@ -185,7 +185,7 @@ export function converterImportacao(bruto: unknown): ResultadoImportacao {
     return secao;
   });
 
-  const idioma = raiz.idioma === "espanhol" || raiz.idioma === "ingles" ? (raiz.idioma as Idioma) : undefined;
+  const idioma = raiz.idioma === "espanhol" || raiz.idioma === "ingles" || raiz.idioma === "frances" ? (raiz.idioma as Idioma) : undefined;
   const nivel = Number(raiz.nivel);
   return {
     dados: {

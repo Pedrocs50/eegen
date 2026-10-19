@@ -101,7 +101,7 @@ export default function Cursos() {
       {cursos && cursos.length > 0 && (
         <>
           <div className="mb-5 flex gap-2" role="group" aria-label="Filtrar por idioma">
-            {(["todos", "ingles", "espanhol"] as const).map((valor) => (
+            {(["todos", "ingles", "espanhol", "frances"] as const).map((valor) => (
               <button
                 key={valor}
                 onClick={() => setFiltro(valor)}

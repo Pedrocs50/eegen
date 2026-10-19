@@ -7,21 +7,23 @@ import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
 import { CURSOS_E_TURMAS_ATIVOS } from "../lib/recursos";
 
-type ItemMenu = { para: string; rotulo: string; icone: LucideIcon };
+/** emConstrucao: parte em espera; só o admin vê (com selo), para acompanhar tudo o que existe. */
+type ItemMenu = { para: string; rotulo: string; icone: LucideIcon; emConstrucao?: boolean };
 type SecaoMenu = { titulo: string; itens: ItemMenu[] };
 
 const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotulo: "Sobre a professora", icone: UserRound }] };
 
+const EM_ESPERA = !CURSOS_E_TURMAS_ATIVOS;
+
 const ENSINO: ItemMenu[] = [
   { para: "/professor", rotulo: "Início", icone: GraduationCap },
   { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
-  ...(CURSOS_E_TURMAS_ATIVOS
-    ? [
-        { para: "/cursos", rotulo: "Cursos", icone: BookMarked },
-        { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
-      ]
-    : []),
+  { para: "/cursos", rotulo: "Cursos e aulas", icone: BookMarked, emConstrucao: EM_ESPERA },
+  { para: "/turmas", rotulo: "Turmas", icone: UsersRound, emConstrucao: EM_ESPERA },
 ];
+
+/** Tira do menu o que está em construção (para todos, menos o admin). */
+const semEmConstrucao = (secoes: SecaoMenu[]) => secoes.map((s) => ({ ...s, itens: s.itens.filter((i) => !i.emConstrucao) }));
 
 const MENUS: Record<Papel, SecaoMenu[]> = {
   admin: [
@@ -32,21 +34,22 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
         { para: "/admin", rotulo: "Usuários", icone: Users },
         { para: "/admin/configuracoes", rotulo: "Configurações", icone: Settings },
         { para: "/praticar", rotulo: "Visão do aluno", icone: PenLine },
+        { para: "/aluno", rotulo: "Cursos do aluno", icone: BookOpen, emConstrucao: EM_ESPERA },
       ],
     },
     SOBRE,
   ],
-  professor: [{ titulo: "Ensino", itens: ENSINO }, SOBRE],
-  aluno: [
+  professor: semEmConstrucao([{ titulo: "Ensino", itens: ENSINO }, SOBRE]),
+  aluno: semEmConstrucao([
     {
       titulo: "Estudos",
       itens: [
         { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
-        ...(CURSOS_E_TURMAS_ATIVOS ? [{ para: "/aluno", rotulo: "Meus cursos", icone: BookOpen }] : []),
+        { para: "/aluno", rotulo: "Meus cursos", icone: BookOpen, emConstrucao: EM_ESPERA },
       ],
     },
     SOBRE,
-  ],
+  ]),
 };
 
 function iniciais(nome: string, email: string) {
@@ -76,7 +79,7 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
           <div key={secao.titulo}>
             <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">{secao.titulo}</p>
             <ul className="space-y-1">
-              {secao.itens.map(({ para, rotulo, icone: Icone }) => (
+              {secao.itens.map(({ para, rotulo, icone: Icone, emConstrucao }) => (
                 <li key={para}>
                   <NavLink
                     to={para}
@@ -90,7 +93,8 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
                     }
                   >
                     <Icone className="size-5 shrink-0" />
-                    {rotulo}
+                    <span className="flex-1">{rotulo}</span>
+                    {emConstrucao && <span className="rounded-full bg-creme px-2 py-0.5 text-[10px] font-bold text-suave uppercase" title="Parte em construção: só o admin vê">Em obra</span>}
                   </NavLink>
                 </li>
               ))}

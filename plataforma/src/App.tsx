@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from "react-router";
+import { comVolta, lerVolta } from "./lib/volta";
 import { ProvedorAuth, useAuth } from "./lib/auth";
 import type { Papel } from "./lib/supabase";
 import Painel from "./componentes/Painel";
@@ -33,15 +34,18 @@ const PAGINA_INICIAL: Record<Papel, string> = {
 /** Telas de quem ainda não entrou; quem já está logado vai para a sua área. */
 function SoDeslogado({ children }: { children: ReactNode }) {
   const { sessao, carregando } = useAuth();
+  const local = useLocation();
   if (carregando) return <Carregando />;
-  return sessao ? <Navigate to="/" replace /> : children;
+  // Logado: vai para onde ia antes do login (ex.: o exercício compartilhado) ou para a sua área.
+  return sessao ? <Navigate to={lerVolta(local.search) ?? "/"} replace /> : children;
 }
 
 /** Libera a rota para os papéis indicados. O admin acessa todas as áreas. */
 function Protegida({ papeis }: { papeis: Papel[] }) {
   const { sessao, perfil, carregando, sair } = useAuth();
+  const local = useLocation();
   if (carregando) return <Carregando />;
-  if (!sessao) return <Navigate to="/entrar" replace />;
+  if (!sessao) return <Navigate to={comVolta("/entrar", local.pathname + local.search)} replace />;
   if (!perfil) {
     return (
       <CartaoAuth titulo="Perfil não encontrado">

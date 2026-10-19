@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+import { comVolta, lerVolta } from "../lib/volta";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
 
 export default function Entrar() {
   const navegar = useNavigate();
+  const volta = lerVolta(useLocation().search);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
 
@@ -19,14 +21,14 @@ export default function Entrar() {
     });
     setEnviando(false);
     if (error) setErro(traduzirErro(error.message));
-    else navegar("/", { replace: true });
+    else navegar(volta ?? "/", { replace: true });
   }
 
   return (
     <CartaoAuth
       titulo="Entrar"
       subtitulo="Acesse seus exercícios e listenings."
-      rodape={<>Ainda não tem conta? <LinkTexto para="/cadastro">Criar conta</LinkTexto></>}
+      rodape={<>Ainda não tem conta? <LinkTexto para={comVolta("/cadastro", volta)}>Criar conta</LinkTexto></>}
     >
       <form onSubmit={enviar} className="space-y-4">
         {erro && <Aviso>{erro}</Aviso>}

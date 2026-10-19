@@ -70,7 +70,7 @@ Para rodar na mão ou regerar tudo: **Actions** → *Gerar áudios e planilha* �
 
 React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0007_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0008_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 

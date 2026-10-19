@@ -74,6 +74,35 @@ const SUGESTOES: Record<Idioma, Record<"basico" | "intermediario" | "avancado", 
       "Estilo indireto contando o que disseram numa reunião",
     ],
   },
+  frances: {
+    basico: [
+      "Se présenter: verbos être e avoir em apresentações pessoais",
+      "Artigos definidos e indefinidos (le, la, les, un, une) com vocabulário da casa",
+      "Números e preços no mercado, com respostas por extenso",
+      "Verbos do primeiro grupo (-er) no presente com a rotina diária",
+      "Dias da semana, horas e compromissos: à quelle heure…?",
+      "Vocabulário de comida e restaurante: pedir, perguntar o preço, pagar",
+      "Listening de um diálogo curto numa padaria (boulangerie)",
+      "Il y a e preposições de lugar descrevendo a cidade",
+    ],
+    intermediario: [
+      "Passé composé com avoir e être contando uma viagem",
+      "Passé composé x imparfait numa história do fim de semana",
+      "Futur proche x futur simple fazendo planos de trabalho",
+      "Pronomes complemento (le, la, lui, leur) em situações de escritório",
+      "Comparativos e superlativos escolhendo um hotel",
+      "Reading curto sobre morar em Montreal, com verdadeiro ou falso",
+      "Listening de uma conversa de check-in no hotel",
+    ],
+    avancado: [
+      "Subjonctif para recomendações e desejos no trabalho",
+      "Conditionnel em situações hipotéticas de negócios",
+      "Conectores formais (cependant, par conséquent) em e-mails",
+      "Expressões idiomáticas francesas, com explicação",
+      "Reading de opinião sobre trabalho remoto, com perguntas de inferência",
+      "Discours indirect resumindo uma reunião",
+    ],
+  },
 };
 
 function faixa(nivel: number) {

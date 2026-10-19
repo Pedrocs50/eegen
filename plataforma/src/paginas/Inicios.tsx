@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, ClipboardList, PenLine, Sparkles } from "lucide-react";
+import { BarChart3, BookMarked, ClipboardList, PenLine, Sparkles, UsersRound } from "lucide-react";
+import { CURSOS_E_TURMAS_ATIVOS } from "../lib/recursos";
 import { Link } from "react-router";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
@@ -67,6 +68,16 @@ export function InicioProfessor() {
         <Atalho para="/praticar" icone={PenLine} titulo="Visão do aluno" numero={contagens?.respostas} texto="Respostas enviadas até agora. Veja as listas como o aluno vê." />
         <EmBreve icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que a turma mais errou." />
       </div>
+      {perfil?.papel === "admin" && !CURSOS_E_TURMAS_ATIVOS && (
+        <>
+          <h2 className="mt-10 mb-1 text-xl font-bold text-marca">Em construção</h2>
+          <p className="mb-4 text-sm text-suave">Só você (admin) vê estas partes. Professores e alunos ainda não.</p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Atalho para="/cursos" icone={BookMarked} titulo="Cursos e aulas" texto="Cursos por idioma e nível, com as aulas e o material de cada uma." />
+            <Atalho para="/turmas" icone={UsersRound} titulo="Turmas" texto="Turmas com código de convite e aulas liberadas por turma." />
+          </div>
+        </>
+      )}
     </>
   );
 }
