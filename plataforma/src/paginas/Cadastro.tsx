@@ -21,7 +21,7 @@ export default function Cadastro() {
     const email = String(dados.get("email")).trim();
     setErro("");
     setEnviando(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password: senha,
       options: {
@@ -32,7 +32,8 @@ export default function Cadastro() {
     });
     setEnviando(false);
     if (error) setErro(traduzirErro(error.message));
-    else setEmailEnviado(email);
+    // Com a confirmação de e-mail desligada no Supabase, a conta já vem logada e a rota leva a pessoa adiante.
+    else if (!data.session) setEmailEnviado(email);
   }
 
   if (emailEnviado) {
@@ -49,7 +50,7 @@ export default function Cadastro() {
   return (
     <CartaoAuth
       titulo="Criar conta"
-      subtitulo="Depois do cadastro, confirme seu e-mail para entrar."
+      subtitulo="Leva menos de um minuto."
       rodape={<>Já tem conta? <LinkTexto para={comVolta("/entrar", volta)}>Entrar</LinkTexto></>}
     >
       <form onSubmit={enviar} className="space-y-4">
