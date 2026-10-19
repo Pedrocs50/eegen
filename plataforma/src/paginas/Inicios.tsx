@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, BookMarked, ClipboardList, Users } from "lucide-react";
+import { BarChart3, ClipboardList, PenLine, Sparkles } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
@@ -34,19 +34,18 @@ function EmBreve({ icone: Icone, titulo, texto }: { icone: LucideIcon; titulo: s
   );
 }
 
-type Contagens = { listas: number; cursos: number; turmas: number; alunos: number };
+type Contagens = { listas: number; publicadas: number; respostas: number };
 
 export function InicioProfessor() {
   const { perfil } = useAuth();
   const { dados: contagens } = useConsulta<Contagens>(async () => {
-    const [listas, cursos, turmas, alunos] = await Promise.all([
+    const [listas, publicadas, respostas] = await Promise.all([
       supabase.from("listas").select("id", { count: "exact", head: true }),
-      supabase.from("cursos").select("id", { count: "exact", head: true }),
-      supabase.from("turmas").select("id", { count: "exact", head: true }),
-      supabase.from("matriculas").select("aluno_id", { count: "exact", head: true }),
+      supabase.from("listas").select("id", { count: "exact", head: true }).eq("status", "publicada"),
+      supabase.from("tentativas").select("id", { count: "exact", head: true }),
     ]);
-    const erro = listas.error ?? cursos.error ?? turmas.error ?? alunos.error;
-    return { data: { listas: listas.count ?? 0, cursos: cursos.count ?? 0, turmas: turmas.count ?? 0, alunos: alunos.count ?? 0 }, error: erro };
+    const erro = listas.error ?? publicadas.error ?? respostas.error;
+    return { data: { listas: listas.count ?? 0, publicadas: publicadas.count ?? 0, respostas: respostas.count ?? 0 }, error: erro };
   });
 
   return (
@@ -57,9 +56,15 @@ export function InicioProfessor() {
         descricao="Crie listas de exercícios, publique para os alunos e acompanhe as respostas."
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Atalho para="/exercicios" icone={ClipboardList} titulo="Exercícios" numero={contagens?.listas} texto="Listas com múltipla escolha, V/F, lacunas e respostas curtas, com correção na hora." />
-        <Atalho para="/cursos" icone={BookMarked} titulo="Cursos" numero={contagens?.cursos} texto="Cursos por idioma e nível, com as aulas dentro." />
-        <Atalho para="/turmas" icone={Users} titulo="Turmas" numero={contagens?.turmas} texto={`${contagens?.alunos ?? 0} matrículas no total. Libere aulas para cada turma.`} />
+        <Atalho para="/exercicios/nova" icone={Sparkles} titulo="Criar com o Assistente UP" texto="Peça os exercícios em uma frase, inclusive listening com áudio." />
+        <Atalho
+          para="/exercicios"
+          icone={ClipboardList}
+          titulo="Exercícios"
+          numero={contagens?.listas}
+          texto={`${contagens?.publicadas ?? 0} publicadas para os alunos. Edite, publique ou teste como aluno.`}
+        />
+        <Atalho para="/praticar" icone={PenLine} titulo="Visão do aluno" numero={contagens?.respostas} texto="Respostas enviadas até agora. Veja as listas como o aluno vê." />
         <EmBreve icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que a turma mais errou." />
       </div>
     </>

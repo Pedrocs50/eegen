@@ -74,7 +74,7 @@ function MultiplaEscolha({ q, r, responder, correcao }: PropsParte) {
               : "border-borda hover:border-destaque";
           return (
             <label key={i} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${estilo}`}>
-              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ opcao: i })} className="sr-only" />
+              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ opcao: i })} aria-label={`${"ABCDE"[i]}: ${opcao}`} className="sr-only" />
               <span className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold ${escolhida || certa ? "bg-marca text-sobre-marca" : "bg-creme text-suave"}`}>
                 {"ABCDE"[i]}
               </span>
@@ -106,7 +106,7 @@ function VerdadeiroFalso({ q, r, responder, correcao }: PropsParte) {
               : "border-borda hover:border-destaque";
           return (
             <label key={String(valor)} className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${estilo}`}>
-              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ valor })} className="sr-only" />
+              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ valor })} aria-label={valor ? "True" : "False"} className="sr-only" />
               {valor ? "True" : "False"}
             </label>
           );

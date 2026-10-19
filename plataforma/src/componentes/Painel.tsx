@@ -5,6 +5,7 @@ import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
+import { CURSOS_E_TURMAS_ATIVOS } from "../lib/recursos";
 
 type ItemMenu = { para: string; rotulo: string; icone: LucideIcon };
 type SecaoMenu = { titulo: string; itens: ItemMenu[] };
@@ -14,8 +15,12 @@ const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotul
 const ENSINO: ItemMenu[] = [
   { para: "/professor", rotulo: "Início", icone: GraduationCap },
   { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
-  { para: "/cursos", rotulo: "Cursos", icone: BookMarked },
-  { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
+  ...(CURSOS_E_TURMAS_ATIVOS
+    ? [
+        { para: "/cursos", rotulo: "Cursos", icone: BookMarked },
+        { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
+      ]
+    : []),
 ];
 
 const MENUS: Record<Papel, SecaoMenu[]> = {
@@ -37,7 +42,7 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
       titulo: "Estudos",
       itens: [
         { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
-        { para: "/aluno", rotulo: "Meus cursos", icone: BookOpen },
+        ...(CURSOS_E_TURMAS_ATIVOS ? [{ para: "/aluno", rotulo: "Meus cursos", icone: BookOpen }] : []),
       ],
     },
     SOBRE,

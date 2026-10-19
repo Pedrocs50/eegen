@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router";
 import { ProvedorAuth, useAuth } from "./lib/auth";
 import type { Papel } from "./lib/supabase";
@@ -8,18 +8,21 @@ import Entrar from "./paginas/Entrar";
 import Cadastro from "./paginas/Cadastro";
 import EsqueciSenha from "./paginas/EsqueciSenha";
 import NovaSenha from "./paginas/NovaSenha";
-import Admin from "./paginas/Admin";
-import { InicioProfessor } from "./paginas/Inicios";
-import { AulaAluno, InicioAluno } from "./paginas/AreaAluno";
-import Cursos from "./paginas/Cursos";
-import Curso from "./paginas/Curso";
-import Turmas from "./paginas/Turmas";
-import Turma from "./paginas/Turma";
-import Listas from "./paginas/Listas";
-import EditorLista from "./paginas/EditorLista";
-import { ListasDoAluno, ResponderLista } from "./paginas/Praticar";
 import Sobre from "./paginas/Sobre";
-import Configuracoes from "./paginas/Configuracoes";
+
+const Admin = lazy(() => import("./paginas/Admin"));
+const Configuracoes = lazy(() => import("./paginas/Configuracoes"));
+const InicioProfessor = lazy(() => import("./paginas/Inicios").then((m) => ({ default: m.InicioProfessor })));
+const InicioAluno = lazy(() => import("./paginas/AreaAluno").then((m) => ({ default: m.InicioAluno })));
+const AulaAluno = lazy(() => import("./paginas/AreaAluno").then((m) => ({ default: m.AulaAluno })));
+const Cursos = lazy(() => import("./paginas/Cursos"));
+const Curso = lazy(() => import("./paginas/Curso"));
+const Turmas = lazy(() => import("./paginas/Turmas"));
+const Turma = lazy(() => import("./paginas/Turma"));
+const Listas = lazy(() => import("./paginas/Listas"));
+const EditorLista = lazy(() => import("./paginas/EditorLista"));
+const ListasDoAluno = lazy(() => import("./paginas/Praticar").then((m) => ({ default: m.ListasDoAluno })));
+const ResponderLista = lazy(() => import("./paginas/Praticar").then((m) => ({ default: m.ResponderLista })));
 
 const PAGINA_INICIAL: Record<Papel, string> = {
   admin: "/professor",
@@ -83,13 +86,14 @@ function Inicio() {
   const { sessao, perfil, carregando } = useAuth();
   if (carregando) return <Carregando />;
   if (!sessao) return <Navigate to="/entrar" replace />;
-  return <Navigate to={perfil ? PAGINA_INICIAL[perfil.papel] : "/aluno"} replace />;
+  return <Navigate to={perfil ? PAGINA_INICIAL[perfil.papel] : "/praticar"} replace />;
 }
 
 export default function App() {
   return (
     <ProvedorAuth>
       <BrowserRouter>
+        <Suspense fallback={<Carregando />}>
         <Routes>
           <Route path="/" element={<Inicio />} />
           <Route path="/entrar" element={<SoDeslogado><Entrar /></SoDeslogado>} />
@@ -121,6 +125,7 @@ export default function App() {
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </ProvedorAuth>
   );

@@ -1,4 +1,3 @@
-import { Mp3Encoder } from "@breezystack/lamejs";
 import { supabase } from "./supabase";
 
 export type ResultadoAudio = { url: string; caminho: string; hash: string; segundos: number; reaproveitado: boolean };
@@ -12,8 +11,12 @@ export async function hashDoAudio(roteiro: string, vozes: Record<string, string>
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
 }
 
-/** Converte o WAV (PCM 16 bits mono) devolvido pela função em MP3 de 64 kbps, aqui no navegador. */
-export function wavParaMp3(wav: ArrayBuffer): { mp3: Blob; segundos: number } {
+/**
+ * Converte o WAV (PCM 16 bits mono) devolvido pela função em MP3 de 64 kbps, aqui no navegador.
+ * O encoder (~150 KB) só é baixado na primeira vez que alguém gera um áudio.
+ */
+export async function wavParaMp3(wav: ArrayBuffer): Promise<{ mp3: Blob; segundos: number }> {
+  const { Mp3Encoder } = await import("@breezystack/lamejs");
   const v = new DataView(wav);
   const taxa = v.getUint32(24, true);
   const amostras = new Int16Array(wav, 44, (wav.byteLength - 44) / 2);
@@ -71,7 +74,7 @@ export async function gerarAudio(roteiro: string, vozes: Record<string, string>)
     throw new Error(corpo?.erro ?? `O gerador de áudio respondeu ${resposta.status}.`);
   }
 
-  const { mp3, segundos } = wavParaMp3(await resposta.arrayBuffer());
+  const { mp3, segundos } = await wavParaMp3(await resposta.arrayBuffer());
   const { error } = await supabase.storage.from("audios").upload(caminho, mp3, { contentType: "audio/mpeg", upsert: true, cacheControl: "31536000" });
   if (error) throw new Error(`O áudio foi gerado, mas não foi possível salvá-lo: ${error.message}`);
   return { url: publico.publicUrl, caminho, hash, segundos, reaproveitado: false };

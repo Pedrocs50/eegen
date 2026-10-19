@@ -25,7 +25,7 @@ export default function Entrar() {
   return (
     <CartaoAuth
       titulo="Entrar"
-      subtitulo="Acesse seus cursos e exercícios."
+      subtitulo="Acesse seus exercícios e listenings."
       rodape={<>Ainda não tem conta? <LinkTexto para="/cadastro">Criar conta</LinkTexto></>}
     >
       <form onSubmit={enviar} className="space-y-4">

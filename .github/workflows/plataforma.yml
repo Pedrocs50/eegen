@@ -1,0 +1,40 @@
+name: Plataforma (build e testes do banco)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plataforma/**"
+      - "supabase/**"
+      - ".github/workflows/plataforma.yml"
+  pull_request:
+    paths:
+      - "plataforma/**"
+      - "supabase/**"
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: plataforma
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: plataforma/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      # Roda todas as migrações num Postgres local e confere permissões, correção, cota e bloqueio.
+      - name: Testes do banco
+        run: npm run test:banco
+
+      - name: Compilar o site
+        run: npm run build

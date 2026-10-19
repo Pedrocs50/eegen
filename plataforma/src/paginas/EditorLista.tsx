@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AlertTriangle, ArrowDown, ArrowLeft, ArrowUp, ChevronDown, Copy, Eye, Lightbulb, Plus, Save, Trash2 } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
@@ -72,6 +72,11 @@ export default function EditorLista() {
   // O assistente abre sozinho nas listas novas, que é quando gerar com IA mais ajuda.
   const [painelAssistente, setPainelAssistente] = useState(nova);
   const [painelClaude, setPainelClaude] = useState(false);
+  // Já existe no banco? (uma lista nova passa a existir no primeiro salvamento, manual ou automático).
+  const [persistida, setPersistida] = useState(!nova);
+  const [salvoAutomaticoEm, setSalvoAutomaticoEm] = useState<Date | null>(null);
+  // Conta as alterações: se o professor digitou enquanto salvava, a lista continua "não salva".
+  const versao = useRef(0);
 
   useEffect(() => {
     if (nova) return;
@@ -93,6 +98,17 @@ export default function EditorLista() {
     window.addEventListener("beforeunload", aoSair);
     return () => window.removeEventListener("beforeunload", aoSair);
   }, [sujo]);
+
+  // Salva sozinho 3 s depois da última alteração. Lista sem título não é salva (o banco exige título);
+  // lista publicada com pendências também não (publicada precisa estar completa).
+  useEffect(() => {
+    if (!lista || !sujo || salvando || !lista.titulo.trim()) return;
+    if (lista.status === "publicada" && problemas.length > 0) return;
+    const espera = setTimeout(() => salvar(lista.status, true), 3000);
+    return () => clearTimeout(espera);
+    // salvar é recriada a cada render; o que importa é a lista mudar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lista, sujo, salvando]);
 
   const problemas = useMemo(() => {
     if (!lista) return [];
@@ -118,6 +134,7 @@ export default function EditorLista() {
   if (!lista) return <TextoCarregando />;
 
   function atualizar(nova: Lista) {
+    versao.current += 1;
     setLista(nova);
     setSujo(true);
     setAviso("");
@@ -149,28 +166,34 @@ export default function EditorLista() {
     setPainelClaude(false);
     setPainelAssistente(false);
     const extra = avisos.length ? ` Atenção: ${avisos.join(" ")}` : "";
-    setAviso(`Importadas ${totalQuestoes} questões em ${secoes.length} seções. Revise e clique em Salvar.${extra}`);
+    setAviso(`Importadas ${totalQuestoes} questões em ${secoes.length} seções. Revise à vontade: a lista é salva sozinha enquanto você edita.${extra}`);
   }
 
-  async function salvar(status = lista!.status): Promise<boolean> {
+  async function salvar(status = lista!.status, automatico = false): Promise<boolean> {
     if (!lista) return false;
     if (status === "publicada" && problemas.length > 0) {
-      setErro("Corrija os itens da lista de pendências antes de publicar.");
+      if (!automatico) setErro("Corrija os itens da lista de pendências antes de publicar.");
       return false;
     }
-    setErro("");
+    if (!automatico) setErro("");
     setSalvando(true);
-    const dados = { ...lista, status };
-    const { error } = await supabase.rpc("salvar_lista", { dados });
+    const versaoSalva = versao.current;
+    const { error } = await supabase.rpc("salvar_lista", { dados: { ...lista, status } });
     setSalvando(false);
     if (error) {
-      setErro(traduzirErro(error.message));
+      setErro(automatico ? `Não foi possível salvar automaticamente: ${traduzirErro(error.message)}` : traduzirErro(error.message));
       return false;
     }
-    setLista(dados);
-    setSujo(false);
-    setAviso(status === "publicada" && lista.status !== "publicada" ? "Lista publicada: os alunos já podem responder." : "Alterações salvas.");
-    if (nova) navegar(`/exercicios/${lista.id}`, { replace: true });
+    // Só o status muda aqui: substituir a lista inteira apagaria o que foi digitado durante o salvamento.
+    setLista((atual) => (atual ? { ...atual, status } : atual));
+    if (versao.current === versaoSalva) setSujo(false);
+    if (automatico) setSalvoAutomaticoEm(new Date());
+    else setAviso(status === "publicada" && lista.status !== "publicada" ? "Lista publicada: os alunos já podem responder." : "Alterações salvas.");
+    if (!persistida) {
+      setPersistida(true);
+      // Troca o endereço sem recarregar a tela (recarregar fecharia a questão aberta no meio da edição).
+      window.history.replaceState(window.history.state, "", `/exercicios/${lista.id}`);
+    }
     return true;
   }
 
@@ -181,7 +204,7 @@ export default function EditorLista() {
 
   async function apagar() {
     if (!lista) return;
-    if (nova) {
+    if (!persistida) {
       navegar("/exercicios");
       return;
     }
@@ -415,7 +438,21 @@ export default function EditorLista() {
       {/* Barra de ações fixa */}
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-borda bg-lateral/95 backdrop-blur lg:left-72">
         <div className="flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 sm:px-8 lg:px-12">
-          <span className="mr-auto text-sm text-suave">{sujo ? "Alterações não salvas" : "Tudo salvo"}</span>
+          <span className="mr-auto text-sm text-suave" role="status">
+            {salvando
+              ? "Salvando…"
+              : sujo
+                ? !lista.titulo.trim()
+                  ? "Dê um título para a lista ser salva sozinha"
+                  : lista.status === "publicada" && problemas.length > 0
+                    ? "Lista publicada: corrija as pendências para salvar"
+                    : "Alterações não salvas…"
+                : salvoAutomaticoEm
+                  ? `Salvo automaticamente às ${salvoAutomaticoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                  : persistida
+                    ? "Tudo salvo"
+                    : "Lista nova"}
+          </span>
           <Botao variante="fantasma" onClick={apagar} aria-label="Apagar lista" title="Apagar lista"><Trash2 className="size-4" /></Botao>
           <Botao variante="secundario" onClick={testarComoAluno} disabled={salvando}><Eye className="size-4" /> Testar como aluno</Botao>
           {lista.status === "publicada" ? (

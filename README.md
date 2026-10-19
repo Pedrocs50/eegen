@@ -79,6 +79,8 @@ npm --prefix plataforma install
 npm --prefix plataforma run dev
 ```
 
+Testes do banco (todas as migrações num Postgres local): `npm --prefix plataforma run test:banco`. Rodam também no GitHub Actions a cada envio.
+
 Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professores na tela *Usuários*.
 
 ## Status das partes
