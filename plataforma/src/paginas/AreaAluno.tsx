@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowLeft, ClipboardList, ExternalLink, KeyRound, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardList, Headphones, KeyRound, Lock } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso, type Turma } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
+import LeitorPdf from "../componentes/LeitorPdf";
 import { Aviso, Botao, Cartao, Etiqueta, EstadoVazio, Pontilhado, TextoCarregando } from "../componentes/ui";
 
 type MinhaTurma = {
@@ -143,24 +144,55 @@ export function InicioAluno() {
   );
 }
 
-type AulaComCurso = Aula & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel"> };
+type ListaDaAula = { id: string; titulo: string; descricao: string; status: "rascunho" | "publicada"; questoes: { count: number }[]; secoes: { tipo_estimulo: string }[] };
+type AulaComCurso = Aula & {
+  cursos: Pick<Curso, "titulo" | "idioma" | "nivel">;
+  aula_listas: { ordem: number; listas: ListaDaAula | null }[];
+};
+type AulaComNotas = { aula: AulaComCurso; notas: Record<string, number> };
 
-/** Página da aula para o aluno: capa no padrão dos materiais, material e (em breve) as listas. */
+/** Página da aula: capa no padrão dos materiais, o PDF dentro do site e os exercícios da aula no fim. */
 export function AulaAluno() {
   const { id = "" } = useParams();
-  const { dados: aula, erro, carregando } = useConsulta<AulaComCurso>(
-    () => supabase.from("aulas").select("*, cursos(titulo, idioma, nivel)").eq("id", id).single(),
-    [id],
-  );
+  const { perfil } = useAuth();
+  const equipe = perfil?.papel === "admin" || perfil?.papel === "professor";
+  const { dados, erro, carregando } = useConsulta<AulaComNotas>(async () => {
+    const resposta = await supabase
+      .from("aulas")
+      .select("*, cursos(titulo, idioma, nivel), aula_listas(ordem, listas(id, titulo, descricao, status, questoes(count), secoes(tipo_estimulo)))")
+      .eq("id", id)
+      .single();
+    if (resposta.error || !resposta.data) return { data: null, error: resposta.error };
+    const aula = resposta.data as unknown as AulaComCurso;
+    const ids = aula.aula_listas.map((l) => l.listas?.id).filter((x): x is string => !!x);
+    const notas: Record<string, number> = {};
+    if (ids.length && perfil?.id) {
+      const { data: tentativas } = await supabase.from("tentativas").select("lista_id, nota").eq("aluno_id", perfil.id).in("lista_id", ids);
+      for (const t of tentativas ?? []) notas[t.lista_id] = Math.max(notas[t.lista_id] ?? 0, Number(t.nota));
+    }
+    return { data: { aula, notas }, error: null };
+  }, [id, perfil?.id]);
 
   if (carregando) return <TextoCarregando />;
-  if (erro || !aula) return <Aviso>{erro ? "Essa aula não está liberada para você." : "Aula não encontrada."}</Aviso>;
+  if (erro || !dados) return <Aviso>{erro ? "Essa aula não está liberada para você." : "Aula não encontrada."}</Aviso>;
+  const { aula, notas } = dados;
+
+  // O aluno só recebe as listas publicadas (as regras do banco escondem rascunhos); a equipe vê todas, marcadas.
+  const listas = [...aula.aula_listas]
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((l) => l.listas)
+    .filter((l): l is ListaDaAula => !!l && (equipe || l.status === "publicada"));
 
   return (
     <>
-      <Link to="/aluno" className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-suave hover:text-texto">
-        <ArrowLeft className="size-4" /> Meus cursos
+      <Link to={equipe ? `/cursos/${aula.curso_id}` : "/aluno"} className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-suave hover:text-texto">
+        <ArrowLeft className="size-4" /> {equipe ? "Voltar ao curso" : "Meus cursos"}
       </Link>
+      {equipe && (
+        <div className="mb-4">
+          <Aviso tipo="info">Você está vendo a aula como o aluno vê. Rascunhos aparecem marcados só para a equipe.</Aviso>
+        </div>
+      )}
 
       <section className="overflow-hidden rounded-3xl bg-marinho-800 px-6 py-10 text-white sm:px-12">
         <p className="text-[11px] font-bold tracking-[0.14em] text-azul-300 uppercase">
@@ -170,25 +202,45 @@ export function AulaAluno() {
         <h1 className="mt-4 text-4xl font-bold sm:text-5xl">{aula.titulo}</h1>
         {aula.subtitulo && <p className="mt-2 font-serif text-xl text-azul-300 italic">{aula.subtitulo}</p>}
         <Pontilhado className="mt-6 max-w-xl text-white/90" />
-        {aula.material_url && (
-          <a
-            href={aula.material_url}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-marinho-800 hover:bg-white/90"
-          >
-            <ExternalLink className="size-4" /> Abrir material da aula
-          </a>
-        )}
       </section>
 
       <div className="mt-8">
-        <EstadoVazio
-          icone={ClipboardList}
-          titulo="Hora de praticar!"
-          texto="As listas de exercícios desta aula vão aparecer aqui, com correção na hora."
-        />
+        <LeitorPdf aula={aula} />
       </div>
+
+      <section className="mt-10" aria-labelledby="hora-de-praticar">
+        <h2 id="hora-de-praticar" className="text-2xl font-bold text-marca">Hora de praticar!</h2>
+        <p className="mb-4 text-suave">Depois de estudar o material, faça os exercícios desta aula. Vale a sua melhor nota.</p>
+        {listas.length === 0 ? (
+          <EstadoVazio icone={ClipboardList} titulo="Sem exercícios por enquanto" texto="Quando a professora ligar exercícios a esta aula, eles aparecem aqui." />
+        ) : (
+          <ol className="grid gap-4 sm:grid-cols-2">
+            {listas.map((lista, i) => {
+              const nota = notas[lista.id];
+              const temAudio = lista.secoes.some((s) => s.tipo_estimulo === "audio");
+              return (
+                <li key={lista.id}>
+                  <Link to={`/praticar/${lista.id}`} className="flex h-full gap-4 rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-marinho-800 font-serif font-bold text-white">{i + 1}</span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="flex flex-wrap gap-1.5">
+                        {temAudio && <Etiqueta><Headphones className="mr-1 size-3.5" /> Listening</Etiqueta>}
+                        {nota !== undefined ? <Etiqueta tom="verde"><CheckCircle2 className="mr-1 size-3.5" /> Feita · {nota}%</Etiqueta> : <Etiqueta tom="creme">Não feita</Etiqueta>}
+                        {lista.status === "rascunho" && <Etiqueta tom="coral">Rascunho</Etiqueta>}
+                      </span>
+                      <span className="mt-2 font-serif text-lg font-bold text-marca">{lista.titulo}</span>
+                      {lista.descricao && <span className="mt-0.5 font-serif text-sm text-suave italic">{lista.descricao}</span>}
+                      <span className="mt-auto pt-3 text-sm font-semibold text-destaque">
+                        {lista.questoes[0]?.count ?? 0} questões · {nota === undefined ? "Começar" : "Refazer"} →
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
     </>
   );
 }

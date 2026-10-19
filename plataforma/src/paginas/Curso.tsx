@@ -1,52 +1,142 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, ExternalLink, NotebookPen, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ClipboardList, Eye, FileText, Link2, NotebookPen, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso as TipoCurso } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
 import { Aviso, Botao, Campo, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 import { FormularioCurso } from "./Cursos";
+import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
+import { TAMANHO_MAXIMO_MB, enviarMaterial } from "../lib/materiais";
 
-type CursoComAulas = TipoCurso & { aulas: Aula[] };
+type CursoComAulas = TipoCurso & { aulas: (Aula & { aula_listas: { lista_id: string; ordem: number }[] })[] };
+
+type AulaCompleta = Aula & { aula_listas: { lista_id: string; ordem: number }[] };
+type ModoMaterial = "nenhum" | "arquivo" | "link";
 
 function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar }: {
   cursoId: string;
-  inicial?: Aula;
+  inicial?: AulaCompleta;
   proximoNumero: number;
   aoSalvar: () => void;
   aoCancelar: () => void;
 }) {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [modo, setModo] = useState<ModoMaterial>(inicial?.material_arquivo ? "arquivo" : inicial?.material_url ? "link" : "nenhum");
+  const [arquivo, setArquivo] = useState<File | null>(null);
+  const [exercicios, setExercicios] = useState<string[]>(
+    [...(inicial?.aula_listas ?? [])].sort((a, b) => a.ordem - b.ordem).map((l) => l.lista_id),
+  );
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const dados = new FormData(evento.currentTarget);
-    const aula = {
-      numero: Number(dados.get("numero")),
-      titulo: String(dados.get("titulo")).trim(),
-      subtitulo: String(dados.get("subtitulo")).trim(),
-      material_url: String(dados.get("material_url")).trim(),
-    };
     setErro("");
+    if (modo === "arquivo" && !arquivo && !inicial?.material_arquivo) {
+      setErro("Escolha o PDF da aula ou mude a opção de material.");
+      return;
+    }
     setSalvando(true);
-    const { error } = inicial
-      ? await supabase.from("aulas").update(aula).eq("id", inicial.id)
-      : await supabase.from("aulas").insert({ ...aula, curso_id: cursoId });
-    setSalvando(false);
-    if (error) setErro(traduzirErro(error.message));
-    else aoSalvar();
+    try {
+      // 1. Material: envia o PDF novo (se houver) antes de gravar a aula.
+      let material = { material_url: "", material_arquivo: "", material_nome: "" };
+      if (modo === "link") material.material_url = String(dados.get("material_url") ?? "").trim();
+      if (modo === "arquivo") {
+        material = arquivo
+          ? { material_url: "", ...(await enviarMaterial(arquivo).then((r) => ({ material_arquivo: r.caminho, material_nome: r.nome }))) }
+          : { material_url: "", material_arquivo: inicial!.material_arquivo, material_nome: inicial!.material_nome };
+      }
+      const aula = {
+        numero: Number(dados.get("numero")),
+        titulo: String(dados.get("titulo")).trim(),
+        subtitulo: String(dados.get("subtitulo")).trim(),
+        ...material,
+      };
+
+      // 2. A aula em si.
+      let idAula = inicial?.id;
+      if (inicial) {
+        const { error } = await supabase.from("aulas").update(aula).eq("id", inicial.id);
+        if (error) throw new Error(traduzirErro(error.message));
+      } else {
+        const { data, error } = await supabase.from("aulas").insert({ ...aula, curso_id: cursoId }).select("id").single();
+        if (error || !data) throw new Error(traduzirErro(error?.message ?? "Não foi possível criar a aula."));
+        idAula = data.id;
+      }
+
+      // 3. Exercícios da aula: regrava a lista inteira na ordem escolhida.
+      const { error: erroApagar } = await supabase.from("aula_listas").delete().eq("aula_id", idAula!);
+      if (erroApagar) throw new Error(traduzirErro(erroApagar.message));
+      if (exercicios.length) {
+        const { error } = await supabase.from("aula_listas").insert(exercicios.map((lista_id, ordem) => ({ aula_id: idAula, lista_id, ordem })));
+        if (error) throw new Error(traduzirErro(error.message));
+      }
+
+      // 4. O PDF antigo sai do bucket quando foi trocado ou removido.
+      if (inicial?.material_arquivo && inicial.material_arquivo !== material.material_arquivo) {
+        await supabase.storage.from("materiais").remove([inicial.material_arquivo]);
+      }
+      aoSalvar();
+    } catch (e) {
+      setErro((e as Error).message);
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-4">
+    <form onSubmit={enviar} className="space-y-5">
       {erro && <Aviso>{erro}</Aviso>}
       <div className="grid gap-4 sm:grid-cols-[7rem_minmax(0,1fr)]">
         <Campo rotulo="Número" name="numero" type="number" min={1} defaultValue={inicial?.numero ?? proximoNumero} required />
         <Campo rotulo="Tema da aula" name="titulo" defaultValue={inicial?.titulo} placeholder="Prepositions of movement" required />
       </div>
       <Campo rotulo="Frase de abertura" name="subtitulo" defaultValue={inicial?.subtitulo} placeholder="Vamos aprender como indicar a direção certa?" dica="Aparece em itálico, como na capa dos materiais." />
-      <Campo rotulo="Link do material (PDF)" name="material_url" type="url" defaultValue={inicial?.material_url} placeholder="https://drive.google.com/…" dica="Opcional. Pode ser um link do Google Drive com acesso para quem tiver o link." />
+
+      <fieldset>
+        <legend className="mb-1.5 text-sm font-semibold text-texto">Material da aula</legend>
+        <div className="mb-3 flex flex-wrap gap-2" role="radiogroup">
+          {(
+            [
+              ["nenhum", "Sem material"],
+              ["arquivo", "Enviar PDF"],
+              ["link", "Colar link"],
+            ] as const
+          ).map(([valor, rotulo]) => (
+            <label key={valor} className={`cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-semibold ${modo === valor ? "bg-marca text-sobre-marca" : "border border-borda text-suave hover:text-texto"}`}>
+              <input type="radio" name="modo_material" value={valor} checked={modo === valor} onChange={() => setModo(valor)} className="sr-only" />
+              {rotulo}
+            </label>
+          ))}
+        </div>
+        {modo === "arquivo" && (
+          <div className="rounded-xl border-2 border-dashed border-borda p-4">
+            {inicial?.material_arquivo && !arquivo && (
+              <p className="mb-2 flex items-center gap-2 text-sm"><FileText className="size-4 text-marca" /> Atual: <strong>{inicial.material_nome}</strong></p>
+            )}
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-borda bg-superficie px-4 py-2.5 text-sm font-semibold hover:bg-fundo">
+              <Upload className="size-4" /> {arquivo ? "Trocar arquivo" : inicial?.material_arquivo ? "Enviar outro PDF" : "Escolher PDF"}
+              <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(e) => setArquivo(e.target.files?.[0] ?? null)} />
+            </label>
+            {arquivo && <p className="mt-2 text-sm">Novo: <strong>{arquivo.name}</strong> ({(arquivo.size / 1024 / 1024).toFixed(1)} MB) — sobe quando você salvar.</p>}
+            <p className="mt-2 text-xs text-suave">Até {TAMANHO_MAXIMO_MB} MB. Fica guardado de forma privada: só a equipe e os alunos com a aula liberada abrem.</p>
+          </div>
+        )}
+        {modo === "link" && (
+          <Campo
+            rotulo="Link do material"
+            name="material_url"
+            type="url"
+            defaultValue={inicial?.material_url}
+            placeholder="https://drive.google.com/file/d/…/view"
+            dica="Google Drive, Docs ou Slides (com acesso para quem tiver o link) abrem dentro do site. Outros links de PDF também funcionam."
+          />
+        )}
+      </fieldset>
+
+      <ExerciciosDaAula selecionadas={exercicios} aoMudar={setExercicios} />
+
       <div className="flex flex-wrap gap-2">
         <Botao type="submit" carregando={salvando}>{inicial ? "Salvar aula" : "Adicionar aula"}</Botao>
         <Botao type="button" variante="secundario" onClick={aoCancelar}>Cancelar</Botao>
@@ -62,7 +152,7 @@ export default function Curso() {
   const [aulaEmEdicao, setAulaEmEdicao] = useState<string | "nova" | null>(null);
   const [erroAcao, setErroAcao] = useState("");
   const { dados: curso, erro, carregando, recarregar } = useConsulta<CursoComAulas>(
-    () => supabase.from("cursos").select("*, aulas(*)").eq("id", id).order("numero", { referencedTable: "aulas" }).single(),
+    () => supabase.from("cursos").select("*, aulas(*, aula_listas(lista_id, ordem))").eq("id", id).order("numero", { referencedTable: "aulas" }).single(),
     [id],
   );
 
@@ -83,7 +173,10 @@ export default function Curso() {
     if (!confirm(`Apagar a aula ${aula.numero} — ${aula.titulo}?`)) return;
     const { error } = await supabase.from("aulas").delete().eq("id", aula.id);
     if (error) setErroAcao(traduzirErro(error.message));
-    else recarregar();
+    else {
+      if (aula.material_arquivo) await supabase.storage.from("materiais").remove([aula.material_arquivo]);
+      recarregar();
+    }
   }
 
   const fecharEdicao = () => setAulaEmEdicao(null);
@@ -144,7 +237,7 @@ export default function Curso() {
         <EstadoVazio
           icone={NotebookPen}
           titulo="Adicione a primeira aula"
-          texto="Cada aula tem um tema, uma frase de abertura e, se quiser, o link do material em PDF. As listas de exercícios entram dentro dela."
+          texto="Cada aula tem um tema, uma frase de abertura, o material em PDF (arquivo ou link) e os exercícios que aparecem no fim."
           acao={<Botao onClick={() => setAulaEmEdicao("nova")}><Plus className="size-4" /> Nova aula</Botao>}
         />
       ) : (
@@ -165,12 +258,17 @@ export default function Curso() {
                   <h3 className="truncate text-lg font-bold text-marca">{aula.titulo}</h3>
                   {aula.subtitulo && <p className="truncate font-serif text-suave italic">{aula.subtitulo}</p>}
                 </div>
-                {aula.material_url && (
-                  <a href={aula.material_url} target="_blank" rel="noreferrer" className="hidden sm:block">
-                    <Etiqueta><ExternalLink className="mr-1 size-3.5" /> Material</Etiqueta>
-                  </a>
-                )}
+                <div className="hidden flex-wrap gap-1.5 sm:flex">
+                  {aula.material_arquivo && <Etiqueta><FileText className="mr-1 size-3.5" /> PDF</Etiqueta>}
+                  {!aula.material_arquivo && aula.material_url && <Etiqueta><Link2 className="mr-1 size-3.5" /> Link</Etiqueta>}
+                  {aula.aula_listas.length > 0 && (
+                    <Etiqueta tom="creme"><ClipboardList className="mr-1 size-3.5" /> {aula.aula_listas.length} {aula.aula_listas.length === 1 ? "exercício" : "exercícios"}</Etiqueta>
+                  )}
+                </div>
                 <div className="flex shrink-0">
+                  <Link to={`/aulas/${aula.id}`} className="inline-flex h-11 items-center rounded-xl px-3 text-suave hover:bg-fundo hover:text-texto" aria-label={`Ver aula ${aula.numero} como aluno`} title="Ver como aluno">
+                    <Eye className="size-4" />
+                  </Link>
                   <Botao variante="fantasma" className="px-3" onClick={() => setAulaEmEdicao(aula.id)} aria-label={`Editar aula ${aula.numero}`} title="Editar">
                     <Pencil className="size-4" />
                   </Botao>

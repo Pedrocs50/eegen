@@ -12,6 +12,7 @@ const PASTA_MIGRACOES = path.resolve(path.dirname(fileURLToPath(import.meta.url)
 const ADMIN = "00000000-0000-0000-0000-00000000000a";
 const PROFESSOR = "00000000-0000-0000-0000-0000000000c1";
 const ALUNO = "00000000-0000-0000-0000-0000000000b1";
+const OUTRO_ALUNO = "00000000-0000-0000-0000-0000000000b2";
 
 const db = new PGlite();
 let falhas = 0;
@@ -78,7 +79,8 @@ await db.exec(`
   insert into auth.users (id, email, raw_user_meta_data) values
     ('${ADMIN}', 'admin@teste', '{"nome":"Admin"}'),
     ('${PROFESSOR}', 'prof@teste', '{"nome":"Professora"}'),
-    ('${ALUNO}', 'aluno@teste', '{"nome":"Aluno"}');
+    ('${ALUNO}', 'aluno@teste', '{"nome":"Aluno"}'),
+    ('${OUTRO_ALUNO}', 'outro@teste', '{"nome":"Outro aluno"}');
   update public.perfis set papel = 'admin' where id = '${ADMIN}';
   update public.perfis set papel = 'professor' where id = '${PROFESSOR}';
 `);
@@ -86,7 +88,7 @@ await db.exec(`
 // ----------------------------------------------------------------------------- perfis e papéis
 console.log("Perfis e papéis");
 conferir((await numero(ALUNO, "select count(*) from public.perfis")) === 1, "aluno só vê o próprio perfil");
-conferir((await numero(ADMIN, "select count(*) from public.perfis")) === 3, "admin vê todos os perfis");
+conferir((await numero(ADMIN, "select count(*) from public.perfis")) === 4, "admin vê todos os perfis");
 conferir(await falhaComo(ALUNO, `update public.perfis set papel = 'admin' where id = '${ALUNO}'`), "aluno não se promove");
 conferir(await falhaComo(ADMIN, `update public.perfis set papel = 'aluno' where id = '${ADMIN}'`), "admin não muda o próprio papel");
 
@@ -163,6 +165,28 @@ conferir((await numero(ALUNO, "select count(*) from public.perfis where bloquead
 conferir(await falhaComo(PROFESSOR, "select public.salvar_lista($1::jsonb)", [JSON.stringify(lista)]), "professora bloqueada não salva lista");
 await como(ADMIN, `update public.perfis set bloqueado = false where id in ('${ALUNO}', '${PROFESSOR}')`);
 conferir((await numero(ALUNO, "select count(*) from public.listas")) === 1, "desbloqueado volta a ver as listas");
+
+// ----------------------------------------------------------------------------- aulas com PDF
+console.log("Aulas com PDF");
+const { rows: [{ id: idCurso }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Inglês Beginner', 'ingles', 1) returning id");
+const { rows: [{ id: idAula }] } = await como(PROFESSOR, "insert into public.aulas (curso_id, numero, titulo, material_arquivo, material_nome) values ($1, 1, 'Numbers', 'aula-1.pdf', 'ENGLISH CLASS - NUMBERS.pdf') returning id", [idCurso]);
+conferir(!!idAula, "professora cria aula com PDF");
+await como(PROFESSOR, "insert into storage.objects (bucket_id, name) values ('materiais', 'aula-1.pdf')");
+await como(PROFESSOR, "insert into public.aula_listas (aula_id, lista_id) values ($1, $2)", [idAula, idLista]);
+conferir((await numero(PROFESSOR, "select count(*) from public.aula_listas")) === 1, "professora liga exercício à aula");
+conferir(await falhaComo(ALUNO, "insert into storage.objects (bucket_id, name) values ('materiais', 'pirata.pdf')"), "aluno não envia material");
+conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aluno sem turma não lê o PDF");
+conferir((await numero(ALUNO, "select count(*) from public.aula_listas")) === 0, "aluno sem turma não vê os exercícios da aula");
+
+// Sem "returning": a regra de leitura da turma não enxerga a linha no mesmo comando que a cria (o site também não pede o retorno).
+await como(PROFESSOR, "insert into public.turmas (nome, curso_id) values ('Turma A', $1)", [idCurso]);
+const { rows: [{ id: idTurma, codigo }] } = await como(PROFESSOR, "select id, codigo from public.turmas where curso_id = $1", [idCurso]);
+await como(ALUNO, "select public.entrar_na_turma($1)", [codigo]);
+conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aula ainda não liberada: PDF continua fechado");
+await como(PROFESSOR, "insert into public.aulas_liberadas (turma_id, aula_id) values ($1, $2)", [idTurma, idAula]);
+conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 1, "aula liberada: aluno da turma lê o PDF");
+conferir((await numero(ALUNO, "select count(*) from public.aula_listas")) === 1, "aula liberada: aluno vê os exercícios da aula");
+conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aluno de outra turma não lê o PDF");
 
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

@@ -19,7 +19,11 @@ export type Aula = {
   numero: number;
   titulo: string;
   subtitulo: string;
+  /** Link externo (Google Drive, PDF na web). */
   material_url: string;
+  /** PDF enviado: caminho no bucket privado "materiais" e o nome original do arquivo. */
+  material_arquivo: string;
+  material_nome: string;
 };
 
 export type Turma = {
