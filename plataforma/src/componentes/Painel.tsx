@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BookMarked, BookOpen, ClipboardList, GraduationCap, PenLine, LogOut, Menu, Moon, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BookMarked, BookOpen, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
@@ -25,6 +25,7 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
       titulo: "Administração",
       itens: [
         { para: "/admin", rotulo: "Usuários", icone: Users },
+        { para: "/admin/configuracoes", rotulo: "Configurações", icone: Settings },
         { para: "/praticar", rotulo: "Visão do aluno", icone: PenLine },
       ],
     },
@@ -74,7 +75,7 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
                 <li key={para}>
                   <NavLink
                     to={para}
-                    end={para === "/professor" || para === "/aluno"}
+                    end={para === "/professor" || para === "/aluno" || para === "/admin"}
                     className={({ isActive }) =>
                       `flex items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 text-sm transition ${
                         isActive

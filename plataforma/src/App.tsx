@@ -19,6 +19,7 @@ import Listas from "./paginas/Listas";
 import EditorLista from "./paginas/EditorLista";
 import { ListasDoAluno, ResponderLista } from "./paginas/Praticar";
 import Sobre from "./paginas/Sobre";
+import Configuracoes from "./paginas/Configuracoes";
 
 const PAGINA_INICIAL: Record<Papel, string> = {
   admin: "/professor",
@@ -42,6 +43,14 @@ function Protegida({ papeis }: { papeis: Papel[] }) {
     return (
       <CartaoAuth titulo="Perfil não encontrado">
         <Aviso>Sua conta existe, mas o perfil não foi criado. Avise o administrador da plataforma.</Aviso>
+        <Botao variante="secundario" onClick={sair} className="mt-4 w-full">Sair</Botao>
+      </CartaoAuth>
+    );
+  }
+  if (perfil.bloqueado) {
+    return (
+      <CartaoAuth titulo="Conta bloqueada" subtitulo="O acesso desta conta foi suspenso pela administração da UP English.">
+        <Aviso tipo="info">Se você acha que isso é um engano, fale com a sua professora ou com a escola.</Aviso>
         <Botao variante="secundario" onClick={sair} className="mt-4 w-full">Sair</Botao>
       </CartaoAuth>
     );
@@ -90,6 +99,7 @@ export default function App() {
           <Route path="/sobre" element={<PaginaSobre />} />
           <Route element={<Protegida papeis={["admin"]} />}>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/configuracoes" element={<Configuracoes />} />
           </Route>
           <Route element={<Protegida papeis={["professor"]} />}>
             <Route path="/professor" element={<InicioProfessor />} />

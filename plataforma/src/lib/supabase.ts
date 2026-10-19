@@ -16,6 +16,7 @@ export type Perfil = {
   nome: string;
   email: string;
   papel: Papel;
+  bloqueado: boolean;
   criado_em: string;
 };
 
