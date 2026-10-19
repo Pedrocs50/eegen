@@ -1,0 +1,332 @@
+[
+  {
+    "titulo": "¡Mucho gusto!",
+    "tema": "Presentaciones y el verbo ser",
+    "descricao": "O primeiro contato em espanhol, sem medo.",
+    "idioma": "espanhol",
+    "nivel": 1,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Ser: yo soy, tú eres, él/ella/usted es, nosotros somos, ellos son. Para dizer de onde você é: Soy de Brasil. Em espanhol, as perguntas abrem com ¿ e as palavras interrogativas têm acento: ¿Cómo te llamas? ¿De dónde eres?" },
+      {
+        "tipo": "audio", "titulo": "Escucha: En la academia", "instrucao": "Ouça o diálogo e responda.",
+        "roteiro": "LAURA: ¡Hola! Buenos días. ¿Eres nuevo en el curso?\nMATEO: Sí, soy nuevo. Me llamo Mateo. ¿Y tú?\nLAURA: Yo soy Laura. Mucho gusto, Mateo.\nMATEO: Encantado. ¿De dónde eres, Laura?\nLAURA: Soy de Sevilla, en España. ¿Y tú?\nMATEO: Soy de Brasil, de Belo Horizonte. Soy ingeniero.\nLAURA: ¡Qué bien! Yo soy profesora de música.\nMATEO: ¿Y la clase de español es en esta sala?\nLAURA: No, es en la sala tres, al lado de la cafetería.",
+        "vozes": { "LAURA": "feminina", "MATEO": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿De dónde es Laura?", "opcoes": ["De Madrid", "De Sevilla", "De Belo Horizonte"], "correta": 1, "explicacao": "Ela diz: Soy de Sevilla, en España." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cuál es la profesión de Mateo?", "opcoes": ["Profesor", "Músico", "Ingeniero"], "correta": 2, "explicacao": "Mateo diz: Soy ingeniero." },
+          { "formato": "verdadeiro_falso", "enunciado": "Laura es profesora de música.", "resposta": true, "explicacao": "Ela diz: Yo soy profesora de música." },
+          { "formato": "verdadeiro_falso", "enunciado": "La clase es en la sala dos.", "resposta": false, "explicacao": "A aula é na sala três." },
+          { "formato": "multipla_escolha", "enunciado": "¿Dónde está la sala de la clase?", "opcoes": ["Al lado de la cafetería", "Al lado de la recepción", "En el segundo piso"], "correta": 0, "explicacao": "Al lado de la cafetería = ao lado da cafeteria." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "El verbo ser", "instrucao": "Complete com a forma certa do verbo ser.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Nosotros ___ de Argentina.", "respostas": [["somos"]], "explicacao": "Nosotros → somos." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "¿Tú ___ estudiante?", "respostas": [["eres"]], "explicacao": "Tú → eres." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Ellos ___ mis compañeros de trabajo.", "opcoes": [["es", "son", "somos"]], "corretas": [1], "explicacao": "Ellos → son." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "¿Cómo te llamas?", "opcoes": ["Soy de Paula.", "Me llamo Paula.", "Tengo Paula."], "correta": 1, "explicacao": "Para dizer o nome: Me llamo... (ou Soy...)." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "Buenas ___. (cumprimento usado à noite)", "respostas": [["noches"]], "explicacao": "Buenos días, buenas tardes, buenas noches." },
+          { "formato": "resposta_curta", "habilidade": "vocabulary", "enunciado": "Como se diz \"Prazer em conhecer\" em espanhol? (2 palavras)", "aceitas": ["Mucho gusto"], "explicacao": "Mucho gusto (ou Encantado/Encantada)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "De compras en el mercado",
+    "tema": "Precios, números y el verbo gustar",
+    "descricao": "Pergunte o preço e escolha o que você gosta.",
+    "idioma": "espanhol",
+    "nivel": 2,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Gustar funciona ao contrário do português: Me gusta el queso (uma coisa) / Me gustan las fresas (várias). O verbo concorda com o que agrada, não com a pessoa. Para perguntar o preço: ¿Cuánto cuesta? (singular) / ¿Cuánto cuestan? (plural)." },
+      {
+        "tipo": "audio", "titulo": "Escucha: En el mercado", "instrucao": "Ouça as compras de Ana e responda.",
+        "roteiro": "VENDEDOR: ¡Buenos días! ¿Qué le pongo?\nANA: Buenos días. ¿Cuánto cuestan los tomates?\nVENDEDOR: Dos euros con cincuenta el kilo. Son muy buenos, de la huerta.\nANA: Perfecto, póngame un kilo. ¿Y las fresas?\nVENDEDOR: Las fresas cuestan cuatro euros la caja.\nANA: Mmm, me gustan mucho, pero son un poco caras. Hoy no, gracias.\nVENDEDOR: ¿Algo más?\nANA: Sí, medio kilo de queso manchego, por favor.\nVENDEDOR: Aquí tiene. Son nueve euros en total.\nANA: ¿Puedo pagar con tarjeta?\nVENDEDOR: Lo siento, solo en efectivo.\nANA: No pasa nada. Aquí tiene diez euros.",
+        "vozes": { "VENDEDOR": "masculina", "ANA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Cuánto cuesta el kilo de tomates?", "opcoes": ["2,50 €", "4 €", "9 €"], "correta": 0, "explicacao": "Dos euros con cincuenta el kilo." },
+          { "formato": "verdadeiro_falso", "enunciado": "Ana compra fresas.", "resposta": false, "explicacao": "Ela gosta, mas acha caro: Hoy no, gracias." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué más compra Ana?", "opcoes": ["Pan", "Queso", "Naranjas"], "correta": 1, "explicacao": "Medio kilo de queso manchego." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cómo paga Ana?", "opcoes": ["Con tarjeta", "Con el móvil", "En efectivo"], "correta": 2, "explicacao": "O vendedor só aceita dinheiro: solo en efectivo." },
+          { "formato": "verdadeiro_falso", "enunciado": "Ana paga con un billete de diez euros.", "resposta": true, "explicacao": "Aquí tiene diez euros (a conta deu nove)." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Gustar y números", "instrucao": "Complete as frases.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "A mí me ___ las películas de terror.", "opcoes": [["gusta", "gustan"]], "corretas": [1], "explicacao": "Las películas (plural) → gustan." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "¿Te ___ el café sin azúcar?", "opcoes": [["gusta", "gustan"]], "corretas": [0], "explicacao": "El café (singular) → gusta." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "A nosotros ___ gusta viajar.", "respostas": [["nos"]], "explicacao": "A nosotros → nos gusta." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "¿Cuánto ___ estas zapatillas?", "respostas": [["cuestan"]], "explicacao": "Zapatillas (plural) → cuestan." },
+          { "formato": "resposta_curta", "habilidade": "vocabulary", "enunciado": "Escreva por extenso: 15", "aceitas": ["quince"], "explicacao": "15 = quince." },
+          { "formato": "resposta_curta", "habilidade": "vocabulary", "enunciado": "Escreva por extenso: 50", "aceitas": ["cincuenta"], "explicacao": "50 = cincuenta (atenção ao c, diferente de cinco)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Mi fin de semana",
+    "tema": "Pretérito indefinido",
+    "descricao": "Conte o que você fez com o passado mais usado do espanhol.",
+    "idioma": "espanhol",
+    "nivel": 3,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "O pretérito indefinido fala de ações terminadas num tempo encerrado (ayer, el sábado, el año pasado): Ayer comí paella. Atenção aos irregulares mais comuns: ir e ser → fui, fuiste, fue, fuimos; hacer → hice, hizo; tener → tuve, tuvo." },
+      {
+        "tipo": "audio", "titulo": "Escucha: El lunes en la oficina", "instrucao": "Ouça a conversa de segunda-feira e responda.",
+        "roteiro": "SOFÍA: ¡Hola, Diego! ¿Qué tal el fin de semana?\nDIEGO: ¡Genial! El sábado fui a Toledo con mi hermana.\nSOFÍA: ¡Qué bien! ¿Cómo fueron?\nDIEGO: En tren. Salimos muy temprano, a las siete, y llegamos en media hora.\nSOFÍA: ¿Y qué hicieron allí?\nDIEGO: Visitamos la catedral, comimos en un restaurante típico y por la tarde paseamos por el casco antiguo. ¿Y tú?\nSOFÍA: Yo no salí mucho. El sábado limpié la casa y el domingo vi una serie entera en el sofá.\nDIEGO: ¡Una serie entera! ¿Cuál?\nSOFÍA: Una de detectives. Me encantó, pero hoy tengo mucho sueño.",
+        "vozes": { "SOFÍA": "feminina", "DIEGO": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Con quién fue Diego a Toledo?", "opcoes": ["Con su hermana", "Con su madre", "Con Sofía"], "correta": 0, "explicacao": "Fui a Toledo con mi hermana." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cómo viajaron?", "opcoes": ["En coche", "En autobús", "En tren"], "correta": 2, "explicacao": "Diego responde: En tren." },
+          { "formato": "verdadeiro_falso", "enunciado": "Salieron a las nueve de la mañana.", "resposta": false, "explicacao": "Saíram às sete: Salimos muy temprano, a las siete." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué hizo Sofía el domingo?", "opcoes": ["Limpió la casa", "Vio una serie", "Fue al cine"], "correta": 1, "explicacao": "No sábado limpou a casa; no domingo viu uma série inteira." },
+          { "formato": "verdadeiro_falso", "enunciado": "Sofía está cansada hoy.", "resposta": true, "explicacao": "Hoy tengo mucho sueño = hoje estou com muito sono." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Pretérito indefinido", "instrucao": "Conjugue o verbo entre parênteses.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Ayer yo ___ (comer) en casa de mis padres.", "respostas": [["comí"]], "explicacao": "Comer → yo comí (com acento no í)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "El año pasado nosotros ___ (ir) a México.", "respostas": [["fuimos"]], "explicacao": "Ir → nosotros fuimos." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "¿Qué ___ (hacer) tú el domingo?", "respostas": [["hiciste"]], "explicacao": "Hacer → tú hiciste." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Mi jefe ___ una reunión muy larga ayer.", "opcoes": [["tuvo", "tenió", "tenía"]], "corretas": [0], "explicacao": "Tener é irregular: él tuvo." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Elige la frase correcta:", "opcoes": ["Ayer he ido al médico.", "Ayer fui al médico.", "Ayer iba al médico."], "correta": 1, "explicacao": "Com ayer (tempo encerrado), usamos o indefinido: fui." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "\"Casco antiguo\" significa \"centro histórico\".", "resposta": true, "explicacao": "Casco antiguo é a parte antiga, histórica, da cidade." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Una entrevista de trabajo",
+    "tema": "Indefinido vs imperfecto",
+    "descricao": "Conte sua trajetória profissional como uma boa história.",
+    "idioma": "espanhol",
+    "nivel": 4,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "O imperfecto descreve o cenário e os hábitos do passado (Trabajaba en un banco, era un equipo pequeño); o indefinido conta as ações que fazem a história andar (En 2020 cambié de empresa). Truque: se cabe a pergunta 'e aí, o que aconteceu?', é indefinido." },
+      {
+        "tipo": "audio", "titulo": "Escucha: La entrevista", "instrucao": "Ouça a entrevista e responda.",
+        "roteiro": "ELENA: Bueno, Javier, cuéntame un poco de tu experiencia.\nJAVIER: Claro. Cuando terminé la carrera, trabajé tres años en una agencia de publicidad en Bogotá. Era un equipo pequeño y hacíamos de todo: diseño, redes sociales, atención al cliente.\nELENA: ¿Y por qué decidiste cambiar?\nJAVIER: Me gustaba mucho el ambiente, pero quería especializarme en marketing digital. Así que en 2022 hice un máster en Madrid.\nELENA: ¿Y después del máster?\nJAVIER: Empecé a trabajar en una startup de turismo. Al principio era el único responsable de marketing, y el año pasado formé un equipo de cuatro personas.\nELENA: Muy interesante. ¿Cuál fue tu mayor logro allí?\nJAVIER: Lanzamos una campaña que duplicó las reservas en seis meses.",
+        "vozes": { "ELENA": "feminina", "JAVIER": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Dónde trabajó Javier después de la carrera?", "opcoes": ["En una startup en Madrid", "En una agencia de publicidad en Bogotá", "En un banco"], "correta": 1, "explicacao": "Trabajé tres años en una agencia de publicidad en Bogotá." },
+          { "formato": "multipla_escolha", "enunciado": "¿Por qué decidió cambiar?", "opcoes": ["No le gustaba el ambiente", "Ganaba poco", "Quería especializarse en marketing digital"], "correta": 2, "explicacao": "Ele gostava do ambiente, mas queria se especializar." },
+          { "formato": "verdadeiro_falso", "enunciado": "Javier hizo un máster en Madrid en 2022.", "resposta": true, "explicacao": "En 2022 hice un máster en Madrid." },
+          { "formato": "multipla_escolha", "enunciado": "¿De cuántas personas es el equipo que formó?", "opcoes": ["Dos", "Cuatro", "Seis"], "correta": 1, "explicacao": "Formé un equipo de cuatro personas." },
+          { "formato": "verdadeiro_falso", "enunciado": "La campaña duplicó las reservas en un año.", "resposta": false, "explicacao": "Foi em seis meses." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "¿Indefinido o imperfecto?", "instrucao": "É cenário/hábito ou uma ação que fez a história andar?",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Cuando ___ niño, vivía en Lima.", "opcoes": [["fui", "era"]], "corretas": [1], "explicacao": "Descrição de uma fase da vida: imperfecto (era)." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Ayer, mientras ___ el informe, se fue la luz.", "opcoes": [["escribí", "escribía"]], "corretas": [1], "explicacao": "Ação em andamento interrompida: imperfecto." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "En 2019 ___ mi primer empleo.", "opcoes": [["conseguí", "conseguía"]], "corretas": [0], "explicacao": "Fato pontual com data: indefinido." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Todos los veranos mis abuelos nos ___ (llevar) a la playa.", "respostas": [["llevaban"]], "explicacao": "Hábito no passado (todos los veranos): imperfecto." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "La reunión ___ (empezar) a las nueve y terminó a las once.", "respostas": [["empezó"]], "explicacao": "Ação concluída, em sequência: indefinido." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Para describir cómo era la empresa, usamos:", "opcoes": ["Pretérito indefinido", "Pretérito imperfecto", "Presente"], "correta": 1, "explicacao": "Descrição no passado: imperfecto (era un equipo pequeño)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "En la consulta médica",
+    "tema": "Me duele + imperativo de usted",
+    "descricao": "Explique o que você sente e entenda as orientações do médico.",
+    "idioma": "espanhol",
+    "nivel": 4,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Para falar de dor: Me duele la cabeza (uma parte) / Me duelen los pies (várias). Nas instruções formais (usted), o imperativo troca a vogal: verbos -ar terminam em -e (tome, descanse); verbos -er/-ir terminam em -a (beba, abra)." },
+      {
+        "tipo": "audio", "titulo": "Escucha: En la consulta", "instrucao": "Ouça a consulta e responda.",
+        "roteiro": "DOCTORA: Buenas tardes, Pablo. ¿Qué le pasa?\nPABLO: Buenas tardes, doctora. Desde hace tres días me duele mucho la garganta y tengo un poco de fiebre.\nDOCTORA: ¿Tiene tos?\nPABLO: Sí, sobre todo por la noche. Casi no puedo dormir.\nDOCTORA: A ver, abra la boca, por favor. Sí, tiene la garganta muy inflamada. Es una faringitis.\nPABLO: ¿Es grave?\nDOCTORA: No, no se preocupe. Tome este medicamento cada ocho horas durante cinco días. Beba mucha agua y descanse.\nPABLO: ¿Puedo ir a trabajar mañana?\nDOCTORA: Mejor no. Quédese en casa dos días y, si la fiebre no baja, vuelva a la consulta.",
+        "vozes": { "DOCTORA": "feminina", "PABLO": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Desde cuándo está enfermo Pablo?", "opcoes": ["Desde ayer", "Desde hace tres días", "Desde hace una semana"], "correta": 1, "explicacao": "Desde hace tres días = há três dias." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué le duele?", "opcoes": ["La cabeza", "El estómago", "La garganta"], "correta": 2, "explicacao": "Me duele mucho la garganta." },
+          { "formato": "verdadeiro_falso", "enunciado": "Pablo tose más por la noche.", "resposta": true, "explicacao": "Sobre todo por la noche." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cada cuánto tiempo tiene que tomar el medicamento?", "opcoes": ["Cada seis horas", "Cada ocho horas", "Cada doce horas"], "correta": 1, "explicacao": "Tome este medicamento cada ocho horas." },
+          { "formato": "verdadeiro_falso", "enunciado": "La doctora dice que puede ir a trabajar mañana.", "resposta": false, "explicacao": "Mejor no. Quédese en casa dos días." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Doler e imperativo", "instrucao": "Complete as frases.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Me ___ los ojos después de tantas horas frente al ordenador.", "opcoes": [["duele", "duelen"]], "corretas": [1], "explicacao": "Los ojos (plural) → duelen." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "A mi madre le ___ la espalda.", "respostas": [["duele"]], "explicacao": "La espalda (singular) → duele." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "(usted, beber) ___ dos litros de agua al día.", "respostas": [["Beba"]], "explicacao": "Beber (-er) → beba." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "(usted, descansar) ___ por lo menos ocho horas.", "respostas": [["Descanse"]], "explicacao": "Descansar (-ar) → descanse." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"Quédese en casa\" significa:", "opcoes": ["Saia de casa.", "Fique em casa.", "Volte para casa."], "correta": 1, "explicacao": "Quedarse = ficar." },
+          { "formato": "resposta_curta", "habilidade": "vocabulary", "enunciado": "Como se diz \"receita médica\" em espanhol? (uma palavra)", "aceitas": ["receta", "la receta"], "ignorar_acentos": true, "explicacao": "Receta (médica) = receita." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Viajar por Perú",
+    "tema": "Subjuntivo con ojalá y cuando",
+    "descricao": "Fale de desejos e planos para a próxima viagem.",
+    "idioma": "espanhol",
+    "nivel": 5,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Depois de ojalá, usamos subjuntivo: Ojalá haga buen tiempo. Com cuando falando do futuro, também: Cuando llegues a Cusco, llámame (nunca 'cuando llegarás'!). Para formar o presente do subjuntivo, troque a vogal: hablar → hable, comer → coma, vivir → viva." },
+      {
+        "tipo": "audio", "titulo": "Escucha: Planes para el viaje", "instrucao": "Ouça a conversa e responda.",
+        "roteiro": "CAMILA: Andrés, ¿ya tienes todo listo para el viaje a Perú?\nANDRÉS: Casi. Salgo el viernes. Primero voy a pasar dos días en Lima y luego tomo un vuelo a Cusco.\nCAMILA: ¡Qué envidia! ¿Vas a hacer el Camino Inca?\nANDRÉS: No, porque no conseguí el permiso a tiempo. Pero voy a subir a Machu Picchu en tren. Ojalá no llueva mucho, porque en esta época del año es bastante común.\nCAMILA: Lleva un buen impermeable, por si acaso. Y cuando llegues a Cusco, no hagas nada el primer día. La altitud es muy fuerte.\nANDRÉS: Sí, me lo dijeron. Voy a tomar mate de coca y descansar.\nCAMILA: Perfecto. Ah, y cuando vuelvas, quiero ver todas las fotos.\nANDRÉS: ¡Claro! Ojalá tengas tiempo para un café la semana que viene.",
+        "vozes": { "CAMILA": "feminina", "ANDRÉS": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Cuándo sale Andrés?", "opcoes": ["El jueves", "El viernes", "El sábado"], "correta": 1, "explicacao": "Salgo el viernes." },
+          { "formato": "multipla_escolha", "enunciado": "¿Por qué no va a hacer el Camino Inca?", "opcoes": ["Es muy caro", "No consiguió el permiso a tiempo", "Le da miedo la altitud"], "correta": 1, "explicacao": "No conseguí el permiso a tiempo." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cómo va a subir a Machu Picchu?", "opcoes": ["A pie", "En autobús", "En tren"], "correta": 2, "explicacao": "Voy a subir a Machu Picchu en tren." },
+          { "formato": "verdadeiro_falso", "enunciado": "Camila le aconseja descansar el primer día en Cusco.", "resposta": true, "explicacao": "No hagas nada el primer día; la altitud es muy fuerte." },
+          { "formato": "verdadeiro_falso", "enunciado": "Andrés cree que en esta época nunca llueve.", "resposta": false, "explicacao": "Ele diz que a chuva é bastante comum nessa época." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Ojalá y cuando + subjuntivo", "instrucao": "Complete com o subjuntivo.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Ojalá ___ (hacer) sol mañana.", "respostas": [["haga"]], "explicacao": "Ojalá + subjuntivo: hacer → haga." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Cuando (nosotros) ___ (terminar) el proyecto, vamos a celebrarlo.", "respostas": [["terminemos"]], "explicacao": "Cuando + futuro → subjuntivo: terminemos." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Cuando ___ a casa, llámame.", "opcoes": [["llegarás", "llegues", "llegas"]], "corretas": [1], "explicacao": "Cuando com sentido de futuro pede subjuntivo: llegues." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Ojalá mis padres ___ venir a la boda.", "opcoes": [["pueden", "puedan", "podrán"]], "corretas": [1], "explicacao": "Ojalá + subjuntivo: puedan." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Elige la frase correcta:", "opcoes": ["Cuando tendré dinero, compraré un coche.", "Cuando tenga dinero, compraré un coche.", "Cuando tengo dinero, compraré un coche."], "correta": 1, "explicacao": "Cuando + futuro → subjuntivo (tenga)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Espero que (tú) ___ (tener) un buen viaje.", "respostas": [["tengas"]], "explicacao": "Esperar que + subjuntivo: tengas." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "La reunión de equipo",
+    "tema": "Opinar: creo que / no creo que",
+    "descricao": "Concorde, discorde e argumente numa reunião.",
+    "idioma": "espanhol",
+    "nivel": 5,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Creo que, pienso que e me parece que vêm com indicativo (Creo que es una buena idea). Na negativa, pedem subjuntivo: No creo que sea una buena idea. Expressões de valor também pedem subjuntivo: Es importante que todos participen." },
+      {
+        "tipo": "audio", "titulo": "Escucha: ¿Teletrabajo los viernes?", "instrucao": "Ouça a reunião e responda.",
+        "roteiro": "LUCÍA: Bueno, el tema de hoy es la propuesta de trabajar desde casa los viernes. ¿Qué opinas, Marcos?\nMARCOS: Pues creo que es una buena idea. La mayoría del equipo pierde más de una hora al día en el transporte.\nLUCÍA: Estoy de acuerdo en eso, pero no creo que sea fácil para el equipo de atención al cliente. Ellos necesitan estar en la oficina.\nMARCOS: Es verdad. Quizás ellos puedan elegir otro día, como el lunes.\nLUCÍA: Me parece razonable. Lo que me preocupa es la comunicación. Es fundamental que todos respondan rápido a los mensajes.\nMARCOS: Podemos hacer una prueba de tres meses y medir los resultados.\nLUCÍA: Perfecto. Prepara una propuesta por escrito y la presentamos a dirección la semana que viene.",
+        "vozes": { "LUCÍA": "feminina", "MARCOS": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Qué se propone en la reunión?", "opcoes": ["Trabajar desde casa los viernes", "Trabajar menos horas", "Cambiar de oficina"], "correta": 0, "explicacao": "Trabajar desde casa los viernes." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué argumento usa Marcos?", "opcoes": ["Es más barato para la empresa", "El equipo pierde mucho tiempo en el transporte", "La oficina es pequeña"], "correta": 1, "explicacao": "Pierde más de una hora al día en el transporte." },
+          { "formato": "verdadeiro_falso", "enunciado": "Lucía cree que será fácil para el equipo de atención al cliente.", "resposta": false, "explicacao": "No creo que sea fácil para el equipo de atención al cliente." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué le preocupa a Lucía?", "opcoes": ["El precio", "La puntualidad", "La comunicación"], "correta": 2, "explicacao": "Lo que me preocupa es la comunicación." },
+          { "formato": "verdadeiro_falso", "enunciado": "Van a hacer una prueba de seis meses.", "resposta": false, "explicacao": "O teste será de três meses." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "¿Indicativo o subjuntivo?", "instrucao": "Escolha ou complete.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Creo que el proyecto ___ un éxito.", "opcoes": [["es", "sea"]], "corretas": [0], "explicacao": "Creo que (afirmativo) + indicativo." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "No creo que el cliente ___ nuestra propuesta.", "opcoes": [["acepta", "acepte"]], "corretas": [1], "explicacao": "No creo que + subjuntivo." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Es importante que todos ___ (llegar) a tiempo.", "respostas": [["lleguen"]], "explicacao": "Es importante que + subjuntivo: lleguen (com u para manter o som de g)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "No pienso que ___ (ser) necesario contratar a más gente.", "respostas": [["sea"]], "explicacao": "No pienso que + subjuntivo: sea." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "¿Qué frase expresa desacuerdo con educación?", "opcoes": ["Eso es una tontería.", "Entiendo tu punto, pero no lo veo así.", "No tienes razón."], "correta": 1, "explicacao": "Reconhecer o ponto do outro antes de discordar soa educado." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "Estoy ___ acuerdo contigo.", "respostas": [["de"]], "explicacao": "Estar de acuerdo = concordar." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Negociar el alquiler",
+    "tema": "Si + imperfecto de subjuntivo",
+    "descricao": "Negocie condições com hipóteses e cortesia.",
+    "idioma": "espanhol",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Para hipóteses: Si + imperfecto de subjuntivo + condicional (Si bajara el precio, firmaría hoy). O imperfecto de subjuntivo vem da 3ª pessoa do plural do indefinido: tuvieron → tuviera, pudieron → pudiera, fueron → fuera. Nunca use condicional depois de si!" },
+      {
+        "tipo": "audio", "titulo": "Escucha: Hablando con el propietario", "instrucao": "Ouça a negociação e responda.",
+        "roteiro": "VALERIA: Ramón, el piso me encanta, pero sinceramente el precio está un poco por encima de mi presupuesto.\nRAMÓN: Entiendo. Es una zona muy buscada, ya sabe.\nVALERIA: Lo sé. Pero si firmara un contrato de dos años en lugar de uno, ¿podría bajar el alquiler a mil cien euros?\nRAMÓN: Mil cien es demasiado poco. Si pagara tres meses por adelantado, podría dejarlo en mil ciento cincuenta.\nVALERIA: Tres meses es mucho de golpe. ¿Y si fueran dos meses y yo me encargara de pintar el salón?\nRAMÓN: Mmm. Si usted pintara el salón y además cuidara el jardín, aceptaría dos meses.\nVALERIA: Trato hecho. ¿Cuándo podríamos firmar?\nRAMÓN: Si le viene bien, el lunes por la mañana en mi oficina.",
+        "vozes": { "VALERIA": "feminina", "RAMÓN": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Qué opina Valeria del piso?", "opcoes": ["Le encanta, pero es caro", "No le gusta la zona", "Es demasiado pequeño"], "correta": 0, "explicacao": "Me encanta, pero el precio está por encima de mi presupuesto." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué precio propone Valeria primero?", "opcoes": ["1.000 €", "1.100 €", "1.150 €"], "correta": 1, "explicacao": "¿Podría bajar el alquiler a mil cien euros?" },
+          { "formato": "multipla_escolha", "enunciado": "¿Cuál es el precio final del alquiler?", "opcoes": ["1.100 €", "1.150 €", "1.200 €"], "correta": 1, "explicacao": "Ramón deixa em 1.150 e aceita dois meses adiantados com as contrapartidas." },
+          { "formato": "verdadeiro_falso", "enunciado": "Valeria va a pintar el salón y cuidar el jardín.", "resposta": true, "explicacao": "Essa é a condição que Ramón pede e ela aceita: Trato hecho." },
+          { "formato": "verdadeiro_falso", "enunciado": "Firman el contrato hoy mismo.", "resposta": false, "explicacao": "Vão assinar na segunda-feira de manhã." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Oraciones condicionales", "instrucao": "Complete com o imperfecto de subjuntivo ou o condicional.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Si ___ (yo, tener) más tiempo, aprendería a tocar la guitarra.", "respostas": [["tuviera", "tuviese"]], "explicacao": "Si + imperfecto de subjuntivo: tuviera (ou tuviese)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Si el alquiler fuera más barato, lo ___ (alquilar) ahora mismo.", "respostas": [["alquilaría"]], "explicacao": "A consequência vai no condicional: alquilaría." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Si ___ rico, viajaría por todo el mundo.", "opcoes": [["soy", "fuera", "sería"]], "corretas": [1], "explicacao": "Hipótese irreal: si + fuera." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "¿Qué harías si ___ el trabajo de tus sueños en otro país?", "opcoes": [["consiguieras", "consigues", "conseguirías"]], "corretas": [0], "explicacao": "Si + imperfecto de subjuntivo: consiguieras." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Elige la frase correcta:", "opcoes": ["Si tendría dinero, compraría la casa.", "Si tuviera dinero, compraría la casa.", "Si tuviera dinero, compraré la casa."], "correta": 1, "explicacao": "Si + imperfecto de subjuntivo + condicional." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "\"Pagar por adelantado\" significa pagar antes.", "resposta": true, "explicacao": "Por adelantado = adiantado." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "¿El fin de la oficina?",
+    "tema": "Conectores y estilo indirecto",
+    "descricao": "Uma entrevista de rádio para argumentar como um falante avançado.",
+    "idioma": "espanhol",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Conectores dão força ao argumento: sin embargo e no obstante (contraste), además e asimismo (adição), por lo tanto e por consiguiente (consequência), es decir (explicação). Aunque + subjuntivo marca concessão hipotética: Aunque sea caro, vale la pena." },
+      {
+        "tipo": "audio", "titulo": "Escucha: Entrevista en la radio", "instrucao": "Ouça a entrevista e responda.",
+        "roteiro": "INÉS: Buenas tardes. Hoy hablamos con Tomás Ferrer, especialista en organización del trabajo. Tomás, ¿la oficina tiene los días contados?\nTOMÁS: No lo creo. Es cierto que el teletrabajo ha llegado para quedarse; sin embargo, las empresas que eliminaron por completo la oficina han notado efectos inesperados.\nINÉS: ¿Por ejemplo?\nTOMÁS: Los empleados más jóvenes aprenden más despacio. Gran parte de lo que aprendemos en el trabajo viene de observar a los compañeros, es decir, de conversaciones informales que nadie planifica.\nINÉS: Aun así, muchos trabajadores dicen que en casa son más productivos.\nTOMÁS: Y tienen razón, sobre todo en tareas que requieren concentración. Por lo tanto, el modelo que más éxito está teniendo es el híbrido: la oficina se usa para colaborar y la casa para concentrarse.\nINÉS: ¿Y qué recomendaría a las empresas?\nTOMÁS: Que no impongan las mismas reglas para todos. Además, que pregunten a los equipos qué necesitan, aunque eso lleve más tiempo.",
+        "vozes": { "INÉS": "feminina", "TOMÁS": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Qué opina Tomás sobre el futuro de la oficina?", "opcoes": ["Va a desaparecer pronto", "No va a desaparecer", "Es más importante que nunca"], "correta": 1, "explicacao": "Ele responde \"No lo creo\" à ideia de que a oficina tem os dias contados." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué efecto inesperado menciona?", "opcoes": ["Los empleados jóvenes aprenden más despacio", "Los gastos aumentan", "Hay más bajas por enfermedad"], "correta": 0, "explicacao": "Los empleados más jóvenes aprenden más despacio." },
+          { "formato": "verdadeiro_falso", "enunciado": "Según Tomás, en casa se trabaja mejor en tareas de concentración.", "resposta": true, "explicacao": "Sobre todo en tareas que requieren concentración." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué modelo está teniendo más éxito?", "opcoes": ["El presencial", "El remoto", "El híbrido"], "correta": 2, "explicacao": "El modelo que más éxito está teniendo es el híbrido." },
+          { "formato": "verdadeiro_falso", "enunciado": "Tomás recomienda las mismas reglas para todos los equipos.", "resposta": false, "explicacao": "Que no impongan las mismas reglas para todos." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Conectores y estilo indirecto", "instrucao": "Escolha ou complete.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "El proyecto es caro; ___, es necesario.", "opcoes": [["además", "sin embargo", "es decir"]], "corretas": [1], "explicacao": "Contraste: sin embargo." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "No llegamos a tiempo; ___, perdimos el vuelo.", "opcoes": [["por lo tanto", "aunque", "además"]], "corretas": [0], "explicacao": "Consequência: por lo tanto." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "___ llueva, iremos a la excursión. (concessão: mesmo que)", "respostas": [["Aunque"]], "explicacao": "Aunque + subjuntivo = mesmo que." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "\"Pregunten a los equipos.\" → Tomás recomendó que...", "opcoes": ["...preguntan a los equipos.", "...preguntaran a los equipos.", "...preguntarán a los equipos."], "correta": 1, "explicacao": "Verbo de influência no passado (recomendó) pede imperfecto de subjuntivo." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Tomás dijo que el teletrabajo ___ (haber) llegado para quedarse.", "respostas": [["había"]], "explicacao": "No estilo indirecto, ha llegado vira había llegado." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"Tener los días contados\" significa:", "opcoes": ["Estar a punto de acabar", "Tener mucho trabajo", "Contar los días de vacaciones"], "correta": 0, "explicacao": "Expressão para algo que vai acabar logo." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Emprender desde cero",
+    "tema": "Pluscuamperfecto de subjuntivo y expresiones",
+    "descricao": "O relato de quem arriscou tudo, para treinar o ouvido no nível avançado.",
+    "idioma": "espanhol",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Para lamentar o que não aconteceu: Si + pluscuamperfecto de subjuntivo + condicional compuesto (Si hubiera hablado con mis clientes, me habría ahorrado mucho dinero). Com ojalá, o mesmo tempo expressa um desejo impossível sobre o passado: Ojalá hubiera aceptado." },
+      {
+        "tipo": "audio", "titulo": "Escucha: Una historia de emprendimiento", "instrucao": "Ouça o relato de Valentina e responda.",
+        "roteiro": "VALENTINA: Hace cinco años dejé un puesto estable en un banco de Santiago para montar una empresa de cosmética natural. Mucha gente me dijo que estaba loca, y, la verdad, al principio no les faltaba razón.\nVALENTINA: El primer año fue un desastre. Invertí casi todos mis ahorros en un producto que nadie quería comprar. Si hubiera hablado antes con mis clientes, me habría ahorrado mucho dinero y muchos disgustos.\nVALENTINA: Lo que me salvó fue escuchar. Empecé a hacer pequeñas encuestas en las ferias y descubrí que lo que la gente buscaba no era un champú de lujo, sino algo práctico y barato para viajar.\nVALENTINA: Cambiamos el producto, bajamos los precios y, en menos de un año, empezamos a vender en Perú y en Colombia. Hoy somos doce personas.\nVALENTINA: Si tuviera que dar un solo consejo, sería este: no te enamores de tu idea, enamórate del problema que resuelves. Y no tengas miedo de equivocarte, porque de los errores se aprende más que de los aciertos.",
+        "vozes": { "VALENTINA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "¿Dónde trabajaba Valentina antes?", "opcoes": ["En una empresa de cosmética", "En un banco", "En una feria"], "correta": 1, "explicacao": "Dejé un puesto estable en un banco de Santiago." },
+          { "formato": "verdadeiro_falso", "enunciado": "El primer año de la empresa fue un éxito.", "resposta": false, "explicacao": "El primer año fue un desastre." },
+          { "formato": "multipla_escolha", "enunciado": "¿Qué descubrió con las encuestas?", "opcoes": ["Que la gente quería un champú de lujo", "Que la gente buscaba algo práctico y barato para viajar", "Que sus precios eran bajos"], "correta": 1, "explicacao": "Algo práctico y barato para viajar." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cuántas personas trabajan hoy en la empresa?", "opcoes": ["Cinco", "Doce", "Veinte"], "correta": 1, "explicacao": "Hoy somos doce personas." },
+          { "formato": "multipla_escolha", "enunciado": "¿Cuál es su principal consejo?", "opcoes": ["Invertir todos los ahorros", "Enamorarse del problema, no de la idea", "No escuchar a los demás"], "correta": 1, "explicacao": "No te enamores de tu idea, enamórate del problema que resuelves." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Lamentos y expresiones", "instrucao": "Complete ou escolha o significado.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Si (yo) ___ (saber) la verdad, no habría firmado el contrato.", "respostas": [["hubiera sabido", "hubiese sabido"]], "explicacao": "Si + pluscuamperfecto de subjuntivo: hubiera sabido." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Si hubiéramos salido antes, no ___ (perder) el tren.", "respostas": [["habríamos perdido", "hubiéramos perdido"]], "explicacao": "Consequência no passado: habríamos perdido (ou hubiéramos perdido)." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Ojalá ___ aceptado aquella oferta el año pasado.", "opcoes": [["hubiera", "habría", "haya"]], "corretas": [0], "explicacao": "Desejo impossível sobre o passado: ojalá + hubiera." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"No les faltaba razón\" significa:", "opcoes": ["Eles tinham razão.", "Eles não tinham razão.", "Eles estavam com raiva."], "correta": 0, "explicacao": "Não faltar razão = ter razão." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"Montar una empresa\" significa:", "opcoes": ["Vender uma empresa", "Abrir uma empresa", "Fechar uma empresa"], "correta": 1, "explicacao": "Montar un negocio/una empresa = abrir, começar." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "\"Ahorros\" significa \"economias, dinheiro guardado\".", "resposta": true, "explicacao": "Ahorrar = economizar; ahorros = economias." }
+        ]
+      }
+    ]
+  }
+]

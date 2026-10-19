@@ -1,0 +1,333 @@
+[
+  {
+    "titulo": "Nice to meet you",
+    "tema": "Verb to be & introductions",
+    "descricao": "Primeiros passos para se apresentar com confiança.",
+    "idioma": "ingles",
+    "nivel": 1,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Use am com I, is com he/she/it e are com you/we/they. Na conversa, o mais natural é contrair: I'm, you're, she's. Para perguntar, inverta a ordem: Are you from Brazil?" },
+      {
+        "tipo": "audio", "titulo": "Listening: First day at the office", "instrucao": "Ouça o diálogo e responda.",
+        "roteiro": "LUCAS: Hi! Are you the new designer?\nEMMA: Yes, I am. I'm Emma. Nice to meet you.\nLUCAS: Nice to meet you too, Emma. I'm Lucas. I'm the office manager.\nEMMA: Where are you from, Lucas?\nLUCAS: I'm from Brazil, from Curitiba. And you?\nEMMA: I'm from Canada. I'm from Toronto.\nLUCAS: Welcome to the team! Your desk is next to the window.\nEMMA: Great, thank you. Is the meeting room on this floor?\nLUCAS: No, it isn't. It's on the second floor.",
+        "vozes": { "LUCAS": "masculina", "EMMA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "What is Emma's job?", "opcoes": ["Designer", "Office manager", "Teacher"], "correta": 0, "explicacao": "Lucas pergunta \"Are you the new designer?\" e ela confirma." },
+          { "formato": "multipla_escolha", "enunciado": "Where is Lucas from?", "opcoes": ["Canada", "Brazil", "Portugal"], "correta": 1, "explicacao": "Ele diz que é de Curitiba, no Brasil." },
+          { "formato": "verdadeiro_falso", "enunciado": "Emma is from Toronto.", "resposta": true, "explicacao": "Ela diz: I'm from Toronto." },
+          { "formato": "verdadeiro_falso", "enunciado": "The meeting room is on the first floor.", "resposta": false, "explicacao": "A sala de reunião fica no segundo andar (second floor)." },
+          { "formato": "multipla_escolha", "enunciado": "Where is Emma's desk?", "opcoes": ["Next to the door", "In the meeting room", "Next to the window"], "correta": 2, "explicacao": "Lucas diz: your desk is next to the window." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Am, is ou are?", "instrucao": "Complete as frases com a forma certa do verbo to be.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "I ___ a student and my sister ___ a nurse.", "respostas": [["am"], ["is"]], "banco": ["am", "is", "are"], "explicacao": "I combina com am; my sister (she) combina com is." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "___ you from São Paulo?", "respostas": [["Are"]], "explicacao": "Na pergunta, o verbo vem antes do sujeito: Are you...?" },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "They ___ at work right now.", "opcoes": [["is", "are", "am"]], "corretas": [1], "explicacao": "They (eles) usa are." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Choose the correct short form of \"She is my boss\".", "opcoes": ["Shes my boss.", "She's my boss.", "She'is my boss."], "correta": 1, "explicacao": "O apóstrofo substitui o i de is: she's." },
+          { "formato": "resposta_curta", "habilidade": "writing", "enunciado": "Escreva a frase na negativa, usando contração: He is here.", "aceitas": ["He isn't here", "He's not here"], "explicacao": "Is not vira isn't (ou he's not)." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"What's your name?\" Which answer is correct?", "opcoes": ["I'm from Paula.", "My name is Paula.", "I have Paula."], "correta": 1, "explicacao": "Para dizer o nome: My name is... ou I'm..." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "At the restaurant",
+    "tema": "Would like, some & any",
+    "descricao": "Peça, pergunte e pague como um local.",
+    "idioma": "ingles",
+    "nivel": 2,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Use would like ('d like) para pedir com educação: I'd like a salad, please. Some aparece em frases afirmativas e em ofertas (Would you like some water?); any, em perguntas e negativas (Do you have any vegetarian dishes?)." },
+      {
+        "tipo": "audio", "titulo": "Listening: A table for one", "instrucao": "Ouça o pedido de Sophie e responda.",
+        "roteiro": "WAITER: Good evening. Are you ready to order?\nSOPHIE: Yes, I think so. Do you have any vegetarian dishes?\nWAITER: Yes, we do. The mushroom risotto is very popular, and we also have a vegetable curry.\nSOPHIE: I'd like the risotto, please.\nWAITER: Would you like a starter?\nSOPHIE: No, thanks. But I'd like some sparkling water.\nWAITER: A small or a large bottle?\nSOPHIE: Small, please. Oh, and is service included?\nWAITER: No, it isn't. But you can pay by card at the table.\nSOPHIE: Perfect. Thank you!",
+        "vozes": { "WAITER": "masculina", "SOPHIE": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "What does Sophie order?", "opcoes": ["The vegetable curry", "The mushroom risotto", "A starter"], "correta": 1, "explicacao": "Ela diz: I'd like the risotto, please." },
+          { "formato": "verdadeiro_falso", "enunciado": "Sophie orders a starter too.", "resposta": false, "explicacao": "Ela responde \"No, thanks\" quando o garçom oferece uma entrada." },
+          { "formato": "multipla_escolha", "enunciado": "What does she want to drink?", "opcoes": ["Still water", "Orange juice", "Sparkling water"], "correta": 2, "explicacao": "Ela pede some sparkling water (água com gás)." },
+          { "formato": "multipla_escolha", "enunciado": "What size is the bottle?", "opcoes": ["Small", "Large", "Medium"], "correta": 0, "explicacao": "Ela escolhe a garrafa pequena: Small, please." },
+          { "formato": "verdadeiro_falso", "enunciado": "Service is included in the bill.", "resposta": false, "explicacao": "O garçom diz: No, it isn't." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Some, any ou would like?", "instrucao": "Complete ou escolha a melhor opção.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Do you have ___ tables free tonight?", "opcoes": [["some", "any"]], "corretas": [1], "explicacao": "Em perguntas comuns usamos any." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Would you like ___ more bread?", "opcoes": [["some", "any"]], "corretas": [0], "explicacao": "Em ofertas usamos some, mesmo sendo pergunta." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "We don't have ___ milk, sorry.", "respostas": [["any"]], "banco": ["some", "any"], "explicacao": "Em frases negativas usamos any." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "___ you like a dessert?", "respostas": [["Would"]], "explicacao": "Would you like...? é a forma educada de oferecer." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "Which is the most polite way to order?", "opcoes": ["I want a coffee.", "Give me a coffee.", "I'd like a coffee, please."], "correta": 2, "explicacao": "I'd like... please soa educado; I want soa direto demais." },
+          { "formato": "resposta_curta", "habilidade": "writing", "enunciado": "Como se pede a conta em inglês? (frase curta)", "aceitas": ["The bill, please", "Can I have the bill, please", "Could I have the bill, please", "Can we have the bill, please", "Could we have the bill, please", "The check, please", "Can I have the check, please", "Could I have the check, please", "Can we have the check, please", "Could we have the check, please"], "explicacao": "Bill é mais britânico; check, mais americano." },
+          { "formato": "completar_letras", "habilidade": "vocabulary", "enunciado": "Des_ert (sobremesa)", "respostas": [["s"]], "explicacao": "Dessert (sobremesa) tem dois s; desert (deserto) tem um só." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Travel plans",
+    "tema": "Going to vs will",
+    "descricao": "Planos, decisões e previsões para a sua próxima viagem.",
+    "idioma": "ingles",
+    "nivel": 3,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Going to = plano já decidido antes de falar (I'm going to visit Lisbon in May) ou previsão com evidência (Look at those clouds! It's going to rain). Will = decisão na hora, promessa ou oferta (I'll help you with your bag)." },
+      {
+        "tipo": "audio", "titulo": "Listening: At the check-in desk", "instrucao": "Ouça o diálogo no aeroporto e responda.",
+        "roteiro": "AGENT: Good morning. Where are you flying today?\nDANIEL: To Lisbon. I'm going to spend a week there for a conference.\nAGENT: Can I see your passport, please?\nDANIEL: Sure, here you are.\nAGENT: Thank you. Are you going to check in this suitcase?\nDANIEL: Yes, just this one. The backpack is my hand luggage.\nAGENT: Your suitcase is twenty-four kilos. The limit is twenty-three, I'm afraid.\nDANIEL: Oh no. OK, I'll take my laptop out and put it in my backpack.\nAGENT: Great, that works. Here's your boarding pass. Boarding starts at ten fifteen, at gate twelve.\nDANIEL: Thanks. Is there a café near the gate?\nAGENT: Yes, there's one right in front of it. Have a good flight!",
+        "vozes": { "AGENT": "feminina", "DANIEL": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Why is Daniel travelling to Lisbon?", "opcoes": ["For a holiday", "For a conference", "To visit family"], "correta": 1, "explicacao": "Ele vai a Lisboa para uma conferência." },
+          { "formato": "multipla_escolha", "enunciado": "How long is he going to stay?", "opcoes": ["A weekend", "A month", "A week"], "correta": 2, "explicacao": "Ele diz: I'm going to spend a week there." },
+          { "formato": "verdadeiro_falso", "enunciado": "His suitcase is under the weight limit.", "resposta": false, "explicacao": "A mala tem 24 kg e o limite é de 23 kg." },
+          { "formato": "multipla_escolha", "enunciado": "What does Daniel decide to do?", "opcoes": ["Pay an extra fee", "Take his laptop out of the suitcase", "Leave his backpack at home"], "correta": 1, "explicacao": "Decisão na hora: I'll take my laptop out." },
+          { "formato": "multipla_escolha", "enunciado": "When does boarding start?", "opcoes": ["At 10:15", "At 10:50", "At 12:00"], "correta": 0, "explicacao": "Boarding starts at ten fifteen; 12 é o número do portão." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Going to ou will?", "instrucao": "Pense: é plano, previsão com evidência ou decisão na hora?",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Look at those dark clouds! It ___ rain.", "opcoes": [["is going to", "will"]], "corretas": [0], "explicacao": "Previsão com evidência no presente (as nuvens): going to." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "A: The phone is ringing. B: I ___ get it!", "opcoes": [["'m going to", "'ll"]], "corretas": [1], "explicacao": "Decisão tomada na hora de falar: will ('ll)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "We ___ visit my grandparents next weekend. We bought the tickets yesterday.", "respostas": [["are going to"]], "explicacao": "Plano já decidido (as passagens já foram compradas): going to." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Which sentence is a promise?", "opcoes": ["I'm going to call you tonight.", "I'll call you tonight, I promise.", "I call you tonight."], "correta": 1, "explicacao": "Promessas usam will." },
+          { "formato": "resposta_curta", "habilidade": "writing", "enunciado": "Ofereça ajuda em inglês: \"Eu vou te ajudar com a mala.\"", "aceitas": ["I'll help you with the suitcase", "I will help you with the suitcase", "I'll help you with your suitcase", "I will help you with your suitcase", "I'll help you with the bag", "I will help you with the bag", "I'll help you with your bag", "I will help you with your bag"], "explicacao": "Oferta feita na hora: will (I'll)." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "\"Hand luggage\" is the bag you take with you onto the plane.", "resposta": true, "explicacao": "Hand luggage é a bagagem de mão." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "The job interview",
+    "tema": "Present perfect vs past simple",
+    "descricao": "Fale da sua experiência sem travar na entrevista.",
+    "idioma": "ingles",
+    "nivel": 4,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Past simple = ação terminada com tempo definido (I joined the company in 2021). Present perfect = experiência ou ação com efeito no presente, sem tempo definido (I've worked with international clients). Com for e since, o present perfect liga o passado ao agora." },
+      {
+        "tipo": "audio", "titulo": "Listening: Interview for a project manager", "instrucao": "Ouça a entrevista e responda.",
+        "roteiro": "INTERVIEWER: So, Rafael, tell me a bit about your experience.\nRAFAEL: Sure. I've worked in project management for about seven years. I started at a small marketing agency in 2019, and then I moved to a tech company in 2022.\nINTERVIEWER: And what have you done there?\nRAFAEL: I've led three major product launches. The last one was an app for a bank, and we delivered it two weeks ahead of schedule.\nINTERVIEWER: Impressive. Have you ever managed a team abroad?\nRAFAEL: Yes, I have. Last year I coordinated developers in Portugal and India. The time difference was hard at first, but we created a simple routine with short daily calls.\nINTERVIEWER: And why do you want to leave your current job?\nRAFAEL: I've learned a lot there, but I'm looking for bigger international projects.",
+        "vozes": { "INTERVIEWER": "feminina", "RAFAEL": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "How long has Rafael worked in project management?", "opcoes": ["About three years", "About seven years", "About ten years"], "correta": 1, "explicacao": "Ele diz: for about seven years." },
+          { "formato": "multipla_escolha", "enunciado": "When did he move to a tech company?", "opcoes": ["In 2019", "Last year", "In 2022"], "correta": 2, "explicacao": "Ele começou na agência em 2019 e mudou em 2022." },
+          { "formato": "verdadeiro_falso", "enunciado": "The bank app was delivered late.", "resposta": false, "explicacao": "Foi entregue duas semanas antes do prazo (ahead of schedule)." },
+          { "formato": "multipla_escolha", "enunciado": "What helped the international team?", "opcoes": ["Weekly reports", "Short daily calls", "Working the same hours"], "correta": 1, "explicacao": "Eles criaram uma rotina com chamadas diárias curtas." },
+          { "formato": "verdadeiro_falso", "enunciado": "Rafael wants to leave because he is unhappy with his manager.", "resposta": false, "explicacao": "Ele quer projetos internacionais maiores; não fala mal do chefe." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Present perfect ou past simple?", "instrucao": "Repare se há um tempo definido no passado.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "I ___ at a bank from 2018 to 2021.", "opcoes": [["worked", "have worked"]], "corretas": [0], "explicacao": "Período terminado e definido: past simple." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "She ___ three books so far.", "opcoes": [["wrote", "has written"]], "corretas": [1], "explicacao": "So far (até agora) liga ao presente: present perfect." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "___ you ever ___ a presentation in English?", "respostas": [["Have"], ["given", "made", "done"]], "explicacao": "Experiência de vida (ever): Have you ever + particípio?" },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "I have lived in Recife ___ 2015.", "respostas": [["since"]], "banco": ["for", "since", "ago"], "explicacao": "Since + ponto de início (2015)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "We finished the report two days ___.", "respostas": [["ago"]], "banco": ["for", "since", "ago"], "explicacao": "Ago marca quanto tempo atrás, com past simple." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Which sentence is correct?", "opcoes": ["I have finished the project last month.", "I have finish the project last month.", "I finished the project last month."], "correta": 2, "explicacao": "Last month é tempo definido: past simple." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Renting a flat",
+    "tema": "Must, have to, don't have to, mustn't",
+    "descricao": "Entenda as regras antes de assinar o contrato.",
+    "idioma": "ingles",
+    "nivel": 4,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Have to = obrigação externa (regra, contrato). Must = obrigação que quem fala considera importante, comum em avisos. Atenção: don't have to = não é necessário; mustn't = é proibido. Parecem iguais, mas o sentido é bem diferente!" },
+      {
+        "tipo": "audio", "titulo": "Listening: Visiting a flat", "instrucao": "Ouça a visita ao apartamento e responda.",
+        "roteiro": "AGENT: So, this is the living room. As you can see, it gets a lot of natural light.\nCAROLINA: It's lovely. How much is the rent?\nAGENT: It's nine hundred pounds a month, and bills are included, except electricity.\nCAROLINA: Do I have to pay a deposit?\nAGENT: Yes, you have to pay one month's rent as a deposit. You get it back at the end of the contract.\nCAROLINA: And how long is the contract?\nAGENT: Twelve months minimum. You don't have to pay any agency fees, though.\nCAROLINA: Great. Can I have pets? I have a cat.\nAGENT: Cats are fine, but you mustn't smoke inside the flat. It's in the contract.\nCAROLINA: That's not a problem, I don't smoke. When can I move in?\nAGENT: From the first of next month.",
+        "vozes": { "AGENT": "masculina", "CAROLINA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "How much is the rent?", "opcoes": ["£800 a month", "£900 a month", "£1,900 a month"], "correta": 1, "explicacao": "Nine hundred pounds a month." },
+          { "formato": "multipla_escolha", "enunciado": "Which bill is NOT included?", "opcoes": ["Water", "Internet", "Electricity"], "correta": 2, "explicacao": "Bills are included, except electricity." },
+          { "formato": "verdadeiro_falso", "enunciado": "Carolina has to pay agency fees.", "resposta": false, "explicacao": "You don't have to pay any agency fees = não precisa pagar." },
+          { "formato": "verdadeiro_falso", "enunciado": "Carolina can live in the flat with her cat.", "resposta": true, "explicacao": "O corretor diz: Cats are fine." },
+          { "formato": "multipla_escolha", "enunciado": "How long is the minimum contract?", "opcoes": ["Six months", "Twelve months", "Twenty-four months"], "correta": 1, "explicacao": "Twelve months minimum." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Obrigação, proibição ou opção?", "instrucao": "Escolha ou escreva o modal certo.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "You ___ wear a suit. The dress code here is casual.", "opcoes": [["mustn't", "don't have to"]], "corretas": [1], "explicacao": "Não é necessário (mas pode): don't have to." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Visitors ___ feed the animals. It's dangerous.", "opcoes": [["mustn't", "don't have to"]], "corretas": [0], "explicacao": "É proibido: mustn't." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "In Brazil, you ___ be 18 to get a driving licence.", "respostas": [["have to", "must"]], "explicacao": "Obrigação por lei: have to (ou must)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "She ___ to work on Saturdays last year.", "respostas": [["had"]], "explicacao": "O passado de have to é had to; must não tem passado." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"You don't have to come\" means:", "opcoes": ["Você não pode vir.", "Você não precisa vir.", "Você não deve vir de jeito nenhum."], "correta": 1, "explicacao": "Don't have to = não é necessário." },
+          { "formato": "completar_letras", "habilidade": "vocabulary", "enunciado": "Lan_lord (dono do imóvel)", "respostas": [["d"]], "explicacao": "Landlord: o proprietário que aluga o imóvel." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Working remotely",
+    "tema": "Second and third conditionals",
+    "descricao": "Hipóteses, arrependimentos e decisões do trabalho remoto.",
+    "idioma": "ingles",
+    "nivel": 5,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Second conditional = situação imaginária no presente ou futuro: If I worked from home, I'd save two hours a day. Third conditional = passado que não aconteceu: If we had tested the app, we wouldn't have lost the client. Depois de if não usamos would." },
+      {
+        "tipo": "audio", "titulo": "Listening: A video call that went wrong", "instrucao": "Ouça a chamada e responda.",
+        "roteiro": "MAYA: James, can you hear me now? Sorry, my connection dropped again.\nJAMES: Yes, you're back. Honestly, if you'd told me earlier that your internet was unstable, we could have moved the call to the afternoon.\nMAYA: I know. I didn't expect it to be this bad. The provider is doing some work on my street.\nJAMES: OK, let's be quick then. The client wants the proposal by Thursday instead of Friday.\nMAYA: Thursday? If we had one more designer, that would be easy, but right now it's just me.\nJAMES: What if I asked Priya to help you with the slides? She finished her project yesterday.\nMAYA: That would be amazing. If she took the slides, I'd focus on the budget.\nJAMES: Done. I'll message her right after this call. And Maya, maybe work from the coworking space tomorrow?\nMAYA: Good idea. If I'd gone there today, none of this would have happened.",
+        "vozes": { "MAYA": "feminina", "JAMES": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Why does Maya's connection keep dropping?", "opcoes": ["Her laptop is old", "The provider is working on her street", "She is travelling"], "correta": 1, "explicacao": "The provider is doing some work on my street." },
+          { "formato": "multipla_escolha", "enunciado": "What has changed about the deadline?", "opcoes": ["It's now Friday instead of Thursday", "It's now Thursday instead of Friday", "It has been cancelled"], "correta": 1, "explicacao": "O cliente quer a proposta na quinta, não mais na sexta." },
+          { "formato": "verdadeiro_falso", "enunciado": "Priya is busy with another project.", "resposta": false, "explicacao": "Ela terminou o projeto dela ontem." },
+          { "formato": "multipla_escolha", "enunciado": "If Priya helps, what will Maya do?", "opcoes": ["Make the slides", "Call the client", "Focus on the budget"], "correta": 2, "explicacao": "If she took the slides, I'd focus on the budget." },
+          { "formato": "verdadeiro_falso", "enunciado": "Maya regrets not working from the coworking space today.", "resposta": true, "explicacao": "If I'd gone there today, none of this would have happened: arrependimento (third conditional)." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Second ou third conditional?", "instrucao": "Pense se a situação é imaginária no presente ou no passado.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "If I ___ more time, I would learn Italian.", "opcoes": [["have", "had", "would have"]], "corretas": [1], "explicacao": "Second conditional: if + past simple." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "If they had left earlier, they ___ the train.", "opcoes": [["would catch", "would have caught", "had caught"]], "corretas": [1], "explicacao": "Third conditional: would have + particípio." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "If she ___ (know) about the meeting, she would have come.", "respostas": [["had known"]], "explicacao": "Third conditional: if + past perfect (had known)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "What ___ you do if you lost your job tomorrow?", "respostas": [["would"]], "explicacao": "Pergunta hipotética no second conditional: What would you do...?" },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Which sentence expresses regret about the past?", "opcoes": ["If I study more, I'll pass.", "If I studied more, I'd pass.", "If I had studied more, I would have passed."], "correta": 2, "explicacao": "Arrependimento sobre o passado: third conditional." },
+          { "formato": "resposta_curta", "habilidade": "writing", "enunciado": "Reescreva com third conditional: I didn't know you were in town, so I didn't call you. (Comece com: If I had...)", "aceitas": ["If I had known you were in town, I would have called you", "If I'd known you were in town, I would have called you", "If I had known you were in town, I'd have called you", "If I'd known you were in town, I'd have called you"], "explicacao": "If + had known, + would have called: a situação real foi o contrário." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Handling customer complaints",
+    "tema": "Reported speech",
+    "descricao": "Relate o que o cliente disse com precisão e profissionalismo.",
+    "idioma": "ingles",
+    "nivel": 5,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "No reported speech, o tempo verbal costuma voltar um passo: 'I am upset' → She said she was upset; 'We will refund you' → They said they would refund me. Say não leva objeto (she said that...); tell sempre diz para quem (she told me that...)." },
+      {
+        "tipo": "audio", "titulo": "Listening: A complaint call", "instrucao": "Ouça a ligação para o atendimento e responda.",
+        "roteiro": "HANNAH: Good morning, Brightline Electronics, Hannah speaking. How can I help?\nCOOPER: Hi. I bought a coffee machine from your website two weeks ago, and it stopped working yesterday.\nHANNAH: I'm sorry to hear that. Could you give me your order number, please?\nCOOPER: It's B four seven two nine.\nHANNAH: Thank you, Mr Cooper. I can see the order. What exactly happens when you turn it on?\nCOOPER: The light comes on, but no water comes out. And to be honest, I've already called twice and nobody called me back.\nHANNAH: I do apologise for that. Here's what I can do: we'll send a courier to collect the machine tomorrow, and you'll get a brand-new one within five working days.\nCOOPER: Can't I just get a refund?\nHANNAH: Of course. If you prefer, we'll refund the full amount as soon as we receive the machine.\nCOOPER: Then I'd rather have the refund, thanks.",
+        "vozes": { "HANNAH": "feminina", "COOPER": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "When did the machine stop working?", "opcoes": ["Two weeks ago", "Yesterday", "This morning"], "correta": 1, "explicacao": "Ele comprou há duas semanas; parou de funcionar ontem." },
+          { "formato": "multipla_escolha", "enunciado": "What is the problem with the machine?", "opcoes": ["The light doesn't come on", "It makes a strange noise", "No water comes out"], "correta": 2, "explicacao": "The light comes on, but no water comes out." },
+          { "formato": "verdadeiro_falso", "enunciado": "This is the first time Mr Cooper has called.", "resposta": false, "explicacao": "Ele já ligou duas vezes antes (I've already called twice)." },
+          { "formato": "multipla_escolha", "enunciado": "How long would a replacement take?", "opcoes": ["Two working days", "Five working days", "Two weeks"], "correta": 1, "explicacao": "Within five working days." },
+          { "formato": "multipla_escolha", "enunciado": "What does Mr Cooper finally choose?", "opcoes": ["A new machine", "A discount", "A refund"], "correta": 2, "explicacao": "I'd rather have the refund." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Relatando o que foi dito", "instrucao": "Passe para o reported speech.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "\"I am very disappointed.\" → She said she ___ very disappointed.", "respostas": [["was"]], "explicacao": "Am volta para was." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "\"We will call you back.\" → They said they ___ call me back.", "respostas": [["would"]], "explicacao": "Will volta para would." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "He ___ me that the order had been cancelled.", "opcoes": [["said", "told"]], "corretas": [1], "explicacao": "Com objeto (me), usamos told." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "She ___ that she had never received the invoice.", "opcoes": [["said", "told"]], "corretas": [0], "explicacao": "Sem dizer para quem, usamos said." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "\"I have sent the email.\" → He said he ___ ___ the email.", "respostas": [["had"], ["sent"]], "explicacao": "Present perfect volta para past perfect: had sent." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "\"Can you help me?\" → reported question:", "opcoes": ["She asked can I help her.", "She asked if I could help her.", "She said could I help her."], "correta": 1, "explicacao": "Pergunta indireta: asked if + ordem de afirmação (I could)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Negotiating a deal",
+    "tema": "Hedging and diplomatic language",
+    "descricao": "Negocie com firmeza sem perder a elegância.",
+    "idioma": "ingles",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Em negociações, nativos suavizam o que dizem (hedging): I'm afraid that might be a bit difficult; We were hoping for something closer to...; Would you be open to...? O passado (we were hoping) e os modais (might, could) soam menos diretos e mais profissionais." },
+      {
+        "tipo": "audio", "titulo": "Listening: Closing the contract", "instrucao": "Ouça a negociação e responda.",
+        "roteiro": "OMAR: Thanks for sending the revised proposal, Clara. Overall, we're quite happy with it, but I'm afraid the price is still a little above our budget.\nCLARA: I appreciate your honesty. Could you give me a sense of the figure you had in mind?\nOMAR: We were hoping for something closer to forty thousand for the first year.\nCLARA: I see. That would be a fifteen percent reduction, which would be difficult for us to absorb on our own. However, if you were open to a two-year contract, we might be able to meet you halfway.\nOMAR: That's an interesting option. What would halfway look like, in practice?\nCLARA: Forty-three thousand per year, with onboarding and training included at no extra cost.\nOMAR: That sounds reasonable. I'd need to run it past our finance director, but I think we're close.\nCLARA: Of course. Shall I put that in writing so you have something concrete to share?\nOMAR: That would be very helpful. Let's aim to sign by the end of the month.",
+        "vozes": { "OMAR": "masculina", "CLARA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "What is Omar's main concern?", "opcoes": ["The delivery time", "The price", "The quality of the training"], "correta": 1, "explicacao": "The price is still a little above our budget." },
+          { "formato": "multipla_escolha", "enunciado": "What does Clara ask for in exchange for a lower price?", "opcoes": ["Payment in advance", "A bigger order", "A two-year contract"], "correta": 2, "explicacao": "If you were open to a two-year contract..." },
+          { "formato": "verdadeiro_falso", "enunciado": "The final offer includes training at no extra cost.", "resposta": true, "explicacao": "Onboarding and training included at no extra cost." },
+          { "formato": "multipla_escolha", "enunciado": "What does Omar still need to do?", "opcoes": ["Talk to the finance director", "Visit Clara's office", "Send a new proposal"], "correta": 0, "explicacao": "I'd need to run it past our finance director." },
+          { "formato": "multipla_escolha", "enunciado": "In this conversation, \"meet you halfway\" means:", "opcoes": ["Accept the client's price", "Find a compromise between both prices", "Meet in person"], "correta": 1, "explicacao": "Meet halfway = ceder um pouco cada lado." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Diplomatic language", "instrucao": "Escolha a forma mais natural numa negociação.",
+        "questoes": [
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "Which is the most diplomatic way to say \"Your price is too high\"?", "opcoes": ["Your price is too high.", "Lower your price.", "I'm afraid the price is slightly higher than we expected."], "correta": 2, "explicacao": "I'm afraid + slightly suavizam a crítica." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "We ___ wondering if you could extend the deadline.", "opcoes": [["are", "were"]], "corretas": [1], "explicacao": "O past continuous (we were wondering) deixa o pedido mais educado." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Would you be open ___ discussing the payment terms?", "respostas": [["to"]], "explicacao": "Be open to + verbo com -ing." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "That ___ be a problem for our team.", "opcoes": [["will", "might"]], "corretas": [1], "explicacao": "Might suaviza: talvez seja um problema." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "I need to run it ___ my manager before I can say yes.", "respostas": [["past", "by"]], "explicacao": "Run something past/by someone = consultar alguém antes de decidir." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "A \"ballpark figure\" is an approximate number.", "resposta": true, "explicacao": "Ballpark figure = valor aproximado, estimativa." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Giving feedback at work",
+    "tema": "Phrasal verbs & idioms for the workplace",
+    "descricao": "Dê e receba feedback com a naturalidade de um nativo.",
+    "idioma": "ingles",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Phrasal verbs e expressões deixam o feedback mais natural: bring up (trazer um assunto), follow up (dar continuidade), take on (assumir), be on the same page (estar alinhados). E fale do comportamento, não da pessoa: 'The report came in late' em vez de 'You're always late'." },
+      {
+        "tipo": "audio", "titulo": "Listening: A one-to-one meeting", "instrucao": "Ouça a conversa entre gestora e funcionário e responda.",
+        "roteiro": "DIANA: Thanks for making time, Ethan. I wanted to touch base about the last quarter.\nETHAN: Sure. Is everything OK?\nDIANA: Overall, yes. Your presentation to the board went down really well. They specifically mentioned your analysis of the Asian market.\nETHAN: That's great to hear. I put a lot of work into that.\nDIANA: It showed. There's one thing I'd like to bring up, though. A couple of reports came in after the deadline, and that held up the finance team.\nETHAN: You're right. I took on too much this quarter and lost track of a few things.\nDIANA: I appreciate you owning that. How about we sit down every Monday to prioritise your tasks, so we're on the same page?\nETHAN: That would really help. Should I also hand over the client newsletter to someone else?\nDIANA: Good idea. Let's talk to Sam about it. And keep up the good work on the analysis. It really stood out.",
+        "vozes": { "DIANA": "feminina", "ETHAN": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "What did the board like?", "opcoes": ["Ethan's budget", "Ethan's analysis of the Asian market", "Ethan's newsletter"], "correta": 1, "explicacao": "They specifically mentioned your analysis of the Asian market." },
+          { "formato": "multipla_escolha", "enunciado": "What problem does Diana bring up?", "opcoes": ["Ethan was rude to a client", "Some reports were late", "The presentation was too long"], "correta": 1, "explicacao": "A couple of reports came in after the deadline." },
+          { "formato": "multipla_escolha", "enunciado": "According to Ethan, why did it happen?", "opcoes": ["He took on too many tasks", "He was on holiday", "He misunderstood the deadline"], "correta": 0, "explicacao": "I took on too much this quarter." },
+          { "formato": "verdadeiro_falso", "enunciado": "They agree to meet every Friday.", "resposta": false, "explicacao": "As reuniões serão toda segunda-feira (every Monday)." },
+          { "formato": "verdadeiro_falso", "enunciado": "Ethan suggests passing the newsletter to someone else.", "resposta": true, "explicacao": "Should I also hand over the client newsletter to someone else?" }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Phrasal verbs e expressões", "instrucao": "Complete ou escolha o significado.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "The late reports held ___ the finance team.", "respostas": [["up"]], "banco": ["up", "out", "on"], "explicacao": "Hold up = atrasar alguém ou algo." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "I'll follow ___ with an email after the meeting.", "respostas": [["up"]], "explicacao": "Follow up = dar continuidade, retomar o assunto." },
+          { "formato": "lacuna_opcoes", "habilidade": "vocabulary", "enunciado": "I took ___ too many projects this year.", "opcoes": [["over", "on", "up"]], "corretas": [1], "explicacao": "Take on = assumir (tarefas, responsabilidades)." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"Let's touch base next week\" means:", "opcoes": ["Vamos conversar rapidamente semana que vem.", "Vamos visitar a sede semana que vem.", "Vamos encerrar o projeto semana que vem."], "correta": 0, "explicacao": "Touch base = fazer um contato rápido para se atualizar." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"Your presentation went down well\" means:", "opcoes": ["It was shorter than expected.", "It was received positively.", "It was cancelled."], "correta": 1, "explicacao": "Go down well = ser bem recebido." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "We need to be on the same ___ before we talk to the client.", "respostas": [["page"]], "explicacao": "Be on the same page = estar alinhados." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "The four-day week",
+    "tema": "Discourse markers & advanced vocabulary",
+    "descricao": "Um podcast para treinar o ouvido no inglês avançado.",
+    "idioma": "ingles",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Marcadores do discurso organizam as ideias: however/nevertheless (contraste), moreover/furthermore (adição), therefore/consequently (consequência), in other words (reformulação). Num áudio longo, eles são pistas para você não se perder." },
+      {
+        "tipo": "audio", "titulo": "Listening: Work Unplugged podcast", "instrucao": "Ouça o episódio do podcast e responda.",
+        "roteiro": "HOST: Welcome back to Work Unplugged. Today I want to talk about something that keeps coming up in our listeners' messages: the four-day week. Over the past few years, dozens of companies have trialled it, and the results are more nuanced than the headlines suggest.\nHOST: On the one hand, most firms reported that employees were less stressed and took fewer sick days. Moreover, productivity didn't fall. In several cases, it actually rose, largely because people cut down on unnecessary meetings.\nHOST: On the other hand, the model doesn't fit every sector. Hospitals and schools, for instance, can't simply close on Fridays. Consequently, some of them have experimented with rotating schedules instead, which are far harder to manage.\nHOST: There's also a less obvious risk. When people have to squeeze five days of work into four, the remaining days can become extremely intense. In other words, the problem isn't the number of days, but how the work itself is organised.\nHOST: So, is the four-day week the future? My take is that it's a tool, not a magic solution. Nevertheless, it has forced many companies to ask a valuable question: what actually needs to get done, and what are we doing just out of habit?",
+        "vozes": { "HOST": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "What is the main topic of the episode?", "opcoes": ["Remote work", "Sick leave policies", "The four-day week"], "correta": 2, "explicacao": "O tema é a semana de quatro dias (four-day week)." },
+          { "formato": "verdadeiro_falso", "enunciado": "According to the host, productivity fell in most companies.", "resposta": false, "explicacao": "Productivity didn't fall; em vários casos, até aumentou." },
+          { "formato": "multipla_escolha", "enunciado": "Why did productivity rise in several cases?", "opcoes": ["People worked longer hours", "People cut down on unnecessary meetings", "Companies hired more staff"], "correta": 1, "explicacao": "Largely because people cut down on unnecessary meetings." },
+          { "formato": "multipla_escolha", "enunciado": "Why can't hospitals and schools simply adopt the model?", "opcoes": ["It's too expensive", "They can't close on a fixed day", "Their employees don't want it"], "correta": 1, "explicacao": "They can't simply close on Fridays." },
+          { "formato": "multipla_escolha", "enunciado": "What is the host's conclusion?", "opcoes": ["It's a magic solution", "It's a useful tool, not a magic solution", "It should be avoided"], "correta": 1, "explicacao": "It's a tool, not a magic solution." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Discourse markers", "instrucao": "Escolha o conector que dá sentido à frase.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "The results were positive. ___, some sectors struggled to adapt.", "opcoes": [["Moreover", "Nevertheless", "Therefore"]], "corretas": [1], "explicacao": "Contraste com a frase anterior: nevertheless." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Meetings were shorter. ___, people had more time for focused work.", "opcoes": [["Consequently", "However", "In other words"]], "corretas": [0], "explicacao": "Consequência: consequently." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "\"The results are more nuanced than the headlines suggest\" means:", "opcoes": ["The results are more complex than the news says.", "The results are worse than expected.", "The results haven't been published yet."], "correta": 0, "explicacao": "Nuanced = com nuances, mais complexo." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "Many companies have ___ the model for six months to see if it works.", "respostas": [["trialled", "trialed", "tested", "piloted"]], "explicacao": "Trial (testar por um período): trialled (britânico) ou trialed (americano)." },
+          { "formato": "lacuna", "habilidade": "vocabulary", "enunciado": "We need to cut ___ on unnecessary meetings.", "respostas": [["down"]], "explicacao": "Cut down on = reduzir." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "Doing something \"out of habit\" means doing it because you always do it, not because it's necessary.", "resposta": true, "explicacao": "Out of habit = por costume, no automático." }
+        ]
+      }
+    ]
+  }
+]

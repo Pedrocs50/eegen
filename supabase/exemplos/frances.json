@@ -1,0 +1,167 @@
+[
+  {
+    "titulo": "Enchanté !",
+    "tema": "Se présenter : être et s'appeler",
+    "descricao": "Seus primeiros minutos falando francês.",
+    "idioma": "frances",
+    "nivel": 1,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Être: je suis, tu es, il/elle est, nous sommes, vous êtes, ils/elles sont. Para dizer o nome: Je m'appelle Ana. Use vous com quem você não conhece ou no trabalho, e tu com amigos e família." },
+      {
+        "tipo": "audio", "titulo": "Écoute : À l'école de langues", "instrucao": "Ouça o diálogo e responda.",
+        "roteiro": "CLAIRE: Bonjour ! Vous êtes nouveau ici ?\nTHIAGO: Oui, bonjour. Je m'appelle Thiago. Et vous ?\nCLAIRE: Je m'appelle Claire. Je suis la professeure de français. Enchantée !\nTHIAGO: Enchanté, Claire.\nCLAIRE: Vous êtes d'où, Thiago ?\nTHIAGO: Je suis brésilien, de Recife. Je suis architecte.\nCLAIRE: Très bien ! Et vous habitez à Lyon ?\nTHIAGO: Oui, j'habite à Lyon depuis un mois.\nCLAIRE: Parfait. Le cours commence à neuf heures, dans la salle quatre.",
+        "vozes": { "CLAIRE": "feminina", "THIAGO": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Qui est Claire ?", "opcoes": ["Une étudiante", "La professeure de français", "Une architecte"], "correta": 1, "explicacao": "Je suis la professeure de français." },
+          { "formato": "multipla_escolha", "enunciado": "D'où est Thiago ?", "opcoes": ["De Lyon", "De Paris", "De Recife"], "correta": 2, "explicacao": "Je suis brésilien, de Recife." },
+          { "formato": "verdadeiro_falso", "enunciado": "Thiago est architecte.", "resposta": true, "explicacao": "Je suis architecte." },
+          { "formato": "verdadeiro_falso", "enunciado": "Le cours commence à dix heures.", "resposta": false, "explicacao": "A aula começa às nove (neuf heures)." },
+          { "formato": "multipla_escolha", "enunciado": "Depuis quand Thiago habite-t-il à Lyon ?", "opcoes": ["Depuis un an", "Depuis un mois", "Depuis une semaine"], "correta": 1, "explicacao": "J'habite à Lyon depuis un mois." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Le verbe être", "instrucao": "Complete as frases.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Je ___ étudiant.", "respostas": [["suis"]], "explicacao": "Je → suis." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Nous ___ brésiliens.", "respostas": [["sommes"]], "explicacao": "Nous → sommes." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Vous ___ d'où ?", "opcoes": [["êtes", "es", "sont"]], "corretas": [0], "explicacao": "Vous → êtes." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Elle s'___ Marie.", "respostas": [["appelle"]], "explicacao": "S'appeler: elle s'appelle (com dois l)." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "Com quem usamos \"vous\"?", "opcoes": ["Com um amigo próximo", "Com uma pessoa que não conhecemos", "Com um irmão"], "correta": 1, "explicacao": "Vous é formal (ou plural)." },
+          { "formato": "resposta_curta", "habilidade": "vocabulary", "enunciado": "Como se diz \"obrigado\" em francês?", "aceitas": ["Merci"], "explicacao": "Merci (ou merci beaucoup = muito obrigado)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Un week-end à Bordeaux",
+    "tema": "Passé composé avec être et avoir",
+    "descricao": "Conte sua viagem no passado sem errar o auxiliar.",
+    "idioma": "frances",
+    "nivel": 3,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "A maioria dos verbos usa avoir no passé composé (j'ai visité, nous avons mangé). Verbos de movimento e de mudança de estado usam être, e o particípio concorda com o sujeito: elle est allée, ils sont partis. Pense na 'maison d'être': aller, venir, partir, arriver, entrer, sortir, rester..." },
+      {
+        "tipo": "audio", "titulo": "Écoute : Lundi matin au bureau", "instrucao": "Ouça a conversa e responda.",
+        "roteiro": "JULIE: Salut Marc ! Tu as passé un bon week-end ?\nMARC: Excellent ! Je suis allé à Bordeaux avec ma femme.\nJULIE: Super ! Vous êtes partis quand ?\nMARC: Vendredi soir, en train. Nous sommes arrivés vers vingt-deux heures.\nJULIE: Et qu'est-ce que vous avez fait ?\nMARC: Samedi, nous avons visité des vignobles et nous avons goûté beaucoup de vins. Le soir, on a dîné au bord de la Garonne.\nJULIE: Ça a l'air génial. Et dimanche ?\nMARC: Dimanche, il a plu toute la journée, alors nous sommes restés à l'hôtel et nous avons lu. Et toi ?\nJULIE: Moi, je n'ai rien fait de spécial. J'ai fini un rapport pour le travail.",
+        "vozes": { "JULIE": "feminina", "MARC": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Avec qui Marc est-il allé à Bordeaux ?", "opcoes": ["Avec sa femme", "Avec Julie", "Avec ses enfants"], "correta": 0, "explicacao": "Je suis allé à Bordeaux avec ma femme." },
+          { "formato": "multipla_escolha", "enunciado": "Comment sont-ils partis ?", "opcoes": ["En voiture", "En avion", "En train"], "correta": 2, "explicacao": "Vendredi soir, en train." },
+          { "formato": "verdadeiro_falso", "enunciado": "Ils sont arrivés vers vingt-deux heures.", "resposta": true, "explicacao": "Nous sommes arrivés vers vingt-deux heures." },
+          { "formato": "multipla_escolha", "enunciado": "Qu'est-ce qu'ils ont fait dimanche ?", "opcoes": ["Ils ont visité des vignobles", "Ils sont restés à l'hôtel", "Ils sont rentrés à Paris"], "correta": 1, "explicacao": "Choveu o dia todo, então ficaram no hotel." },
+          { "formato": "verdadeiro_falso", "enunciado": "Julie a passé un week-end très spécial.", "resposta": false, "explicacao": "Je n'ai rien fait de spécial." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Être ou avoir ?", "instrucao": "Escolha o auxiliar ou complete o particípio.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Hier, nous ___ allés au cinéma.", "opcoes": [["avons", "sommes"]], "corretas": [1], "explicacao": "Aller usa être: nous sommes allés." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Elle ___ mangé une pizza.", "opcoes": [["a", "est"]], "corretas": [0], "explicacao": "Manger usa avoir: elle a mangé." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Ils sont ___ (partir) à huit heures.", "respostas": [["partis"]], "explicacao": "Com être, o particípio concorda: ils sont partis (masculino plural)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Marie est ___ (arriver) en retard.", "respostas": [["arrivée"]], "explicacao": "Marie é feminino: arrivée." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Tu ___ fini ton rapport ?", "respostas": [["as"]], "explicacao": "Finir usa avoir: tu as fini." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Choisissez la phrase correcte :", "opcoes": ["Je suis visité le musée.", "J'ai visité le musée.", "J'ai visitée le musée."], "correta": 1, "explicacao": "Visiter usa avoir, e aqui o particípio não concorda." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Préparer la réunion",
+    "tema": "Pronoms COD et COI",
+    "descricao": "Evite repetições e soe natural no trabalho.",
+    "idioma": "frances",
+    "nivel": 4,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "O COD substitui o objeto direto: le, la, les (Je lis le rapport → Je le lis). O COI substitui a pessoa depois de à: lui, leur (Je parle au client → Je lui parle). O pronome vem antes do verbo; no passé composé, antes do auxiliar: Je l'ai envoyé." },
+      {
+        "tipo": "audio", "titulo": "Écoute : Avant la réunion", "instrucao": "Ouça a conversa e responda.",
+        "roteiro": "SOPHIE: Karim, tu as envoyé la présentation au client ?\nKARIM: Oui, je la lui ai envoyée hier soir. Mais il ne m'a pas encore répondu.\nSOPHIE: D'accord. Et les chiffres du trimestre, tu les as vérifiés ?\nKARIM: Je les ai vérifiés ce matin, mais il manque les ventes de l'Espagne.\nSOPHIE: Ah, c'est Laura qui les a. Tu peux lui téléphoner ?\nKARIM: Je lui ai déjà écrit un e-mail. Je vais l'appeler tout de suite.\nSOPHIE: Parfait. La réunion commence à quatorze heures. N'oublie pas l'ordinateur portable.\nKARIM: Je vais l'apporter, ne t'inquiète pas. Et le directeur, on l'invite aussi ?\nSOPHIE: Oui, invite-le. Il veut connaître le nouveau projet.",
+        "vozes": { "SOPHIE": "feminina", "KARIM": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Quand Karim a-t-il envoyé la présentation ?", "opcoes": ["Ce matin", "Hier soir", "La semaine dernière"], "correta": 1, "explicacao": "Je la lui ai envoyée hier soir." },
+          { "formato": "verdadeiro_falso", "enunciado": "Le client a déjà répondu.", "resposta": false, "explicacao": "Il ne m'a pas encore répondu." },
+          { "formato": "multipla_escolha", "enunciado": "Qu'est-ce qui manque dans les chiffres ?", "opcoes": ["Les ventes de l'Espagne", "Les ventes de la France", "Les coûts du projet"], "correta": 0, "explicacao": "Il manque les ventes de l'Espagne." },
+          { "formato": "multipla_escolha", "enunciado": "À quelle heure commence la réunion ?", "opcoes": ["À 13 h", "À 14 h", "À 16 h"], "correta": 1, "explicacao": "À quatorze heures." },
+          { "formato": "verdadeiro_falso", "enunciado": "Ils vont inviter le directeur.", "resposta": true, "explicacao": "Oui, invite-le." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "COD ou COI ?", "instrucao": "Substitua o objeto pelo pronome certo.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Tu connais Paul ? Oui, je ___ connais bien.", "opcoes": [["le", "lui"]], "corretas": [0], "explicacao": "Connaître quelqu'un (sem à): COD le." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Tu as parlé à tes parents ? Oui, je ___ ai parlé hier.", "opcoes": [["les", "leur"]], "corretas": [1], "explicacao": "Parler à + pessoas: COI leur." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Tu lis le journal ? Oui, je ___ lis tous les jours.", "respostas": [["le"]], "explicacao": "Le journal (masculino): le." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Tu écris à Sophie ? Oui, je ___ écris ce soir.", "respostas": [["lui"]], "explicacao": "Écrire à quelqu'un: lui." },
+          { "formato": "multipla_escolha", "habilidade": "grammar", "enunciado": "Remplacez : « J'ai envoyé les documents. »", "opcoes": ["Je les ai envoyés.", "Je leur ai envoyé.", "J'ai les envoyés."], "correta": 0, "explicacao": "COD les antes do auxiliar, e o particípio concorda: envoyés." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Tu as vu la présentation ? Oui, je l'ai ___ (voir).", "respostas": [["vue"]], "explicacao": "COD feminino antes do avoir: o particípio concorda (vue)." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "Chercher un appartement à Paris",
+    "tema": "Subjonctif et conditionnel",
+    "descricao": "Necessidades, pedidos e hipóteses na busca por moradia.",
+    "idioma": "frances",
+    "nivel": 5,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Il faut que, je voudrais que e bien que pedem subjonctif: Il faut que vous soyez rapide. Para pedidos educados e hipóteses, use o conditionnel: Je voudrais visiter l'appartement; Si j'avais un garant, ce serait plus facile." },
+      {
+        "tipo": "audio", "titulo": "Écoute : À l'agence immobilière", "instrucao": "Ouça a conversa na imobiliária e responda.",
+        "roteiro": "INÈS: Bonjour, je cherche un deux-pièces dans le onzième arrondissement, pas trop loin du métro.\nDUBOIS: Bonjour. Quel est votre budget ?\nINÈS: Je voudrais ne pas dépasser mille deux cents euros par mois, charges comprises.\nDUBOIS: C'est possible, mais il faut que vous soyez rapide. Les appartements partent en quelques jours.\nINÈS: Quels documents faut-il que je fournisse ?\nDUBOIS: Il faut que vous nous donniez vos trois dernières fiches de paie et une pièce d'identité. Et il faudrait aussi un garant.\nINÈS: Un garant ? Je viens d'arriver en France, je ne connais personne ici.\nDUBOIS: Dans ce cas, vous pourriez utiliser une garantie en ligne. Ça coûte environ trois pour cent du loyer annuel.\nINÈS: D'accord. Bien que ce soit un peu cher, je préfère cette solution. Est-ce qu'on pourrait visiter un appartement cette semaine ?\nDUBOIS: J'en ai un rue Oberkampf. Je vous propose jeudi à dix-huit heures.",
+        "vozes": { "INÈS": "feminina", "DUBOIS": "masculina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Quel type de logement cherche Inès ?", "opcoes": ["Un studio", "Un deux-pièces", "Une maison"], "correta": 1, "explicacao": "Je cherche un deux-pièces." },
+          { "formato": "multipla_escolha", "enunciado": "Quel est son budget maximum ?", "opcoes": ["1 000 € par mois", "1 200 € par mois", "1 500 € par mois"], "correta": 1, "explicacao": "Mille deux cents euros, charges comprises." },
+          { "formato": "verdadeiro_falso", "enunciado": "Selon l'agent, les appartements restent disponibles longtemps.", "resposta": false, "explicacao": "Les appartements partent en quelques jours." },
+          { "formato": "multipla_escolha", "enunciado": "Pourquoi Inès n'a-t-elle pas de garant ?", "opcoes": ["Elle n'a pas de travail", "Elle vient d'arriver en France", "Ses parents refusent"], "correta": 1, "explicacao": "Je viens d'arriver en France, je ne connais personne ici." },
+          { "formato": "multipla_escolha", "enunciado": "Quand est la visite ?", "opcoes": ["Mercredi à 18 h", "Jeudi à 18 h", "Jeudi à 10 h"], "correta": 1, "explicacao": "Jeudi à dix-huit heures." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Subjonctif ou conditionnel ?", "instrucao": "Complete ou escolha a forma certa.",
+        "questoes": [
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Il faut que tu ___ (être) à l'heure.", "respostas": [["sois"]], "explicacao": "Il faut que + subjonctif: tu sois." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Je voudrais que vous ___ (venir) avec moi.", "respostas": [["veniez"]], "explicacao": "Je voudrais que + subjonctif: vous veniez." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Bien qu'il ___ tard, nous continuons à travailler.", "opcoes": [["est", "soit", "serait"]], "corretas": [1], "explicacao": "Bien que + subjonctif: soit." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Si j'avais plus d'argent, j'___ un plus grand appartement.", "opcoes": [["achète", "achèterais", "achèterai"]], "corretas": [1], "explicacao": "Si + imparfait → conditionnel: achèterais." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "Qual é a forma mais educada?", "opcoes": ["Je veux visiter l'appartement.", "Je voudrais visiter l'appartement.", "Visitez l'appartement."], "correta": 1, "explicacao": "O conditionnel (je voudrais) suaviza o pedido." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "\"Charges comprises\" significa que as despesas do prédio estão incluídas.", "resposta": true, "explicacao": "Charges = despesas de condomínio; comprises = incluídas." }
+        ]
+      }
+    ]
+  },
+  {
+    "titulo": "La ville du quart d'heure",
+    "tema": "Connecteurs logiques et conditionnel passé",
+    "descricao": "Uma entrevista de rádio para treinar o francês avançado.",
+    "idioma": "frances",
+    "nivel": 6,
+    "secoes": [
+      { "tipo": "dica", "titulo": "Dica", "texto": "Conectores: cependant e pourtant (contraste), en effet (confirma e explica), donc e par conséquent (consequência), d'ailleurs (acrescenta um argumento). O conditionnel passé fala do que não aconteceu: On aurait dû consulter les habitants (deveríamos ter consultado)." },
+      {
+        "tipo": "audio", "titulo": "Écoute : Entretien à la radio", "instrucao": "Ouça a entrevista e responda.",
+        "roteiro": "ANTOINE: Bonjour Nadia. Vous êtes urbaniste et vous défendez l'idée de la ville du quart d'heure. De quoi s'agit-il exactement ?\nNADIA: C'est une ville où l'on trouve l'essentiel à moins de quinze minutes à pied ou à vélo : le travail, les écoles, les commerces, les soins médicaux. L'objectif, c'est de réduire les déplacements en voiture.\nANTOINE: Cependant, beaucoup de gens craignent que ce modèle limite leur liberté de circuler.\nNADIA: C'est une crainte compréhensible, mais il ne s'agit pas d'interdire quoi que ce soit. Il s'agit plutôt de rendre les longs trajets facultatifs.\nANTOINE: Et quelles erreurs avez-vous observées dans les villes qui ont essayé ?\nNADIA: La principale, c'est d'avoir imposé les changements trop vite. Dans certains quartiers, on aurait dû consulter les habitants avant de fermer des rues à la circulation. Par conséquent, des projets intéressants ont été rejetés.\nANTOINE: Et si vous deviez convaincre un maire sceptique ?\nNADIA: Je lui dirais de commencer petit : une rue piétonne près d'une école, par exemple. D'ailleurs, ce sont souvent les parents qui deviennent les meilleurs défenseurs du projet.",
+        "vozes": { "ANTOINE": "masculina", "NADIA": "feminina" },
+        "questoes": [
+          { "formato": "multipla_escolha", "enunciado": "Qu'est-ce que la ville du quart d'heure ?", "opcoes": ["Une ville où tout ferme à quinze heures", "Une ville où l'essentiel est à moins de quinze minutes", "Une ville sans voitures"], "correta": 1, "explicacao": "L'essentiel à moins de quinze minutes à pied ou à vélo." },
+          { "formato": "verdadeiro_falso", "enunciado": "Selon Nadia, le modèle interdit les longs trajets.", "resposta": false, "explicacao": "Il ne s'agit pas d'interdire; os trajetos longos ficam opcionais." },
+          { "formato": "multipla_escolha", "enunciado": "Quelle a été la principale erreur ?", "opcoes": ["Construire trop d'écoles", "Imposer les changements trop vite", "Manquer d'argent"], "correta": 1, "explicacao": "D'avoir imposé les changements trop vite." },
+          { "formato": "multipla_escolha", "enunciado": "Que conseille-t-elle à un maire sceptique ?", "opcoes": ["Fermer tout le centre-ville", "Commencer petit", "Attendre quelques années"], "correta": 1, "explicacao": "Je lui dirais de commencer petit." },
+          { "formato": "verdadeiro_falso", "enunciado": "Selon Nadia, les parents deviennent souvent les défenseurs du projet.", "resposta": true, "explicacao": "Ce sont souvent les parents qui deviennent les meilleurs défenseurs du projet." }
+        ]
+      },
+      {
+        "tipo": "questoes", "titulo": "Connecteurs et conditionnel passé", "instrucao": "Escolha ou complete.",
+        "questoes": [
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Le projet était coûteux ; ___, il a été approuvé.", "opcoes": [["pourtant", "donc", "en effet"]], "corretas": [0], "explicacao": "Contraste: pourtant." },
+          { "formato": "lacuna_opcoes", "habilidade": "grammar", "enunciado": "Les rues sont fermées aux voitures ; ___, il y a moins de pollution.", "opcoes": [["cependant", "par conséquent", "pourtant"]], "corretas": [1], "explicacao": "Consequência: par conséquent." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Nous ___ dû partir plus tôt. (avoir, conditionnel)", "respostas": [["aurions"]], "explicacao": "Conditionnel de avoir com nous: aurions (aurions dû = deveríamos ter)." },
+          { "formato": "lacuna", "habilidade": "grammar", "enunciado": "Si j'avais su, je ne ___ pas ___ (venir).", "respostas": [["serais"], ["venu", "venue"]], "explicacao": "Conditionnel passé com être: je ne serais pas venu(e)." },
+          { "formato": "multipla_escolha", "habilidade": "vocabulary", "enunciado": "« Il ne s'agit pas d'interdire » signifie :", "opcoes": ["Não se trata de proibir.", "Não se deve proibir.", "Não é possível proibir."], "correta": 0, "explicacao": "Il s'agit de = trata-se de." },
+          { "formato": "verdadeiro_falso", "habilidade": "vocabulary", "enunciado": "« Craindre » signifie « temer, ter receio ».", "resposta": true, "explicacao": "Craindre = temer; une crainte = um receio." }
+        ]
+      }
+    ]
+  }
+]

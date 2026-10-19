@@ -188,5 +188,32 @@ conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket
 conferir((await numero(ALUNO, "select count(*) from public.aula_listas")) === 1, "aula liberada: aluno vê os exercícios da aula");
 conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aluno de outra turma não lê o PDF");
 
+// ----------------------------------------------------------------------------- listas de exemplo
+console.log("Listas de exemplo");
+const SQL_EXEMPLOS = fs.readFileSync(path.resolve(PASTA_MIGRACOES, "../exemplos/listas_de_exemplo.sql"), "utf8");
+await db.exec(SQL_EXEMPLOS);
+await db.exec(SQL_EXEMPLOS); // rodar de novo recria, sem duplicar
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.listas where origem = 'exemplo' and status = 'publicada'")) === 25, "25 listas de exemplo publicadas, visíveis para o aluno");
+conferir((await numero(ADMIN, "select count(*) from public.listas where origem = 'exemplo' and criado_por = $1", [ADMIN])) === 25, "exemplos ficam em nome do admin");
+
+// Responde cada lista com o próprio gabarito: tudo precisa dar 100%.
+const { rows: exemplos } = await db.query("select id, titulo from public.listas where origem = 'exemplo'");
+const erradas = [];
+for (const { id, titulo } of exemplos) {
+  const { rows: questoes } = await db.query("select q.id, q.formato, g.gabarito from public.questoes q join public.gabaritos g on g.questao_id = q.id where q.lista_id = $1", [id]);
+  const respostasCertas = {};
+  for (const { id: idQuestao, formato, gabarito } of questoes) {
+    respostasCertas[idQuestao] =
+      formato === "multipla_escolha" ? { opcao: gabarito.correta }
+      : formato === "verdadeiro_falso" ? { valor: gabarito.valor }
+      : formato === "resposta_curta" ? { texto: gabarito.aceitas[0] }
+      : formato === "lacuna_opcoes" ? { lacunas: gabarito.lacunas }
+      : { lacunas: gabarito.lacunas.map((aceitas) => aceitas[0]) };
+  }
+  const { rows: [{ enviar_tentativa: r }] } = await como(OUTRO_ALUNO, "select public.enviar_tentativa($1, $2::jsonb)", [id, JSON.stringify(respostasCertas)]);
+  if (Number(r.nota) !== 100) erradas.push(`${titulo} (${r.nota}%)`);
+}
+conferir(erradas.length === 0, `gabarito de cada exemplo corrige como 100%${erradas.length ? `: ${erradas.join(", ")}` : ""}`);
+
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

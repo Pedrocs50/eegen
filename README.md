@@ -106,6 +106,16 @@ O site é publicado sozinho a cada envio para a `main`: o Cloudflare Pages baixa
 - As chaves do Gemini ficam só nos segredos das funções do Supabase, não no Cloudflare.
 - No Supabase, em **Authentication → URL Configuration**, o *Site URL* e as *Redirect URLs* precisam apontar para `https://upenglish.pages.dev`, senão os e-mails de confirmação e de nova senha levam para `localhost`.
 
+### Listas de exemplo
+
+[`supabase/exemplos/`](supabase/exemplos/) tem 25 listas prontas, todas com listening: 10 de inglês, 10 de espanhol e 5 de francês. Os níveis vão do 1 ao 6, com mais listas nos níveis altos. O conteúdo fica em `ingles.json`, `espanhol.json` e `frances.json`, no mesmo formato do assistente.
+
+1. `py supabase/exemplos/montar.py` confere o conteúdo, gera os MP3 em `supabase/exemplos/audios/` (edge-tts, sem gastar a cota do Gemini) e escreve `listas_de_exemplo.sql`.
+2. No Supabase, em **Storage → audios → Upload**, envie os 25 MP3.
+3. No **SQL Editor**, rode `listas_de_exemplo.sql`. Ele pode rodar de novo sem duplicar; as listas ficam publicadas, em nome do admin, com `origem = 'exemplo'`.
+
+Para apagar os exemplos: `delete from public.listas where origem = 'exemplo';`. Os testes do banco carregam o SQL e conferem que o gabarito de cada lista é corrigido como 100%.
+
 ## Status das partes
 
 | Parte | Status |
