@@ -18,6 +18,9 @@ export const NIVEIS: Record<Idioma, string[]> = {
   frances: ["Débutant", "Élémentaire", "Pré-intermédiaire", "Intermédiaire", "Intermédiaire avancé", "Avancé"],
 };
 
+/** Rótulo do nível que vale para qualquer idioma (referência CEFR usada na escola). */
+export const CEFR = ["A1", "A2", "B1", "B1+/B2", "B2", "C1"];
+
 export function nomeNivel(idioma: Idioma, nivel: number) {
   return NIVEIS[idioma][nivel - 1] ?? `Nível ${nivel}`;
 }

@@ -215,5 +215,29 @@ for (const { id, titulo } of exemplos) {
 }
 conferir(erradas.length === 0, `gabarito de cada exemplo corrige como 100%${erradas.length ? `: ${erradas.join(", ")}` : ""}`);
 
+// ----------------------------------------------------------------------------- resultados
+console.log("Resultados");
+// Uma tentativa com erro numa lista de exemplo, para aparecer nas questões mais erradas.
+const [{ id: listaErrada }] = exemplos;
+const { rows: [primeira] } = await db.query("select q.id, g.gabarito from public.questoes q join public.secoes s on s.id = q.secao_id join public.gabaritos g on g.questao_id = q.id where q.lista_id = $1 and q.formato = 'multipla_escolha' order by s.ordem, q.ordem limit 1", [listaErrada]);
+const opcaoErrada = primeira.gabarito.correta === 0 ? 1 : 0;
+await como(OUTRO_ALUNO, "select public.enviar_tentativa($1, $2::jsonb)", [listaErrada, JSON.stringify({ [primeira.id]: { opcao: opcaoErrada } })]);
+
+conferir(await falhaComo(OUTRO_ALUNO, "select public.resultados_equipe()"), "aluno não vê os resultados da equipe");
+conferir(await falhaComo(OUTRO_ALUNO, "select public.resultados_lista($1)", [listaErrada]), "aluno não vê os resultados de uma lista");
+conferir(await falhaComo(PROFESSOR, "select public.conta_no_resultado($1, false)", [ALUNO]), "função auxiliar não é chamada direto");
+const { rows: [{ resultados_equipe: geral }] } = await como(PROFESSOR, "select public.resultados_equipe()");
+conferir(geral.alunos.some((a) => a.id === OUTRO_ALUNO && a.nome === "Outro aluno"), "professora vê o nome de quem respondeu, mesmo sem turma em comum");
+conferir(geral.alunos.every((a) => a.papel === "aluno") && geral.tentativas.every((t) => geral.alunos.some((a) => a.id === t.aluno)), "tentativas da equipe ficam de fora por padrão");
+conferir(geral.tentativas.filter((t) => t.aluno === OUTRO_ALUNO).length === 26, "todas as tentativas do aluno entram");
+conferir(geral.habilidades.some((h) => h.habilidade === "listening" && Number(h.total) > 0), "acerto por habilidade vem agregado");
+const { rows: [{ resultados_equipe: futuro }] } = await como(ADMIN, "select public.resultados_equipe(now() + interval '1 day')");
+conferir(futuro.tentativas.length === 0, "filtro de data funciona");
+const { rows: [{ resultados_lista: daLista }] } = await como(PROFESSOR, "select public.resultados_lista($1)", [listaErrada]);
+const questaoErrada = daLista.questoes.find((q) => q.id === primeira.id);
+conferir(Number(questaoErrada.acerto) === 0.5 && Number(questaoErrada.respostas) === 2, "taxa de acerto por questão (1 certa, 1 errada)");
+conferir(questaoErrada.erradas.length === 1 && questaoErrada.erradas[0].resposta.opcao === opcaoErrada, "resposta errada mais comum aparece");
+conferir(daLista.tentativas.length === 2 && daLista.alunos.length === 1, "tentativas e alunos da lista");
+
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

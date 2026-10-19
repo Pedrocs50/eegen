@@ -11,6 +11,26 @@
 - **Visibilidade:** por enquanto, toda lista **publicada** aparece para todo aluno logado. Quando cursos e turmas voltarem, a lista passa a ser liberada por turma.
 - **Testes:** as migrações e a correção foram testadas num Postgres local (PGlite), com usuários simulados de admin e de aluno.
 
+### Resultados (19/10/2026)
+Tela `/resultados`, para professor e admin. Os dados vêm já agregados pelas funções `resultados_equipe` e `resultados_lista` (migração `0010`), que só a equipe pode chamar. Por padrão, as tentativas da própria equipe ficam de fora.
+- **Visão geral:**
+  - filtros por período, idioma e nível;
+  - cards com alunos praticando, exercícios feitos, nota média e alunos que precisam de atenção (média abaixo de 60%);
+  - gráficos de atividade por dia ou semana, distribuição das notas, acerto por habilidade e média por nível;
+  - abas "Por lista" e "Por aluno".
+- **Uma lista** (`/resultados/listas/:id`):
+  - média da lista e da primeira tentativa;
+  - distribuição das notas;
+  - questão por questão, com a taxa de acerto, a resposta certa e os três erros mais comuns;
+  - primeira e melhor nota de cada aluno.
+- **Um aluno** (`/resultados/alunos/:id`):
+  - evolução das notas;
+  - acerto por habilidade, com o ponto a reforçar;
+  - histórico de listas.
+- **Regras:**
+  - em cada lista vale a **melhor nota** do aluno, como ele mesmo vê;
+  - os gráficos são HTML/SVG sem biblioteca e seguem o tema escuro.
+
 Objetivo: o professor cria muitas listas de exercícios rápido, com ajuda de um assistente de IA, no padrão de ensino da UP English. O aluno responde com correção na hora e acompanha o próprio progresso.
 
 ---

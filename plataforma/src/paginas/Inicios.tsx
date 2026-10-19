@@ -24,17 +24,6 @@ function Atalho({ para, icone: Icone, titulo, numero, texto }: { para: string; i
   );
 }
 
-function EmBreve({ icone: Icone, titulo, texto }: { icone: LucideIcon; titulo: string; texto: string }) {
-  return (
-    <div className="rounded-2xl border-2 border-dashed border-borda p-6">
-      <span className="grid size-11 place-items-center rounded-xl bg-creme text-suave"><Icone className="size-5" /></span>
-      <h2 className="mt-4 text-lg font-bold text-marca">{titulo}</h2>
-      <p className="mt-1 text-sm text-suave">{texto}</p>
-      <span className="mt-4 inline-block rounded-full bg-creme px-2.5 py-1 text-xs font-semibold text-suave">Próxima etapa</span>
-    </div>
-  );
-}
-
 type Contagens = { listas: number; publicadas: number; respostas: number };
 
 export function InicioProfessor() {
@@ -66,7 +55,7 @@ export function InicioProfessor() {
           texto={`${contagens?.publicadas ?? 0} publicadas para os alunos. Edite, publique ou teste como aluno.`}
         />
         <Atalho para="/praticar" icone={PenLine} titulo="Visão do aluno" numero={contagens?.respostas} texto="Respostas enviadas até agora. Veja as listas como o aluno vê." />
-        <EmBreve icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que a turma mais errou." />
+        <Atalho para="/resultados" icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que os alunos mais erram." />
       </div>
       {perfil?.papel === "admin" && !CURSOS_E_TURMAS_ATIVOS && (
         <>

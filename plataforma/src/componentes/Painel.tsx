@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BookMarked, BookOpen, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, BookMarked, BookOpen, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
@@ -18,6 +18,7 @@ const EM_ESPERA = !CURSOS_E_TURMAS_ATIVOS;
 const ENSINO: ItemMenu[] = [
   { para: "/professor", rotulo: "Início", icone: GraduationCap },
   { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
+  { para: "/resultados", rotulo: "Resultados", icone: BarChart3 },
   { para: "/cursos", rotulo: "Cursos e aulas", icone: BookMarked, emConstrucao: EM_ESPERA },
   { para: "/turmas", rotulo: "Turmas", icone: UsersRound, emConstrucao: EM_ESPERA },
 ];

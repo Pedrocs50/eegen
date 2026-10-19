@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen, CheckCircle2, ClipboardList, Headphones, Lightbulb
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Idioma } from "../lib/dados";
-import { ORDEM_IDIOMAS } from "../lib/idiomas";
+import { ORDEM_IDIOMAS, CEFR } from "../lib/idiomas";
 import { respondida, type Lista, type Questao, type Resposta, type Secao } from "../lib/exercicios";
 import { CabecalhoPagina } from "../componentes/Painel";
 import QuestaoAluno, { type Correcao } from "../componentes/QuestaoAluno";
@@ -24,8 +24,6 @@ type ListaDisponivel = {
 type TentativaResumo = { lista_id: string; nota: number };
 type Situacao = "todas" | "pendentes" | "feitas";
 
-/** Rótulo do nível que vale para qualquer idioma (referência CEFR usada na escola). */
-const CEFR = ["A1", "A2", "B1", "B1+/B2", "B2", "C1"];
 
 function BarraProgresso({ feitas, total, rotulo }: { feitas: number; total: number; rotulo: string }) {
   return (

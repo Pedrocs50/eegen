@@ -21,6 +21,9 @@ const Curso = lazy(() => import("./paginas/Curso"));
 const Turmas = lazy(() => import("./paginas/Turmas"));
 const Turma = lazy(() => import("./paginas/Turma"));
 const Listas = lazy(() => import("./paginas/Listas"));
+const Resultados = lazy(() => import("./paginas/Resultados"));
+const ResultadoLista = lazy(() => import("./paginas/Resultados").then((m) => ({ default: m.ResultadoLista })));
+const ResultadoAluno = lazy(() => import("./paginas/Resultados").then((m) => ({ default: m.ResultadoAluno })));
 const EditorLista = lazy(() => import("./paginas/EditorLista"));
 const ListasDoAluno = lazy(() => import("./paginas/Praticar").then((m) => ({ default: m.ListasDoAluno })));
 const ResponderLista = lazy(() => import("./paginas/Praticar").then((m) => ({ default: m.ResponderLista })));
@@ -114,6 +117,9 @@ export default function App() {
             <Route path="/exercicios" element={<Listas />} />
             <Route path="/exercicios/nova" element={<EditorLista key="nova" />} />
             <Route path="/exercicios/:id" element={<EditorLista />} />
+            <Route path="/resultados" element={<Resultados />} />
+            <Route path="/resultados/listas/:id" element={<ResultadoLista />} />
+            <Route path="/resultados/alunos/:id" element={<ResultadoAluno />} />
             <Route path="/cursos" element={<Cursos />} />
             <Route path="/cursos/:id" element={<Curso />} />
             <Route path="/turmas" element={<Turmas />} />

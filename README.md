@@ -74,7 +74,7 @@ React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
 
 ### Rodar no computador
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0009_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0010_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 
@@ -124,6 +124,7 @@ Para apagar os exemplos: `delete from public.listas where origem = 'exemplo';`. 
 | Login, cadastro, papéis, tela de usuários (com bloqueio) e página de Configurações | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
 | Cursos, aulas e turmas | **Em espera** (só o admin vê): aulas com PDF e exercícios prontas; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
+| Resultados (painel com gráficos, por lista e por aluno) | Pronto: `/resultados`, funções da migração `0010` |
 | Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |
 | Assistente UP (IA grátis no editor) | Publicado: veja [docs/assistente-ia.md](docs/assistente-ia.md) |
 | Áudio dos listenings (Gemini TTS) | Publicado e testado: veja [docs/audio.md](docs/audio.md) |
