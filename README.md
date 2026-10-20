@@ -74,7 +74,7 @@ React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
 
 ### Rodar no computador
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0010_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0011_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 
@@ -86,6 +86,7 @@ npm --prefix plataforma run dev
 Testes do banco (todas as migrações num Postgres local): `npm --prefix plataforma run test:banco`. Rodam também no GitHub Actions a cada envio.
 
 Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professores na tela *Usuários*.
+O cadastro exige o código de uma turma (link `/convite/CÓDIGO`), e a professora aprova a entrada. O aluno só vê as aulas liberadas para a turma dele e os exercícios delas, mais os extras da turma. Veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md).
 
 ### Publicação (Cloudflare Pages)
 
@@ -113,6 +114,7 @@ O site é publicado sozinho a cada envio para a `main`: o Cloudflare Pages baixa
 1. `py supabase/exemplos/montar.py` confere o conteúdo, gera os MP3 em `supabase/exemplos/audios/` (edge-tts, sem gastar a cota do Gemini) e escreve `listas_de_exemplo.sql`.
 2. No Supabase, em **Storage → audios → Upload**, envie os 25 MP3.
 3. No **SQL Editor**, rode `listas_de_exemplo.sql`. Ele pode rodar de novo sem duplicar; as listas ficam publicadas, em nome do admin, com `origem = 'exemplo'`.
+4. Depois, rode `cursos_de_exemplo.sql`: um curso de exemplo por idioma (uma aula por lista) e uma "Turma de teste" em cada um, com algumas aulas liberadas e o resto como extras.
 
 Para apagar os exemplos: `delete from public.listas where origem = 'exemplo';`. Os testes do banco carregam o SQL e conferem que o gabarito de cada lista é corrigido como 100%.
 
@@ -123,7 +125,7 @@ Para apagar os exemplos: `delete from public.listas where origem = 'exemplo';`. 
 | Site no ar (Cloudflare Pages) | Publicado em https://upenglish.pages.dev |
 | Login, cadastro, papéis, tela de usuários (com bloqueio) e página de Configurações | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
-| Cursos, aulas e turmas | **Em espera** (só o admin vê): aulas com PDF e exercícios prontas; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
+| Turmas, cursos e aulas | Pronto: entrada por convite com aprovação, aulas liberadas por turma, exercícios das aulas e extras; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
 | Resultados (painel com gráficos, por lista e por aluno) | Pronto: `/resultados`, funções da migração `0010` |
 | Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |
 | Assistente UP (IA grátis no editor) | Publicado: veja [docs/assistente-ia.md](docs/assistente-ia.md) |

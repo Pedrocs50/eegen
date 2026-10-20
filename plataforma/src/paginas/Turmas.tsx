@@ -6,7 +6,7 @@ import { IDIOMAS, nomeNivel, useConsulta, type Curso, type Turma } from "../lib/
 import { CabecalhoPagina } from "../componentes/Painel";
 import { Aviso, Botao, Campo, CampoSelecao, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 
-type TurmaResumo = Turma & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel">; matriculas: { count: number }[] };
+type TurmaResumo = Turma & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel">; matriculas: { situacao: "pendente" | "aprovada" }[]; aulas_liberadas: { count: number }[] };
 
 function FormularioTurma({ aoSalvar, aoCancelar }: { aoSalvar: () => void; aoCancelar: () => void }) {
   const [erro, setErro] = useState("");
@@ -54,7 +54,7 @@ function FormularioTurma({ aoSalvar, aoCancelar }: { aoSalvar: () => void; aoCan
 export default function Turmas() {
   const [criando, setCriando] = useState(false);
   const { dados: turmas, erro, carregando, recarregar } = useConsulta<TurmaResumo[]>(() =>
-    supabase.from("turmas").select("*, cursos(titulo, idioma, nivel), matriculas(count)").order("criado_em", { ascending: false }),
+    supabase.from("turmas").select("*, cursos(titulo, idioma, nivel), matriculas(situacao), aulas_liberadas(count)").order("criado_em", { ascending: false }),
   );
   const botaoNova = <Botao onClick={() => setCriando(true)}><Plus className="size-4" /> Nova turma</Botao>;
 
@@ -63,7 +63,7 @@ export default function Turmas() {
       <CabecalhoPagina
         etiqueta="Ensino"
         titulo="Turmas"
-        descricao="Cada turma estuda um curso. Os alunos entram com o código da turma, e você escolhe quais aulas liberar."
+        descricao="Cada turma segue um curso da biblioteca. Os alunos pedem para entrar pelo link de convite, você aprova e libera as aulas conforme elas acontecem."
         acoes={!criando && turmas && turmas.length > 0 ? botaoNova : undefined}
       />
 
@@ -81,7 +81,7 @@ export default function Turmas() {
         <EstadoVazio
           icone={Users}
           titulo="Abra a primeira turma"
-          texto="A turma gera um código de 6 letras. É só enviar o código para os alunos entrarem."
+          texto="A turma gera um link de convite. Os alunos pedem para entrar por ele e você aprova quem é da turma."
           acao={botaoNova}
         />
       )}
@@ -89,18 +89,23 @@ export default function Turmas() {
       {turmas && turmas.length > 0 && (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {turmas.map((turma) => {
-            const alunos = turma.matriculas[0]?.count ?? 0;
+            const alunos = turma.matriculas.filter((m) => m.situacao === "aprovada").length;
+            const pedidos = turma.matriculas.length - alunos;
+            const aulasLiberadas = turma.aulas_liberadas[0]?.count ?? 0;
             return (
               <li key={turma.id}>
                 <Link to={`/turmas/${turma.id}`} className="flex h-full flex-col rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
                   <div className="flex items-start justify-between gap-2">
                     <Etiqueta>{IDIOMAS[turma.cursos.idioma]} · {nomeNivel(turma.cursos.idioma, turma.cursos.nivel)}</Etiqueta>
-                    {!turma.ativa && <Etiqueta tom="creme">Encerrada</Etiqueta>}
+                    <span className="flex gap-1.5">
+                      {pedidos > 0 && <Etiqueta tom="coral">{pedidos} {pedidos === 1 ? "pedido" : "pedidos"}</Etiqueta>}
+                      {!turma.ativa && <Etiqueta tom="creme">Entradas encerradas</Etiqueta>}
+                    </span>
                   </div>
                   <h2 className="mt-4 text-xl font-bold text-marca">{turma.nome}</h2>
                   <p className="text-sm text-suave">{turma.cursos.titulo}</p>
                   <div className="mt-auto flex items-center justify-between pt-5 text-sm">
-                    <span className="text-suave">{alunos} {alunos === 1 ? "aluno" : "alunos"}</span>
+                    <span className="text-suave">{alunos} {alunos === 1 ? "aluno" : "alunos"} · {aulasLiberadas} {aulasLiberadas === 1 ? "aula liberada" : "aulas liberadas"}</span>
                     <span className="rounded-lg bg-creme px-2.5 py-1 font-mono font-bold tracking-widest text-marca">{turma.codigo}</span>
                   </div>
                 </Link>

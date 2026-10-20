@@ -1,47 +1,88 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, Check, Copy, Lock, Trash2, Unlock, UserMinus, Users } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import {
+  ArrowLeft, BarChart3, BookOpen, Check, ClipboardList, Copy, Eye, FileText, Link2, Lock, Sparkles, Trash2, Unlock, UserCheck, UserMinus, Users, UserX,
+} from "lucide-react";
 import { supabase, traduzirErro, type Perfil } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso, type Turma as TipoTurma } from "../lib/dados";
+import { linkDeConvite, mensagemDeConvite, type SituacaoMatricula } from "../lib/turmas";
+import { quandoFoi } from "../lib/resultados";
 import { CabecalhoPagina } from "../componentes/Painel";
-import { Aviso, Botao, Cartao, Etiqueta, TextoCarregando } from "../componentes/ui";
+import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
+import { Aviso, Botao, Etiqueta, TextoCarregando } from "../componentes/ui";
 
+type Pessoa = Pick<Perfil, "id" | "nome" | "email">;
+type Matricula = { situacao: SituacaoMatricula; criado_em: string; aprovada_em: string | null; perfis: Pessoa | null };
 type TurmaCompleta = TipoTurma & {
-  cursos: Curso & { aulas: Aula[] };
-  matriculas: { criado_em: string; perfis: Pick<Perfil, "id" | "nome" | "email"> | null }[];
-  aulas_liberadas: { aula_id: string }[];
+  cursos: Curso & { aulas: (Aula & { aula_listas: { lista_id: string }[] })[] };
+  matriculas: Matricula[];
+  aulas_liberadas: { aula_id: string; liberada_em: string }[];
+  turma_listas: { lista_id: string; ordem: number }[];
 };
+type Aba = "aulas" | "extras" | "alunos";
+
+function BotaoAba({ ativa, onClick, icone: Icone, children, contador, alerta }: {
+  ativa: boolean; onClick: () => void; icone: typeof BookOpen; children: ReactNode; contador?: number; alerta?: number;
+}) {
+  return (
+    <button
+      role="tab"
+      aria-selected={ativa}
+      onClick={onClick}
+      className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold whitespace-nowrap transition ${
+        ativa ? "border-marca text-marca" : "border-transparent text-suave hover:text-texto"
+      }`}
+    >
+      <Icone className="size-4" /> {children}
+      {contador !== undefined && <span className="rounded-full bg-creme px-2 py-0.5 text-xs text-suave">{contador}</span>}
+      {!!alerta && <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">{alerta} {alerta === 1 ? "pedido" : "pedidos"}</span>}
+    </button>
+  );
+}
 
 export default function Turma() {
   const { id = "" } = useParams();
   const navegar = useNavigate();
+  const [parametros, setParametros] = useSearchParams();
   const [erroAcao, setErroAcao] = useState("");
-  const [copiado, setCopiado] = useState(false);
+  const [copiado, setCopiado] = useState<"" | "link" | "mensagem">("");
   const { dados: turma, erro, carregando, recarregar, setDados } = useConsulta<TurmaCompleta>(
     () =>
       supabase
         .from("turmas")
-        .select("*, cursos(*, aulas(*)), matriculas(criado_em, perfis(id, nome, email)), aulas_liberadas(aula_id)")
+        .select("*, cursos(*, aulas(*, aula_listas(lista_id))), matriculas(situacao, criado_em, aprovada_em, perfis(id, nome, email)), aulas_liberadas(aula_id, liberada_em), turma_listas(lista_id, ordem)")
         .eq("id", id)
-        .order("numero", { referencedTable: "cursos.aulas" })
         .single(),
     [id],
   );
 
-  if (carregando) return <TextoCarregando />;
+  if (carregando && !turma) return <TextoCarregando />;
   if (erro || !turma) return <Aviso>{erro || "Turma não encontrada."}</Aviso>;
 
-  turma.cursos.aulas.sort((a, b) => a.numero - b.numero);
+  const aulas = [...turma.cursos.aulas].sort((a, b) => a.numero - b.numero);
   const liberadas = new Set(turma.aulas_liberadas.map((l) => l.aula_id));
-  const mensagemConvite = `Olá! Para acessar os exercícios da turma "${turma.nome}" na plataforma UP English, crie sua conta em ${window.location.origin}/cadastro e, em "Meus cursos", digite o código ${turma.codigo}.`;
+  const pendentes = turma.matriculas.filter((m) => m.situacao === "pendente" && m.perfis);
+  const aprovados = turma.matriculas.filter((m) => m.situacao === "aprovada" && m.perfis);
+  const extras = [...turma.turma_listas].sort((a, b) => a.ordem - b.ordem).map((t) => t.lista_id);
+  const abaUrl = parametros.get("aba") as Aba | null;
+  const aba: Aba = abaUrl ?? (pendentes.length ? "alunos" : "aulas");
+  const mudarAba = (nova: Aba) => setParametros({ aba: nova }, { replace: true });
 
-  async function copiarConvite() {
+  async function acao(promessa: PromiseLike<{ error: { message: string } | null }>) {
+    setErroAcao("");
+    const { error } = await promessa;
+    if (error) setErroAcao(traduzirErro(error.message));
+    recarregar();
+  }
+
+  async function copiar(tipo: "link" | "mensagem") {
+    if (!turma) return;
     try {
-      await navigator.clipboard.writeText(mensagemConvite);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2500);
+      await navigator.clipboard.writeText(tipo === "link" ? linkDeConvite(turma.codigo) : mensagemDeConvite(turma.nome, turma.codigo));
+      setCopiado(tipo);
+      setTimeout(() => setCopiado(""), 2500);
     } catch {
-      setErroAcao("Não foi possível copiar. Selecione o código e copie manualmente.");
+      setErroAcao("Não foi possível copiar. Selecione o link e copie manualmente.");
     }
   }
 
@@ -50,10 +91,12 @@ export default function Turma() {
     setErroAcao("");
     const estavaLiberada = liberadas.has(aula.id);
     // Atualiza na hora e desfaz se o banco recusar.
-    const novas = estavaLiberada
-      ? turma.aulas_liberadas.filter((l) => l.aula_id !== aula.id)
-      : [...turma.aulas_liberadas, { aula_id: aula.id }];
-    setDados({ ...turma, aulas_liberadas: novas });
+    setDados({
+      ...turma,
+      aulas_liberadas: estavaLiberada
+        ? turma.aulas_liberadas.filter((l) => l.aula_id !== aula.id)
+        : [...turma.aulas_liberadas, { aula_id: aula.id, liberada_em: new Date().toISOString() }],
+    });
     const { error } = estavaLiberada
       ? await supabase.from("aulas_liberadas").delete().eq("turma_id", turma.id).eq("aula_id", aula.id)
       : await supabase.from("aulas_liberadas").insert({ turma_id: turma.id, aula_id: aula.id });
@@ -63,28 +106,38 @@ export default function Turma() {
     }
   }
 
-  async function removerAluno(aluno: Pick<Perfil, "id" | "nome" | "email">) {
-    if (!turma || !confirm(`Remover ${aluno.nome || aluno.email} da turma?`)) return;
-    const { error } = await supabase.from("matriculas").delete().eq("turma_id", turma.id).eq("aluno_id", aluno.id);
-    if (error) setErroAcao(traduzirErro(error.message));
-    else recarregar();
-  }
-
-  async function alternarAtiva() {
+  /** Grava os extras na ordem escolhida: tira os removidos, inclui os novos e acerta a ordem. */
+  async function salvarExtras(ids: string[]) {
     if (!turma) return;
-    const { error } = await supabase.from("turmas").update({ ativa: !turma.ativa }).eq("id", turma.id);
-    if (error) setErroAcao(traduzirErro(error.message));
-    else recarregar();
+    setDados({ ...turma, turma_listas: ids.map((lista_id, ordem) => ({ lista_id, ordem })) });
+    setErroAcao("");
+    const removidos = extras.filter((x) => !ids.includes(x));
+    const novos = ids.filter((x) => !extras.includes(x));
+    const respostas = await Promise.all([
+      removidos.length ? supabase.from("turma_listas").delete().eq("turma_id", turma.id).in("lista_id", removidos) : null,
+      novos.length ? supabase.from("turma_listas").insert(novos.map((lista_id) => ({ turma_id: turma.id, lista_id, ordem: ids.indexOf(lista_id) }))) : null,
+      ...ids.filter((x) => extras.includes(x) && extras.indexOf(x) !== ids.indexOf(x))
+        .map((lista_id) => supabase.from("turma_listas").update({ ordem: ids.indexOf(lista_id) }).eq("turma_id", turma.id).eq("lista_id", lista_id)),
+    ]);
+    const falha = respostas.find((r) => r?.error);
+    if (falha?.error) setErroAcao(traduzirErro(falha.error.message));
+    recarregar();
   }
 
+  const aprovar = (alunos: Pessoa[]) =>
+    acao(supabase.from("matriculas").update({ situacao: "aprovada", aprovada_em: new Date().toISOString() }).eq("turma_id", turma.id).in("aluno_id", alunos.map((a) => a.id)));
+  const recusar = (aluno: Pessoa) => {
+    if (confirm(`Recusar o pedido de ${aluno.nome || aluno.email}?`)) acao(supabase.from("matriculas").delete().eq("turma_id", turma.id).eq("aluno_id", aluno.id));
+  };
+  const remover = (aluno: Pessoa) => {
+    if (confirm(`Remover ${aluno.nome || aluno.email} da turma? Ele deixa de ver as aulas e os exercícios dela.`)) acao(supabase.from("matriculas").delete().eq("turma_id", turma.id).eq("aluno_id", aluno.id));
+  };
   async function apagarTurma() {
-    if (!turma || !confirm(`Apagar a turma "${turma.nome}"? Os alunos perdem o acesso às aulas dela.`)) return;
+    if (!turma || !confirm(`Apagar a turma "${turma.nome}"? Os alunos perdem o acesso às aulas e aos exercícios dela.`)) return;
     const { error } = await supabase.from("turmas").delete().eq("id", turma.id);
     if (error) setErroAcao(traduzirErro(error.message));
     else navegar("/turmas", { replace: true });
   }
-
-  const alunos = turma.matriculas.filter((m) => m.perfis);
 
   return (
     <>
@@ -94,12 +147,15 @@ export default function Turma() {
       <CabecalhoPagina
         etiqueta={`${IDIOMAS[turma.cursos.idioma]} · ${nomeNivel(turma.cursos.idioma, turma.cursos.nivel)}`}
         titulo={turma.nome}
-        descricao={`Curso: ${turma.cursos.titulo}`}
+        descricao={`Segue o curso “${turma.cursos.titulo}”. ${aprovados.length} ${aprovados.length === 1 ? "aluno" : "alunos"} · ${liberadas.size} de ${aulas.length} aulas liberadas · ${extras.length} ${extras.length === 1 ? "extra" : "extras"}.`}
         acoes={
-          <div className="flex gap-2">
-            <Botao variante="secundario" onClick={alternarAtiva}>
-              {turma.ativa ? <><Lock className="size-4" /> Encerrar entradas</> : <><Unlock className="size-4" /> Reabrir entradas</>}
-            </Botao>
+          <div className="flex flex-wrap gap-2">
+            <Link to={`/resultados?turma=${turma.id}`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-borda bg-superficie px-4 text-sm font-semibold hover:bg-fundo">
+              <BarChart3 className="size-4" /> Resultados
+            </Link>
+            <Link to={`/aluno?turma=${turma.id}`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-borda bg-superficie px-4 text-sm font-semibold hover:bg-fundo">
+              <Eye className="size-4" /> Ver como aluno
+            </Link>
             <Botao variante="fantasma" onClick={apagarTurma} aria-label="Apagar turma" title="Apagar turma"><Trash2 className="size-4" /></Botao>
           </div>
         }
@@ -107,45 +163,49 @@ export default function Turma() {
 
       {erroAcao && <div className="mb-4"><Aviso>{erroAcao}</Aviso></div>}
 
-      <section className="mb-8 flex flex-col gap-5 rounded-2xl bg-marinho-800 p-6 text-white sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <p className="text-[11px] font-bold tracking-[0.14em] text-azul-300 uppercase">Código da turma</p>
-          <p className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{turma.codigo}</p>
-          <p className="mt-2 text-sm text-white/75">
-            {turma.ativa
-              ? "Envie para os alunos. Eles criam a conta e digitam o código em “Meus cursos”."
-              : "Entradas encerradas: o código não aceita novos alunos até você reabrir."}
-          </p>
-        </div>
-        <button onClick={copiarConvite} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-marinho-800 hover:bg-white/90">
-          {copiado ? <><Check className="size-4" /> Convite copiado</> : <><Copy className="size-4" /> Copiar convite</>}
-        </button>
-      </section>
+      <div className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-borda" role="tablist">
+        <BotaoAba ativa={aba === "aulas"} onClick={() => mudarAba("aulas")} icone={BookOpen} contador={aulas.length}>Aulas</BotaoAba>
+        <BotaoAba ativa={aba === "extras"} onClick={() => mudarAba("extras")} icone={Sparkles} contador={extras.length}>Extras</BotaoAba>
+        <BotaoAba ativa={aba === "alunos"} onClick={() => mudarAba("alunos")} icone={Users} contador={aprovados.length} alerta={pendentes.length}>Alunos</BotaoAba>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      {aba === "aulas" && (
         <section>
-          <h2 className="text-2xl font-bold text-marca">Aulas</h2>
-          <p className="mb-4 text-sm text-suave">{liberadas.size} de {turma.cursos.aulas.length} liberadas. Aluno só vê as aulas liberadas.</p>
-          {turma.cursos.aulas.length === 0 ? (
+          <p className="mb-4 text-sm text-suave">
+            Libere cada aula depois de dá-la: o aluno vê o material e os exercícios dela. As aulas são montadas no curso{" "}
+            <Link to={`/cursos/${turma.curso_id}`} className="font-semibold text-destaque underline">{turma.cursos.titulo}</Link>, que pode servir a várias turmas.
+          </p>
+          {aulas.length === 0 ? (
             <Aviso tipo="info">Este curso ainda não tem aulas. <Link to={`/cursos/${turma.curso_id}`} className="font-semibold underline">Adicionar aulas</Link></Aviso>
           ) : (
             <ol className="space-y-2">
-              {turma.cursos.aulas.map((aula) => {
+              {aulas.map((aula) => {
                 const liberada = liberadas.has(aula.id);
+                const quando = turma.aulas_liberadas.find((l) => l.aula_id === aula.id)?.liberada_em;
                 return (
-                  <li key={aula.id} className="flex items-center gap-3 rounded-2xl border border-borda bg-superficie p-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-marinho-800 font-serif font-bold text-white">{aula.numero}</span>
-                    <span className="min-w-0 flex-1 truncate font-semibold">{aula.titulo}</span>
+                  <li key={aula.id} className={`flex flex-wrap items-center gap-3 rounded-2xl border p-3 sm:flex-nowrap ${liberada ? "border-borda bg-superficie" : "border-dashed border-borda bg-fundo"}`}>
+                    <span className={`grid size-10 shrink-0 place-items-center rounded-xl font-serif font-bold ${liberada ? "bg-marinho-800 text-white" : "bg-creme text-suave"}`}>{aula.numero}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold">{aula.titulo}</span>
+                      <span className="flex flex-wrap gap-1.5 pt-1">
+                        {(aula.material_arquivo || aula.material_url) && <Etiqueta><FileText className="mr-1 size-3.5" /> Material</Etiqueta>}
+                        <Etiqueta tom="creme"><ClipboardList className="mr-1 size-3.5" /> {aula.aula_listas.length} {aula.aula_listas.length === 1 ? "exercício" : "exercícios"}</Etiqueta>
+                        {liberada && quando && <span className="text-xs text-suave">liberada {quandoFoi(quando)}</span>}
+                      </span>
+                    </span>
+                    <Link to={`/aulas/${aula.id}`} className="grid size-9 place-items-center rounded-lg text-suave hover:bg-fundo hover:text-texto" title="Ver aula" aria-label={`Ver aula ${aula.numero}`}>
+                      <Eye className="size-4" />
+                    </Link>
                     <button
                       role="switch"
                       aria-checked={liberada}
                       aria-label={`Liberar aula ${aula.numero}`}
                       onClick={() => alternarAula(aula)}
                       className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
-                        liberada ? "bg-sucesso-suave text-sucesso" : "border border-borda text-suave hover:text-texto"
+                        liberada ? "bg-sucesso-suave text-sucesso" : "border border-borda bg-superficie text-suave hover:text-texto"
                       }`}
                     >
-                      {liberada ? <><Unlock className="size-3.5" /> Liberada</> : <><Lock className="size-3.5" /> Bloqueada</>}
+                      {liberada ? <><Unlock className="size-3.5" /> Liberada</> : <><Lock className="size-3.5" /> Liberar</>}
                     </button>
                   </li>
                 );
@@ -153,35 +213,96 @@ export default function Turma() {
             </ol>
           )}
         </section>
+      )}
 
-        <section>
-          <h2 className="text-2xl font-bold text-marca">Alunos</h2>
-          <p className="mb-4 text-sm text-suave">{alunos.length} {alunos.length === 1 ? "aluno" : "alunos"} na turma.</p>
-          <Cartao className="p-0 sm:p-0">
-            {alunos.length === 0 ? (
-              <div className="p-6 text-center text-sm text-suave">
-                <Users className="mx-auto mb-2 size-6" />
-                Ninguém entrou ainda. Copie o convite e envie para os alunos.
-              </div>
-            ) : (
-              <ul className="divide-y divide-borda">
-                {alunos.map(({ perfis: aluno, criado_em }) => aluno && (
-                  <li key={aluno.id} className="flex items-center gap-3 p-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">{aluno.nome || "Sem nome"}</p>
-                      <p className="truncate text-xs text-suave">{aluno.email} · desde {new Date(criado_em).toLocaleDateString("pt-BR")}</p>
-                    </div>
-                    <Botao variante="fantasma" className="px-3" onClick={() => removerAluno(aluno)} aria-label={`Remover ${aluno.nome || aluno.email}`} title="Remover da turma">
-                      <UserMinus className="size-4" />
-                    </Botao>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Cartao>
-          {!turma.ativa && <div className="mt-3"><Etiqueta tom="creme">Entradas encerradas</Etiqueta></div>}
+      {aba === "extras" && (
+        <section className="max-w-3xl rounded-2xl border border-borda bg-superficie p-5 sm:p-6">
+          <ExerciciosDaAula
+            selecionadas={extras}
+            aoMudar={salvarExtras}
+            rotulo="Exercícios extras da turma"
+            descricao="Listas avulsas, além das aulas (revisão, prática extra, prova). Aparecem para os alunos desta turma na aba Extras, na ordem abaixo. Salva sozinho."
+          />
         </section>
-      </div>
+      )}
+
+      {aba === "alunos" && (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="min-w-0 space-y-6">
+            {pendentes.length > 0 && (
+              <section className="rounded-2xl border-2 border-coral/50 bg-coral-suave p-5">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="text-lg font-bold text-marca">Pedidos para entrar ({pendentes.length})</h2>
+                  {pendentes.length > 1 && (
+                    <Botao onClick={() => aprovar(pendentes.map((m) => m.perfis!))}><UserCheck className="size-4" /> Aprovar todos</Botao>
+                  )}
+                </div>
+                <ul className="space-y-2">
+                  {pendentes.map(({ perfis: aluno, criado_em }) => aluno && (
+                    <li key={aluno.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-superficie p-3">
+                      <div className="w-full min-w-0 sm:w-auto sm:flex-1">
+                        <p className="truncate font-semibold">{aluno.nome || "Sem nome"}</p>
+                        <p className="truncate text-xs text-suave">{aluno.email} · pediu {quandoFoi(criado_em)}</p>
+                      </div>
+                      <Botao variante="secundario" className="flex-1 px-3 sm:flex-none" onClick={() => recusar(aluno)}><UserX className="size-4" /> Recusar</Botao>
+                      <Botao className="flex-1 px-3 sm:flex-none" onClick={() => aprovar([aluno])}><UserCheck className="size-4" /> Aprovar</Botao>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-xs text-suave">Aprove só quem você reconhece como aluno da turma. Recusar apaga o pedido.</p>
+              </section>
+            )}
+
+            <section>
+              <h2 className="text-lg font-bold text-marca">Alunos da turma ({aprovados.length})</h2>
+              {aprovados.length === 0 ? (
+                <p className="mt-2 rounded-2xl border border-dashed border-borda p-6 text-center text-sm text-suave">
+                  <Users className="mx-auto mb-2 size-6" /> Ninguém aprovado ainda. Envie o link de convite para a turma.
+                </p>
+              ) : (
+                <ul className="mt-3 divide-y divide-borda rounded-2xl border border-borda bg-superficie">
+                  {aprovados.map(({ perfis: aluno, aprovada_em, criado_em }) => aluno && (
+                    <li key={aluno.id} className="flex items-center gap-3 p-4">
+                      <div className="min-w-0 flex-1">
+                        <Link to={`/resultados/alunos/${aluno.id}`} className="block truncate font-semibold hover:underline">{aluno.nome || "Sem nome"}</Link>
+                        <p className="truncate text-xs text-suave">{aluno.email} · na turma desde {new Date(aprovada_em ?? criado_em).toLocaleDateString("pt-BR")}</p>
+                      </div>
+                      <Botao variante="fantasma" className="px-3" onClick={() => remover(aluno)} aria-label={`Remover ${aluno.nome || aluno.email}`} title="Remover da turma">
+                        <UserMinus className="size-4" />
+                      </Botao>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+
+          <aside className="h-fit rounded-2xl bg-marinho-800 p-6 text-white">
+            <p className="text-[11px] font-bold tracking-[0.14em] text-azul-300 uppercase">Convite da turma</p>
+            <p className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{turma.codigo}</p>
+            <p className="mt-3 text-sm break-all text-white/80">{linkDeConvite(turma.codigo)}</p>
+            <p className="mt-3 text-sm text-white/75">
+              {turma.ativa
+                ? "Mande o link no grupo da turma. O aluno cria a conta pelo link e aparece aqui como pedido, para você aprovar."
+                : "Entradas encerradas: o código não aceita novos pedidos até você reabrir."}
+            </p>
+            <div className="mt-4 flex flex-col gap-2">
+              <button onClick={() => copiar("mensagem")} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-marinho-800 hover:bg-white/90">
+                {copiado === "mensagem" ? <><Check className="size-4" /> Mensagem copiada</> : <><Copy className="size-4" /> Copiar mensagem de convite</>}
+              </button>
+              <button onClick={() => copiar("link")} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/30 px-4 text-sm font-semibold text-white hover:bg-white/10">
+                {copiado === "link" ? <><Check className="size-4" /> Link copiado</> : <><Link2 className="size-4" /> Copiar só o link</>}
+              </button>
+              <button
+                onClick={() => acao(supabase.from("turmas").update({ ativa: !turma.ativa }).eq("id", turma.id))}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white"
+              >
+                {turma.ativa ? <><Lock className="size-4" /> Encerrar entradas</> : <><Unlock className="size-4" /> Reabrir entradas</>}
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
     </>
   );
 }

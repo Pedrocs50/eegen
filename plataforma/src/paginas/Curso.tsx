@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, ClipboardList, Eye, FileText, Link2, NotebookPen, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ClipboardList, Eye, FileText, Link2, NotebookPen, Pencil, Plus, Trash2, Upload, UsersRound } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso as TipoCurso } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
@@ -9,7 +9,7 @@ import { FormularioCurso } from "./Cursos";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
 import { TAMANHO_MAXIMO_MB, enviarMaterial } from "../lib/materiais";
 
-type CursoComAulas = TipoCurso & { aulas: (Aula & { aula_listas: { lista_id: string; ordem: number }[] })[] };
+type CursoComAulas = TipoCurso & { aulas: (Aula & { aula_listas: { lista_id: string; ordem: number }[] })[]; turmas: { id: string; nome: string }[] };
 
 type AulaCompleta = Aula & { aula_listas: { lista_id: string; ordem: number }[] };
 type ModoMaterial = "nenhum" | "arquivo" | "link";
@@ -152,7 +152,7 @@ export default function Curso() {
   const [aulaEmEdicao, setAulaEmEdicao] = useState<string | "nova" | null>(null);
   const [erroAcao, setErroAcao] = useState("");
   const { dados: curso, erro, carregando, recarregar } = useConsulta<CursoComAulas>(
-    () => supabase.from("cursos").select("*, aulas(*, aula_listas(lista_id, ordem))").eq("id", id).order("numero", { referencedTable: "aulas" }).single(),
+    () => supabase.from("cursos").select("*, aulas(*, aula_listas(lista_id, ordem)), turmas(id, nome)").eq("id", id).order("numero", { referencedTable: "aulas" }).single(),
     [id],
   );
 
@@ -218,6 +218,21 @@ export default function Curso() {
       )}
 
       {erroAcao && <div className="mb-4"><Aviso>{erroAcao}</Aviso></div>}
+
+      <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-borda bg-superficie px-4 py-3 text-sm">
+        <UsersRound className="size-4 text-suave" />
+        {curso.turmas.length === 0 ? (
+          <span className="text-suave">Nenhuma turma segue este curso ainda. <Link to="/turmas" className="font-semibold text-destaque underline">Criar turma</Link></span>
+        ) : (
+          <>
+            <span className="text-suave">Turmas que seguem este curso:</span>
+            {curso.turmas.map((t) => (
+              <Link key={t.id} to={`/turmas/${t.id}`} className="rounded-full bg-destaque-suave px-3 py-1 font-semibold text-marca hover:underline">{t.nome}</Link>
+            ))}
+            <span className="text-xs text-suave">Cada turma libera as aulas no próprio ritmo.</span>
+          </>
+        )}
+      </div>
 
       <div className="mb-4 flex items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-marca">Aulas</h2>

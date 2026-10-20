@@ -1,11 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BarChart3, BookMarked, BookOpen, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, BookMarked, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
-import { CURSOS_E_TURMAS_ATIVOS } from "../lib/recursos";
 
 /** emConstrucao: parte em espera; só o admin vê (com selo), para acompanhar tudo o que existe. */
 type ItemMenu = { para: string; rotulo: string; icone: LucideIcon; emConstrucao?: boolean };
@@ -13,40 +12,47 @@ type SecaoMenu = { titulo: string; itens: ItemMenu[] };
 
 const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotulo: "Sobre a professora", icone: UserRound }] };
 
-const EM_ESPERA = !CURSOS_E_TURMAS_ATIVOS;
-
-const ENSINO: ItemMenu[] = [
-  { para: "/professor", rotulo: "Início", icone: GraduationCap },
-  { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
-  { para: "/resultados", rotulo: "Resultados", icone: BarChart3 },
-  { para: "/cursos", rotulo: "Cursos e aulas", icone: BookMarked, emConstrucao: EM_ESPERA },
-  { para: "/turmas", rotulo: "Turmas", icone: UsersRound, emConstrucao: EM_ESPERA },
-];
+// Dia a dia (turmas e resultados) separado da biblioteca (o conteúdo, montado uma vez e usado por várias turmas).
+const ENSINO: SecaoMenu = {
+  titulo: "Ensino",
+  itens: [
+    { para: "/professor", rotulo: "Início", icone: GraduationCap },
+    { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
+    { para: "/resultados", rotulo: "Resultados", icone: BarChart3 },
+  ],
+};
+const BIBLIOTECA: SecaoMenu = {
+  titulo: "Biblioteca",
+  itens: [
+    { para: "/cursos", rotulo: "Cursos e aulas", icone: BookMarked },
+    { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
+    { para: "/aluno", rotulo: "Visão do aluno", icone: PenLine },
+  ],
+};
 
 /** Tira do menu o que está em construção (para todos, menos o admin). */
 const semEmConstrucao = (secoes: SecaoMenu[]) => secoes.map((s) => ({ ...s, itens: s.itens.filter((i) => !i.emConstrucao) }));
 
 const MENUS: Record<Papel, SecaoMenu[]> = {
   admin: [
-    { titulo: "Ensino", itens: ENSINO },
+    ENSINO,
+    BIBLIOTECA,
     {
       titulo: "Administração",
       itens: [
         { para: "/admin", rotulo: "Usuários", icone: Users },
         { para: "/admin/configuracoes", rotulo: "Configurações", icone: Settings },
-        { para: "/praticar", rotulo: "Visão do aluno", icone: PenLine },
-        { para: "/aluno", rotulo: "Cursos do aluno", icone: BookOpen, emConstrucao: EM_ESPERA },
       ],
     },
     SOBRE,
   ],
-  professor: semEmConstrucao([{ titulo: "Ensino", itens: ENSINO }, SOBRE]),
+  professor: semEmConstrucao([ENSINO, BIBLIOTECA, SOBRE]),
   aluno: semEmConstrucao([
     {
       titulo: "Estudos",
       itens: [
+        { para: "/aluno", rotulo: "Minha turma", icone: GraduationCap },
         { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
-        { para: "/aluno", rotulo: "Meus cursos", icone: BookOpen, emConstrucao: EM_ESPERA },
       ],
     },
     SOBRE,

@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import {
   AlertTriangle, ArrowLeft, BarChart3, CalendarClock, ChevronRight, ClipboardCheck, Pencil, Repeat, Search, Target, TrendingUp, Users,
 } from "lucide-react";
@@ -96,6 +96,9 @@ export default function Resultados() {
   const [incluirEquipe, setIncluirEquipe] = useState(false);
   const [idioma, setIdioma] = useState<Idioma | "todos">("todos");
   const [nivel, setNivel] = useState(0);
+  const [parametros, setParametros] = useSearchParams();
+  const turma = parametros.get("turma") ?? "";
+  const mudarTurma = (id: string) => setParametros(id ? { turma: id } : {}, { replace: true });
   const { dados, erro, carregando } = useConsulta<DadosResultados>(() => buscarResultados(periodo, incluirEquipe), [periodo, incluirEquipe]);
 
   return (
@@ -125,17 +128,28 @@ export default function Resultados() {
             </select>
           </label>
         </div>
-        <IncluirEquipe valor={incluirEquipe} mudar={setIncluirEquipe} />
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {dados && dados.turmas.length > 0 && (
+            <label className="flex items-center gap-2">
+              <span className="w-20 text-[11px] font-bold tracking-[0.12em] text-suave uppercase">Turma</span>
+              <select value={turma} onChange={(e) => mudarTurma(e.target.value)} className="h-10 rounded-xl border border-borda bg-superficie px-3 text-sm">
+                <option value="">Todas as turmas</option>
+                {dados.turmas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+              </select>
+            </label>
+          )}
+          <IncluirEquipe valor={incluirEquipe} mudar={setIncluirEquipe} />
+        </div>
       </div>
 
       {erro && <Aviso>{erro}</Aviso>}
       {carregando && !dados && <TextoCarregando />}
-      {dados && <Painel dados={dados} periodo={periodo} idioma={idioma} nivel={nivel} />}
+      {dados && <Painel dados={dados} periodo={periodo} idioma={idioma} nivel={nivel} turma={turma} />}
     </>
   );
 }
 
-function Painel({ dados, periodo, idioma, nivel }: { dados: DadosResultados; periodo: Periodo; idioma: Idioma | "todos"; nivel: number }) {
+function Painel({ dados, periodo, idioma, nivel, turma }: { dados: DadosResultados; periodo: Periodo; idioma: Idioma | "todos"; nivel: number; turma: string }) {
   const [aba, setAba] = useState<Aba>("listas");
   const [busca, setBusca] = useState("");
   const [ordem, setOrdem] = useState<OrdemAlunos>("menor");
@@ -146,8 +160,10 @@ function Painel({ dados, periodo, idioma, nivel }: { dados: DadosResultados; per
     const l = listaPorId.get(idLista);
     return !!l && (idioma === "todos" || l.idioma === idioma) && (nivel === 0 || l.nivel === nivel);
   };
-  const tentativas = dados.tentativas.filter((t) => passa(t.lista));
-  const habilidades = dados.habilidades.filter((h) => passa(h.lista));
+  // Turma escolhida: só os alunos aprovados nela.
+  const daTurma = turma ? new Set(dados.turmas.find((t) => t.id === turma)?.matriculas.filter((m) => m.situacao === "aprovada").map((m) => m.aluno_id) ?? []) : null;
+  const tentativas = dados.tentativas.filter((t) => passa(t.lista) && (!daTurma || daTurma.has(t.aluno)));
+  const habilidades = dados.habilidades.filter((h) => passa(h.lista) && (!daTurma || daTurma.has(h.aluno)));
 
   const melhores = melhoresNotas(tentativas);
   const notas = melhores.map((m) => m.nota);

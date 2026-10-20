@@ -113,6 +113,35 @@ conferir(!!idLista, "professora salva lista");
 conferir(await falhaComo(ALUNO, "select public.salvar_lista($1::jsonb)", [JSON.stringify(lista)]), "aluno não salva lista");
 conferir((await numero(ALUNO, "select count(*) from public.gabaritos")) === 0, "aluno não lê gabaritos");
 
+// ----------------------------------------------------------------------------- turmas: entrada com aprovação
+console.log("Turmas: entrada com aprovação");
+conferir((await numero(ALUNO, "select count(*) from public.listas")) === 0, "aluno sem turma não vê listas publicadas");
+const { rows: [{ id: idCursoBase }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Espanhol Básico', 'espanhol', 1) returning id");
+await como(PROFESSOR, "insert into public.turmas (nome, curso_id) values ('Turma Base', $1)", [idCursoBase]);
+const { rows: [{ id: idTurmaBase, codigo: codigoBase }] } = await como(PROFESSOR, "select id, codigo from public.turmas where curso_id = $1", [idCursoBase]);
+await como(PROFESSOR, "insert into public.turma_listas (turma_id, lista_id) values ($1, $2)", [idTurmaBase, idLista]);
+await db.exec("set role anon");
+const { rows: [{ conferir_codigo_turma: infoCodigo }] } = await db.query("select public.conferir_codigo_turma($1)", [` ${codigoBase.toLowerCase()} `]);
+await db.exec("reset role");
+conferir(infoCodigo?.turma === "Turma Base" && infoCodigo.curso === "Espanhol Básico", "cadastro confere o código (sem login) antes de criar a conta");
+await como(ALUNO, "select public.entrar_na_turma($1)", [codigoBase]);
+conferir((await numero(ALUNO, "select count(*) from public.turmas")) === 1, "aluno pendente vê o nome da turma");
+conferir((await numero(ALUNO, "select count(*) from public.listas")) === 0, "aluno pendente ainda não vê os exercícios");
+conferir((await numero(ALUNO, "select count(*) from public.cursos")) === 0, "aluno pendente não vê o curso");
+conferir(
+  await barrado(ALUNO, `update public.matriculas set situacao = 'aprovada' where aluno_id = '${ALUNO}'`, async () => (await numero(PROFESSOR, "select count(*) from public.matriculas where situacao = 'pendente'")) === 1),
+  "aluno não se aprova sozinho",
+);
+await como(PROFESSOR, "update public.matriculas set situacao = 'aprovada', aprovada_em = now() where turma_id = $1 and aluno_id = $2", [idTurmaBase, ALUNO]);
+conferir((await numero(ALUNO, "select count(*) from public.listas")) === 1, "aprovado: aluno vê o exercício avulso da turma");
+conferir((await numero(ALUNO, "select count(*) from public.turma_listas")) === 1, "aluno vê os avulsos da própria turma");
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.listas")) === 0, "aluno de fora não vê os exercícios da turma");
+conferir(await falhaComo(OUTRO_ALUNO, "select public.enviar_tentativa($1, '{}'::jsonb)", [idLista]), "aluno de fora não envia respostas");
+conferir(await falhaComo(ALUNO, "insert into public.turma_listas (turma_id, lista_id) values ($1, $2)", [idTurmaBase, idLista]), "aluno não libera exercícios");
+await db.exec(`insert into auth.users (id, email, raw_user_meta_data) values ('00000000-0000-0000-0000-0000000000b3', 'novo@teste', '{"nome":"Novo","codigo_turma":"${codigoBase.toLowerCase()}"}')`);
+conferir((await numero(PROFESSOR, "select count(*) from public.matriculas where situacao = 'pendente' and turma_id = $1", [idTurmaBase])) === 1, "cadastro com código já cria o pedido de entrada");
+conferir((await numero(PROFESSOR, "select count(*) from public.perfis where nome = 'Novo'")) === 1, "professora vê o nome de quem pediu para entrar");
+
 const respostas = {
   "a0000000-0000-0000-0000-000000000001": { opcao: 1 },
   "a0000000-0000-0000-0000-000000000002": { valor: false },
@@ -161,7 +190,7 @@ conferir(
 await como(ADMIN, `update public.perfis set bloqueado = true where id in ('${ALUNO}', '${PROFESSOR}')`);
 conferir((await numero(ALUNO, "select count(*) from public.listas")) === 0, "aluno bloqueado não vê listas");
 conferir(await falhaComo(ALUNO, "select public.enviar_tentativa($1, '{}'::jsonb)", [idLista]), "aluno bloqueado não envia respostas");
-conferir((await numero(ALUNO, "select count(*) from public.perfis where bloqueado")) === 1, "aluno bloqueado ainda lê o próprio perfil");
+conferir((await numero(ALUNO, `select count(*) from public.perfis where bloqueado and id = '${ALUNO}'`)) === 1, "aluno bloqueado ainda lê o próprio perfil");
 conferir(await falhaComo(PROFESSOR, "select public.salvar_lista($1::jsonb)", [JSON.stringify(lista)]), "professora bloqueada não salva lista");
 await como(ADMIN, `update public.perfis set bloqueado = false where id in ('${ALUNO}', '${PROFESSOR}')`);
 conferir((await numero(ALUNO, "select count(*) from public.listas")) === 1, "desbloqueado volta a ver as listas");
@@ -184,6 +213,8 @@ const { rows: [{ id: idTurma, codigo }] } = await como(PROFESSOR, "select id, co
 await como(ALUNO, "select public.entrar_na_turma($1)", [codigo]);
 conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aula ainda não liberada: PDF continua fechado");
 await como(PROFESSOR, "insert into public.aulas_liberadas (turma_id, aula_id) values ($1, $2)", [idTurma, idAula]);
+conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aula liberada, mas aluno pendente: PDF continua fechado");
+await como(PROFESSOR, "update public.matriculas set situacao = 'aprovada' where turma_id = $1", [idTurma]);
 conferir((await numero(ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 1, "aula liberada: aluno da turma lê o PDF");
 conferir((await numero(ALUNO, "select count(*) from public.aula_listas")) === 1, "aula liberada: aluno vê os exercícios da aula");
 conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where bucket_id = 'materiais'")) === 0, "aluno de outra turma não lê o PDF");
@@ -191,9 +222,19 @@ conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where 
 // ----------------------------------------------------------------------------- listas de exemplo
 console.log("Listas de exemplo");
 const SQL_EXEMPLOS = fs.readFileSync(path.resolve(PASTA_MIGRACOES, "../exemplos/listas_de_exemplo.sql"), "utf8");
+const SQL_CURSOS_EXEMPLO = fs.readFileSync(path.resolve(PASTA_MIGRACOES, "../exemplos/cursos_de_exemplo.sql"), "utf8");
 await db.exec(SQL_EXEMPLOS);
+await db.exec(SQL_CURSOS_EXEMPLO);
 await db.exec(SQL_EXEMPLOS); // rodar de novo recria, sem duplicar
-conferir((await numero(OUTRO_ALUNO, "select count(*) from public.listas where origem = 'exemplo' and status = 'publicada'")) === 25, "25 listas de exemplo publicadas, visíveis para o aluno");
+await db.exec(SQL_CURSOS_EXEMPLO);
+conferir((await numero(ADMIN, "select count(*) from public.listas where origem = 'exemplo' and status = 'publicada'")) === 25, "25 listas de exemplo publicadas");
+conferir((await numero(ADMIN, "select count(*) from public.turmas where nome like 'Turma de teste%'")) === 3, "3 cursos de exemplo, cada um com a turma de teste");
+const { rows: turmasExemplo } = await db.query("select id, codigo from public.turmas where nome like 'Turma de teste%'");
+for (const t of turmasExemplo) await como(OUTRO_ALUNO, "select public.entrar_na_turma($1)", [t.codigo]);
+await db.query("update public.matriculas set situacao = 'aprovada' where aluno_id = $1", [OUTRO_ALUNO]);
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.listas where origem = 'exemplo'")) === 18, "aluno das turmas de teste vê as aulas liberadas e os avulsos (18 de 25)");
+await db.query("insert into public.aulas_liberadas (turma_id, aula_id) select t.id, a.id from public.turmas t join public.aulas a on a.curso_id = t.curso_id where t.nome like 'Turma de teste%' on conflict do nothing");
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.listas where origem = 'exemplo'")) === 25, "liberando todas as aulas, vê as 25");
 conferir((await numero(ADMIN, "select count(*) from public.listas where origem = 'exemplo' and criado_por = $1", [ADMIN])) === 25, "exemplos ficam em nome do admin");
 
 // Responde cada lista com o próprio gabarito: tudo precisa dar 100%.

@@ -47,7 +47,7 @@ export function Botao({ variante = "primario", carregando, children, className =
 
 type PropsCampo = InputHTMLAttributes<HTMLInputElement> & { rotulo: string; dica?: string };
 
-export function Campo({ rotulo, dica, id, type, ...resto }: PropsCampo) {
+export function Campo({ rotulo, dica, id, type, className = "", ...resto }: PropsCampo) {
   const idCampo = id ?? resto.name;
   const [mostrar, setMostrar] = useState(false);
   const senha = type === "password";
@@ -59,7 +59,7 @@ export function Campo({ rotulo, dica, id, type, ...resto }: PropsCampo) {
           id={idCampo}
           type={senha && mostrar ? "text" : type}
           {...resto}
-          className={`h-12 w-full rounded-xl border border-borda bg-superficie px-3.5 text-texto placeholder:text-suave/70 focus:border-destaque focus:outline-none focus:ring-4 focus:ring-destaque-suave ${senha ? "pr-12" : ""}`}
+          className={`h-12 w-full rounded-xl border border-borda bg-superficie px-3.5 text-texto placeholder:text-suave/70 focus:border-destaque focus:outline-none focus:ring-4 focus:ring-destaque-suave ${senha ? "pr-12" : ""} ${className}`}
         />
         {senha && (
           <button
@@ -93,7 +93,7 @@ export function Aviso({ tipo = "erro", children }: { tipo?: "erro" | "sucesso" |
 const DESTAQUES: { icone: LucideIcon; texto: string }[] = [
   { icone: BookOpenCheck, texto: "Exercícios das aulas, com correção na hora" },
   { icone: Headphones, texto: "Listening com sotaques britânico, americano e australiano" },
-  { icone: Languages, texto: "Inglês e espanhol com a Teacher Monique" },
+  { icone: Languages, texto: "Inglês, espanhol e francês com a Teacher Monique" },
 ];
 
 /** Telas de login, cadastro e senha: marca à esquerda, formulário à direita. */
@@ -104,7 +104,7 @@ export function CartaoAuth({ titulo, subtitulo, children, rodape }: { titulo: st
         <Link to="/entrar" aria-label="UP English, página inicial"><Marca claro /></Link>
         <div className="hidden lg:my-auto lg:block lg:max-w-md">
           <span className="inline-block rounded-full border border-white/25 px-3 py-1 text-xs font-semibold tracking-widest text-azul-300">
-            INGLÊS · ESPAÑOL
+            INGLÊS · ESPAÑOL · FRANÇAIS
           </span>
           <Pontilhado className="mt-8 text-white/90" />
           <p className="mt-5 font-serif text-4xl leading-tight font-bold">Seu próximo nível em inglês começa aqui.</p>

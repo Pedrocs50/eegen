@@ -9,7 +9,17 @@ type ListaResumo = { id: string; titulo: string; idioma: Idioma; nivel: number; 
  * Escolhe as listas de exercícios que aparecem no fim da aula ("Hora de praticar!"), na ordem escolhida.
  * Controlado: recebe e devolve os ids; quem salva é o formulário da aula.
  */
-export default function ExerciciosDaAula({ selecionadas, aoMudar }: { selecionadas: string[]; aoMudar: (ids: string[]) => void }) {
+export default function ExerciciosDaAula({
+  selecionadas,
+  aoMudar,
+  rotulo = "Exercícios da aula",
+  descricao = "Aparecem no fim da aula, em \"Hora de praticar!\". Cada um abre pelo próprio link.",
+}: {
+  selecionadas: string[];
+  aoMudar: (ids: string[]) => void;
+  rotulo?: string;
+  descricao?: string;
+}) {
   const { dados: listas } = useConsulta<ListaResumo[]>(() =>
     supabase.from("listas").select("id, titulo, idioma, nivel, status").order("nivel").order("titulo"),
   );
@@ -26,8 +36,8 @@ export default function ExerciciosDaAula({ selecionadas, aoMudar }: { selecionad
 
   return (
     <div>
-      <p className="mb-1.5 block text-sm font-semibold text-texto">Exercícios da aula</p>
-      <p className="mb-3 text-xs text-suave">Aparecem no fim da aula, em "Hora de praticar!". Cada um abre pelo próprio link.</p>
+      <p className="mb-1.5 block text-sm font-semibold text-texto">{rotulo}</p>
+      <p className="mb-3 text-xs text-suave">{descricao}</p>
 
       {selecionadas.length > 0 && (
         <ol className="mb-3 space-y-2">
@@ -51,7 +61,7 @@ export default function ExerciciosDaAula({ selecionadas, aoMudar }: { selecionad
       )}
 
       <label className="block">
-        <span className="sr-only">Adicionar exercício à aula</span>
+        <span className="sr-only">Adicionar exercício</span>
         <select
           value=""
           onChange={(e) => e.target.value && aoMudar([...selecionadas, e.target.value])}

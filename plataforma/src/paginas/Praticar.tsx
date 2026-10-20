@@ -1,287 +1,176 @@
-import { useMemo, useState, type ReactNode } from "react";
-import { Link, useParams } from "react-router";
-import { ArrowLeft, BookOpen, CheckCircle2, ClipboardList, Headphones, Lightbulb, PenLine, RotateCcw, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router";
+import { ArrowLeft, BookOpen, ClipboardList, Lightbulb, RotateCcw, Search, Sparkles } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
-import { IDIOMAS, nomeNivel, useConsulta, type Idioma } from "../lib/dados";
-import { ORDEM_IDIOMAS, CEFR } from "../lib/idiomas";
+import { IDIOMAS, nomeNivel, useConsulta } from "../lib/dados";
 import { respondida, type Lista, type Questao, type Resposta, type Secao } from "../lib/exercicios";
 import { CabecalhoPagina } from "../componentes/Painel";
+import { BarraProgresso, CartaoLista, PedidosPendentes, Pilula, SeletorTurma, useTurmasDoAluno } from "../componentes/TurmaAluno";
+import { buscarConteudoDaTurma, ehNova, type ConteudoDaTurma, type ListaDaTurma, type TurmaDoAluno } from "../lib/turmas";
 import QuestaoAluno, { type Correcao } from "../componentes/QuestaoAluno";
 import PlayerListening from "../componentes/PlayerListening";
 import { Aviso, Botao, Etiqueta, EstadoVazio, Pontilhado, TextoCarregando } from "../componentes/ui";
 
-type ListaDisponivel = {
-  id: string;
-  titulo: string;
-  tema: string;
-  descricao: string;
-  idioma: Idioma;
-  nivel: number;
-  questoes: { count: number }[];
-  secoes: { tipo_estimulo: string }[];
-};
-type TentativaResumo = { lista_id: string; nota: number };
 type Situacao = "todas" | "pendentes" | "feitas";
+type Aba = "aulas" | "extras";
 
-
-function BarraProgresso({ feitas, total, rotulo }: { feitas: number; total: number; rotulo: string }) {
-  return (
-    <div
-      className="h-2 overflow-hidden rounded-full bg-borda"
-      role="progressbar"
-      aria-label={rotulo}
-      aria-valuenow={feitas}
-      aria-valuemin={0}
-      aria-valuemax={total}
-    >
-      <div className="h-full rounded-full bg-sucesso transition-all" style={{ width: `${total ? (feitas / total) * 100 : 0}%` }} />
-    </div>
-  );
-}
-
-function Pilula({ ativa, onClick, children }: { ativa: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={ativa}
-      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
-        ativa ? "bg-marca text-sobre-marca" : "border border-borda bg-superficie text-suave hover:text-texto"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function CartaoLista({ lista, nota }: { lista: ListaDisponivel; nota: number | undefined }) {
-  const temAudio = lista.secoes.some((s) => s.tipo_estimulo === "audio");
-  return (
-    <li>
-      <Link to={`/praticar/${lista.id}`} className="flex h-full flex-col rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          {temAudio && <Etiqueta><Headphones className="mr-1 size-3.5" /> Listening</Etiqueta>}
-          {nota !== undefined ? (
-            <Etiqueta tom="verde"><CheckCircle2 className="mr-1 size-3.5" /> Feita · {nota}%</Etiqueta>
-          ) : (
-            <Etiqueta tom="creme">Não feita</Etiqueta>
-          )}
-        </div>
-        <h3 className="mt-3 text-lg font-bold text-marca">{lista.titulo}</h3>
-        {lista.descricao && <p className="mt-1 font-serif text-sm text-suave italic">{lista.descricao}</p>}
-        <p className="mt-auto pt-4 text-sm font-semibold text-destaque">
-          {lista.questoes[0]?.count ?? 0} questões · {nota === undefined ? "Começar" : "Refazer"} →
-        </p>
-      </Link>
-    </li>
-  );
-}
-
-/** Exercícios publicados, organizados por idioma e nível, com filtros e a melhor nota de cada um. */
+/** Exercícios da turma, separados entre os das aulas (agrupados por aula) e os extras, com filtro de situação e busca. */
 export function ListasDoAluno() {
   const { perfil } = useAuth();
-  const [aba, setAba] = useState<"exercicios" | "aulas">("exercicios");
-  const [idioma, setIdioma] = useState<Idioma | "todos">("todos");
-  const [nivel, setNivel] = useState<number | "todos">("todos");
-  const [situacao, setSituacao] = useState<Situacao>("todas");
-  const [busca, setBusca] = useState("");
-
-  const { dados, erro, carregando } = useConsulta<{ listas: ListaDisponivel[]; tentativas: TentativaResumo[] }>(async () => {
-    const [listas, tentativas] = await Promise.all([
-      supabase
-        .from("listas")
-        .select("id, titulo, tema, descricao, idioma, nivel, questoes(count), secoes(tipo_estimulo)")
-        .eq("status", "publicada")
-        .order("nivel")
-        .order("titulo"),
-      supabase.from("tentativas").select("lista_id, nota").eq("aluno_id", perfil?.id ?? ""),
-    ]);
-    return { data: { listas: listas.data ?? [], tentativas: tentativas.data ?? [] }, error: listas.error ?? tentativas.error };
-  }, [perfil?.id]);
-
-  const melhores = useMemo(() => {
-    const mapa = new Map<string, number>();
-    for (const t of dados?.tentativas ?? []) mapa.set(t.lista_id, Math.max(mapa.get(t.lista_id) ?? 0, Number(t.nota)));
-    return mapa;
-  }, [dados]);
-
-  const todas = dados?.listas ?? [];
-  const idiomasPresentes = ORDEM_IDIOMAS.filter((i) => todas.some((l) => l.idioma === i));
-  const niveisPresentes = [...new Set(todas.filter((l) => idioma === "todos" || l.idioma === idioma).map((l) => l.nivel))].sort((a, b) => a - b);
-  const termo = busca.trim().toLowerCase();
-
-  const filtradas = todas.filter(
-    (l) =>
-      (idioma === "todos" || l.idioma === idioma) &&
-      (nivel === "todos" || l.nivel === nivel) &&
-      (situacao === "todas" || (situacao === "feitas" ? melhores.has(l.id) : !melhores.has(l.id))) &&
-      (!termo || l.titulo.toLowerCase().includes(termo) || l.tema.toLowerCase().includes(termo)),
-  );
-
-  // Hierarquia: idioma -> nível -> listas.
-  const grupos = ORDEM_IDIOMAS.map((i) => {
-    const doIdioma = filtradas.filter((l) => l.idioma === i);
-    const niveis = [...new Set(doIdioma.map((l) => l.nivel))].sort((a, b) => a - b);
-    return { idioma: i, listas: doIdioma, niveis: niveis.map((n) => ({ nivel: n, listas: doIdioma.filter((l) => l.nivel === n) })) };
-  }).filter((g) => g.listas.length > 0);
-
-  const feitasNoTotal = todas.filter((l) => melhores.has(l.id)).length;
-  const filtrosAtivos = idioma !== "todos" || nivel !== "todos" || situacao !== "todas" || !!termo;
-  const limparFiltros = () => {
-    setIdioma("todos");
-    setNivel("todos");
-    setSituacao("todas");
-    setBusca("");
-  };
+  const { turmas, atual, escolher, erro, carregando } = useTurmasDoAluno();
+  const equipe = perfil?.papel !== "aluno";
 
   return (
     <>
-      <CabecalhoPagina etiqueta="Hora de praticar!" titulo="Meus estudos" descricao="Responda e veja a correção na hora. Pode refazer quantas vezes quiser: vale a sua melhor nota." />
+      <CabecalhoPagina
+        etiqueta={equipe ? "Visão do aluno" : "Meus estudos"}
+        titulo="Exercícios"
+        descricao="Responda e veja a correção na hora. Pode refazer quantas vezes quiser: vale a sua melhor nota."
+      />
+      {erro && <Aviso>{erro}</Aviso>}
+      {carregando && <TextoCarregando />}
+      {!carregando && (
+        <>
+          <PedidosPendentes turmas={turmas} />
+          {atual ? (
+            <>
+              <SeletorTurma turmas={turmas} atual={atual} aoEscolher={escolher} />
+              <ExerciciosDaTurma turma={atual} />
+            </>
+          ) : (
+            <EstadoVazio
+              icone={ClipboardList}
+              titulo={equipe ? "Nenhuma turma ainda" : turmas.length ? "Aguardando aprovação" : "Você ainda não está numa turma"}
+              texto={
+                equipe
+                  ? "Crie uma turma para ver os exercícios como os alunos dela veem."
+                  : turmas.length
+                    ? "Assim que a professora aprovar a sua entrada, os exercícios da turma aparecem aqui."
+                    : "Os exercícios são liberados por turma. Entre com o código que a sua professora enviou."
+              }
+              acao={!equipe && turmas.length === 0 ? <Link to="/aluno" className="font-semibold text-destaque underline">Entrar numa turma</Link> : undefined}
+            />
+          )}
+        </>
+      )}
+    </>
+  );
+}
 
-      <div className="mb-6 flex gap-1 border-b border-borda" role="tablist" aria-label="O que estudar">
-        {(
-          [
-            ["exercicios", "Exercícios", PenLine],
-            ["aulas", "Aulas", BookOpen],
-          ] as const
-        ).map(([valor, rotulo, Icone]) => (
+function ExerciciosDaTurma({ turma }: { turma: TurmaDoAluno }) {
+  const { perfil } = useAuth();
+  const [parametros, setParametros] = useSearchParams();
+  const aba: Aba = parametros.get("aba") === "extras" ? "extras" : "aulas";
+  const [situacao, setSituacao] = useState<Situacao>("todas");
+  const [busca, setBusca] = useState("");
+  const { dados, erro, carregando } = useConsulta<ConteudoDaTurma>(() => buscarConteudoDaTurma(turma.id, perfil?.id ?? ""), [turma.id, perfil?.id]);
+
+  if (carregando && !dados) return <TextoCarregando />;
+  if (erro || !dados) return <Aviso>{erro || "Não foi possível abrir os exercícios."}</Aviso>;
+
+  const mudarAba = (nova: Aba) => {
+    const novos = new URLSearchParams(parametros);
+    novos.set("aba", nova);
+    setParametros(novos, { replace: true });
+  };
+  const termo = busca.trim().toLowerCase();
+  const passa = (l: ListaDaTurma) =>
+    (situacao === "todas" || (situacao === "feitas" ? dados.notas[l.id] !== undefined : dados.notas[l.id] === undefined)) &&
+    (!termo || `${l.titulo} ${l.descricao}`.toLowerCase().includes(termo));
+
+  const listasDasAulas = dados.aulas.flatMap((a) => a.listas);
+  const doTotal = aba === "aulas" ? listasDasAulas : dados.extras;
+  const feitas = doTotal.filter((l) => dados.notas[l.id] !== undefined).length;
+  const aulas = [...dados.aulas].reverse().map((a) => ({ ...a, visiveis: a.listas.filter(passa) })).filter((a) => a.visiveis.length > 0);
+  const extras = dados.extras.filter(passa);
+  const nadaComFiltro = aba === "aulas" ? aulas.length === 0 : extras.length === 0;
+
+  return (
+    <>
+      <div className="mb-6 flex gap-1 border-b border-borda" role="tablist">
+        {([
+          ["aulas", "Das aulas", BookOpen, listasDasAulas.length],
+          ["extras", "Extras", Sparkles, dados.extras.length],
+        ] as const).map(([valor, rotulo, Icone, quantidade]) => (
           <button
             key={valor}
             role="tab"
             aria-selected={aba === valor}
-            onClick={() => setAba(valor)}
-            className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${
+            onClick={() => mudarAba(valor)}
+            className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
               aba === valor ? "border-marca text-marca" : "border-transparent text-suave hover:text-texto"
             }`}
           >
             <Icone className="size-4" /> {rotulo}
-            {valor === "aulas" && <span className="rounded-full bg-creme px-2 py-0.5 text-[10px] font-bold text-suave uppercase">Em breve</span>}
+            <span className="rounded-full bg-creme px-2 py-0.5 text-xs text-suave">{quantidade}</span>
           </button>
         ))}
       </div>
 
-      {aba === "aulas" && (
-        <EstadoVazio
-          icone={BookOpen}
-          titulo="As aulas estão chegando"
-          texto="Em breve as aulas da Teacher Monique ficam aqui, com o material em PDF e os exercícios de cada uma."
-        />
+      {doTotal.length > 0 && (
+        <div className="mb-6 rounded-2xl border border-borda bg-superficie p-5">
+          <div className="mb-2 flex items-center justify-between text-sm">
+            <span className="font-semibold">{aba === "aulas" ? "Exercícios das aulas" : "Exercícios extras"}</span>
+            <span className="text-suave">{feitas} de {doTotal.length} feitos</span>
+          </div>
+          <BarraProgresso feitas={feitas} total={doTotal.length} rotulo="Progresso" />
+        </div>
       )}
 
-      {aba === "exercicios" && (
-        <>
-          {erro && <Aviso>{erro}</Aviso>}
-          {carregando && <TextoCarregando />}
+      {doTotal.length > 0 && (
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap gap-2">
+            <Pilula ativa={situacao === "todas"} onClick={() => setSituacao("todas")}>Todos</Pilula>
+            <Pilula ativa={situacao === "pendentes"} onClick={() => setSituacao("pendentes")}>Não feitos</Pilula>
+            <Pilula ativa={situacao === "feitas"} onClick={() => setSituacao("feitas")}>Feitos</Pilula>
+          </div>
+          <label className="relative flex-1">
+            <span className="sr-only">Buscar exercício</span>
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-suave" />
+            <input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por nome"
+              className="h-10 w-full rounded-xl border border-borda bg-superficie pr-3 pl-9 text-sm focus:border-destaque focus:outline-none"
+            />
+          </label>
+        </div>
+      )}
 
-          {!carregando && todas.length === 0 && (
-            <EstadoVazio icone={ClipboardList} titulo="Nenhum exercício ainda" texto="Quando a sua professora publicar uma lista, ela aparece aqui." />
-          )}
-
-          {todas.length > 0 && (
-            <>
-              <div className="mb-6 rounded-2xl border border-borda bg-superficie p-5">
-                <div className="mb-2 flex items-baseline justify-between text-sm">
-                  <span className="font-semibold">Seu progresso geral</span>
-                  <span className="text-suave">{feitasNoTotal} de {todas.length} listas feitas</span>
-                </div>
-                <BarraProgresso feitas={feitasNoTotal} total={todas.length} rotulo="Progresso geral" />
+      {doTotal.length === 0 ? (
+        <EstadoVazio
+          icone={aba === "aulas" ? BookOpen : Sparkles}
+          titulo={aba === "aulas" ? "Nenhum exercício de aula ainda" : "Nenhum exercício extra ainda"}
+          texto={aba === "aulas" ? "Os exercícios aparecem aqui quando a professora libera as aulas." : "Quando a professora liberar exercícios extras para a turma, eles aparecem aqui."}
+        />
+      ) : nadaComFiltro ? (
+        <p className="text-sm text-suave">Nenhum exercício com esses filtros.</p>
+      ) : aba === "aulas" ? (
+        <div className="space-y-8">
+          {aulas.map((aula) => (
+            <section key={aula.id} aria-labelledby={`aula-${aula.id}`}>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h2 id={`aula-${aula.id}`} className="flex items-center gap-3 text-lg font-bold text-marca">
+                  <span className="grid size-9 place-items-center rounded-lg bg-marinho-800 font-serif text-white">{aula.numero}</span>
+                  {aula.titulo}
+                  {ehNova(aula.liberadaEm) && <Etiqueta tom="coral">Nova</Etiqueta>}
+                </h2>
+                <span className="flex items-center gap-3 text-sm">
+                  <span className="text-suave">{aula.listas.filter((l) => dados.notas[l.id] !== undefined).length} de {aula.listas.length} feitos</span>
+                  <Link to={`/aulas/${aula.id}`} className="font-semibold text-destaque hover:underline">Abrir aula →</Link>
+                </span>
               </div>
-
-              <div className="mb-6 space-y-3">
-                {idiomasPresentes.length > 1 && (
-                  <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Idioma">
-                    <span className="w-20 text-xs font-bold tracking-wide text-suave uppercase">Idioma</span>
-                    <Pilula ativa={idioma === "todos"} onClick={() => { setIdioma("todos"); setNivel("todos"); }}>Todos</Pilula>
-                    {idiomasPresentes.map((i) => (
-                      <Pilula key={i} ativa={idioma === i} onClick={() => { setIdioma(i); setNivel("todos"); }}>{IDIOMAS[i]}</Pilula>
-                    ))}
-                  </div>
-                )}
-                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Situação">
-                  <span className="w-20 text-xs font-bold tracking-wide text-suave uppercase">Situação</span>
-                  <Pilula ativa={situacao === "todas"} onClick={() => setSituacao("todas")}>Todas</Pilula>
-                  <Pilula ativa={situacao === "pendentes"} onClick={() => setSituacao("pendentes")}>Não feitas</Pilula>
-                  <Pilula ativa={situacao === "feitas"} onClick={() => setSituacao("feitas")}>Feitas</Pilula>
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <label className="relative flex-1">
-                    <span className="sr-only">Buscar exercício</span>
-                    <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-suave" aria-hidden="true" />
-                    <input
-                      type="search"
-                      value={busca}
-                      onChange={(e) => setBusca(e.target.value)}
-                      placeholder="Buscar por nome ou tema"
-                      className="h-11 w-full rounded-xl border border-borda bg-superficie pr-3 pl-9 placeholder:text-suave/70 focus:border-destaque focus:outline-none focus:ring-4 focus:ring-destaque-suave"
-                    />
-                  </label>
-                  <label className="sm:w-64">
-                    <span className="sr-only">Nível</span>
-                    <select
-                      value={nivel}
-                      onChange={(e) => setNivel(e.target.value === "todos" ? "todos" : Number(e.target.value))}
-                      className="h-11 w-full rounded-xl border border-borda bg-superficie px-3"
-                    >
-                      <option value="todos">Todos os níveis</option>
-                      {niveisPresentes.map((n) => (
-                        <option key={n} value={n}>
-                          {CEFR[n - 1]}{idioma !== "todos" ? ` · ${nomeNivel(idioma, n)}` : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              {grupos.length === 0 && (
-                <div className="rounded-2xl border-2 border-dashed border-borda p-8 text-center">
-                  <p className="text-suave">Nenhum exercício com esses filtros.</p>
-                  <Botao variante="secundario" className="mt-3" onClick={limparFiltros}>Limpar filtros</Botao>
-                </div>
-              )}
-
-              <div className="space-y-10">
-                {grupos.map((grupo) => {
-                  const doIdioma = todas.filter((l) => l.idioma === grupo.idioma);
-                  const feitasIdioma = doIdioma.filter((l) => melhores.has(l.id)).length;
-                  return (
-                    <section key={grupo.idioma} aria-labelledby={`idioma-${grupo.idioma}`}>
-                      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                        <h2 id={`idioma-${grupo.idioma}`} className="text-2xl font-bold text-marca">{IDIOMAS[grupo.idioma]}</h2>
-                        <div className="w-full sm:w-64">
-                          <p className="mb-1 text-right text-xs text-suave">{feitasIdioma} de {doIdioma.length} feitas</p>
-                          <BarraProgresso feitas={feitasIdioma} total={doIdioma.length} rotulo={`Progresso em ${IDIOMAS[grupo.idioma]}`} />
-                        </div>
-                      </div>
-                      <div className="space-y-6 border-l-4 border-creme pl-4 sm:pl-6">
-                        {grupo.niveis.map(({ nivel: n, listas }) => {
-                          const doNivel = doIdioma.filter((l) => l.nivel === n);
-                          const feitasNivel = doNivel.filter((l) => melhores.has(l.id)).length;
-                          return (
-                            <div key={n}>
-                              <h3 className="mb-3 flex flex-wrap items-baseline gap-x-2 text-lg font-bold text-texto">
-                                {nomeNivel(grupo.idioma, n)}
-                                <span className="text-sm font-semibold text-suave">{CEFR[n - 1]} · {feitasNivel} de {doNivel.length} feitas</span>
-                              </h3>
-                              <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                                {listas.map((lista) => <CartaoLista key={lista.id} lista={lista} nota={melhores.get(lista.id)} />)}
-                              </ul>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  );
-                })}
-              </div>
-              {filtrosAtivos && grupos.length > 0 && (
-                <div className="mt-6 text-center">
-                  <button onClick={limparFiltros} className="text-sm font-semibold text-destaque hover:underline">Limpar filtros</button>
-                </div>
-              )}
-            </>
-          )}
-        </>
+              <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {aula.visiveis.map((l) => <CartaoLista key={l.id} lista={l} nota={dados.notas[l.id]} />)}
+              </ul>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {extras.map((l) => <CartaoLista key={l.id} lista={l} nota={dados.notas[l.id]} contexto={ehNova(l.liberadaEm) ? <Etiqueta tom="coral">Novo</Etiqueta> : undefined} />)}
+        </ul>
       )}
     </>
   );

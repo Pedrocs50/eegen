@@ -24,6 +24,7 @@ export type QuestaoResultado = {
 export type ResultadosLista = { questoes: QuestaoResultado[]; tentativas: Omit<Tentativa, "lista">[]; alunos: Pessoa[] };
 
 export type ListaResumo = { id: string; titulo: string; idioma: Idioma; nivel: number; status: "rascunho" | "publicada" };
+export type TurmaResumo = { id: string; nome: string; matriculas: { aluno_id: string; situacao: string }[] };
 
 export const PERIODOS = { "7": "7 dias", "30": "30 dias", "90": "90 dias", tudo: "Tudo" } as const;
 export type Periodo = keyof typeof PERIODOS;
@@ -37,18 +38,21 @@ function desde(periodo: Periodo): string | null {
 }
 
 export async function buscarResultados(periodo: Periodo, incluirEquipe: boolean) {
-  const [resultados, listas] = await Promise.all([
+  const [resultados, listas, turmas] = await Promise.all([
     supabase.rpc("resultados_equipe", { desde: desde(periodo), incluir_equipe: incluirEquipe }),
     supabase.from("listas").select("id, titulo, idioma, nivel, status"),
+    supabase.from("turmas").select("id, nome, matriculas(aluno_id, situacao)").order("nome"),
   ]);
   if (resultados.error) return { data: null, error: resultados.error };
   if (listas.error) return { data: null, error: listas.error };
+  if (turmas.error) return { data: null, error: turmas.error };
   const r = resultados.data as ResultadosEquipe;
   const dados = {
     tentativas: r.tentativas.map((t) => ({ ...t, nota: Number(t.nota) })),
     habilidades: r.habilidades.map((h) => ({ ...h, acertos: Number(h.acertos), total: Number(h.total) })),
     alunos: r.alunos,
     listas: listas.data as ListaResumo[],
+    turmas: turmas.data as TurmaResumo[],
   };
   return { data: dados, error: null };
 }

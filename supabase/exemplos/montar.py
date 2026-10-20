@@ -36,6 +36,11 @@ import gerador  # noqa: E402  (reaproveita a síntese com repetição e a junç�
 ARQUIVOS = ["ingles.json", "espanhol.json", "frances.json"]
 PASTA_AUDIOS = PASTA / "audios"
 SAIDA_SQL = PASTA / "listas_de_exemplo.sql"
+SAIDA_CURSOS = PASTA / "cursos_de_exemplo.sql"
+# Curso de exemplo de cada idioma: quantas listas viram aulas, quantas aulas já ficam liberadas na turma de teste
+# e o resto vira exercício avulso da turma.
+CURSOS_EXEMPLO = {"ingles": (7, 4), "espanhol": (7, 4), "frances": (3, 2)}
+NOMES_IDIOMA = {"ingles": "Inglês", "espanhol": "Espanhol", "frances": "Francês"}
 ORIGEM = "exemplo"
 NAMESPACE = uuid.UUID("6f2b1c1e-8a7d-4f62-9a4e-0b5d3c2e1f00")
 
@@ -270,6 +275,42 @@ def url_do_supabase() -> str:
     raise SystemExit("VITE_SUPABASE_URL não encontrado em plataforma/.env.local")
 
 
+def escrever_sql_cursos(listas: list[dict]) -> None:
+    admin = "(select id from public.perfis where papel = 'admin' order by criado_em limit 1)"
+    ids_cursos = [str(uuid.uuid5(NAMESPACE, f"curso/{idioma}")) for idioma in CURSOS_EXEMPLO]
+    linhas = [
+        "-- Cursos de exemplo (um por idioma) montados com as listas de exemplo, cada um com uma turma de teste.",
+        "-- Gerado por supabase/exemplos/montar.py. Rode DEPOIS de listas_de_exemplo.sql (que, se rodado de novo, desfaz as ligações).",
+        "-- Em cada curso: uma aula por lista (sem PDF); na turma de teste, as primeiras aulas já liberadas e o resto como exercícios avulsos.",
+        "-- Rodar de novo recria cursos e turmas de exemplo (e tira os alunos que entraram nas turmas de teste).",
+        "",
+        "begin;",
+        "delete from public.cursos where id in (" + ", ".join(f"'{i}'" for i in ids_cursos) + ");",
+    ]
+    for idioma, (n_aulas, n_liberadas) in CURSOS_EXEMPLO.items():
+        do_idioma = [l for l in listas if l["idioma"] == idioma]
+        id_curso = uuid.uuid5(NAMESPACE, f"curso/{idioma}")
+        id_turma = uuid.uuid5(NAMESPACE, f"turma/{idioma}")
+        titulo = f"{NOMES_IDIOMA[idioma]} · Curso de exemplo"
+        linhas += ["", f"-- {titulo}",
+                   "insert into public.cursos (id, titulo, idioma, nivel, descricao) values "
+                   f"('{id_curso}', {sql_texto(titulo)}, '{idioma}', 1, "
+                   f"{sql_texto('Curso de demonstração: uma aula por lista de exemplo, do nível 1 ao 6.')});",
+                   "insert into public.turmas (id, nome, curso_id, professor_id) values "
+                   f"('{id_turma}', 'Turma de teste · {NOMES_IDIOMA[idioma]}', '{id_curso}', {admin});"]
+        for i, lista in enumerate(do_idioma[:n_aulas]):
+            id_aula = uuid.uuid5(NAMESPACE, f"aula/{idioma}/{i}")
+            linhas.append("insert into public.aulas (id, curso_id, numero, titulo, subtitulo) values "
+                          f"('{id_aula}', '{id_curso}', {i + 1}, {sql_texto(lista['titulo'])}, {sql_texto(lista['descricao'])});")
+            linhas.append(f"insert into public.aula_listas (aula_id, lista_id, ordem) values ('{id_aula}', '{lista['id']}', 0);")
+            if i < n_liberadas:
+                linhas.append(f"insert into public.aulas_liberadas (turma_id, aula_id) values ('{id_turma}', '{id_aula}');")
+        for ordem, lista in enumerate(do_idioma[n_aulas:]):
+            linhas.append(f"insert into public.turma_listas (turma_id, lista_id, ordem) values ('{id_turma}', '{lista['id']}', {ordem});")
+    linhas += ["", "commit;", ""]
+    SAIDA_CURSOS.write_text("\n".join(linhas), encoding="utf-8")
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")  # o terminal do Windows usa cp1252
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -291,6 +332,7 @@ def main() -> int:
             if segundos:
                 audio["estimulo"]["duracao"] = segundos
     escrever_sql(listas)
+    escrever_sql_cursos(listas)
     total = sum(len(s["questoes"]) for lista in listas for s in lista["secoes"])
     print(f"{len(listas)} listas, {total} questões, {len(audios)} áudios → {SAIDA_SQL.relative_to(RAIZ)}")
     return 0

@@ -21,6 +21,7 @@ const Curso = lazy(() => import("./paginas/Curso"));
 const Turmas = lazy(() => import("./paginas/Turmas"));
 const Turma = lazy(() => import("./paginas/Turma"));
 const Listas = lazy(() => import("./paginas/Listas"));
+const Convite = lazy(() => import("./paginas/Convite"));
 const Resultados = lazy(() => import("./paginas/Resultados"));
 const ResultadoLista = lazy(() => import("./paginas/Resultados").then((m) => ({ default: m.ResultadoLista })));
 const ResultadoAluno = lazy(() => import("./paginas/Resultados").then((m) => ({ default: m.ResultadoAluno })));
@@ -31,7 +32,7 @@ const ResponderLista = lazy(() => import("./paginas/Praticar").then((m) => ({ de
 const PAGINA_INICIAL: Record<Papel, string> = {
   admin: "/professor",
   professor: "/professor",
-  aluno: "/praticar",
+  aluno: "/aluno",
 };
 
 /** Telas de quem ainda não entrou; quem já está logado vai para a sua área. */
@@ -108,6 +109,7 @@ export default function App() {
           <Route path="/esqueci-senha" element={<SoDeslogado><EsqueciSenha /></SoDeslogado>} />
           <Route path="/nova-senha" element={<NovaSenha />} />
           <Route path="/sobre" element={<PaginaSobre />} />
+          <Route path="/convite/:codigo" element={<Convite />} />
           <Route element={<Protegida papeis={["admin"]} />}>
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/configuracoes" element={<Configuracoes />} />
@@ -125,10 +127,8 @@ export default function App() {
             <Route path="/turmas" element={<Turmas />} />
             <Route path="/turmas/:id" element={<Turma />} />
           </Route>
-          <Route element={<Protegida papeis={["aluno"]} />}>
-            <Route path="/aluno" element={<InicioAluno />} />
-          </Route>
           <Route element={<Protegida papeis={["aluno", "professor"]} />}>
+            <Route path="/aluno" element={<InicioAluno />} />
             <Route path="/aulas/:id" element={<AulaAluno />} />
             <Route path="/praticar" element={<ListasDoAluno />} />
             <Route path="/praticar/:id" element={<ResponderLista />} />

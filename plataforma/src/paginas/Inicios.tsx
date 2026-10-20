@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, BookMarked, ClipboardList, PenLine, Sparkles, UsersRound } from "lucide-react";
-import { CURSOS_E_TURMAS_ATIVOS } from "../lib/recursos";
+import { BarChart3, BookMarked, ClipboardList, PenLine, Sparkles, UserPlus, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
@@ -24,49 +23,80 @@ function Atalho({ para, icone: Icone, titulo, numero, texto }: { para: string; i
   );
 }
 
-type Contagens = { listas: number; publicadas: number; respostas: number };
+type Contagens = { listas: number; publicadas: number; cursos: number; turmas: number; pedidos: { turma_id: string; turmas: { nome: string } | null }[] };
 
 export function InicioProfessor() {
   const { perfil } = useAuth();
   const { dados: contagens } = useConsulta<Contagens>(async () => {
-    const [listas, publicadas, respostas] = await Promise.all([
+    const [listas, publicadas, cursos, turmas, pedidos] = await Promise.all([
       supabase.from("listas").select("id", { count: "exact", head: true }),
       supabase.from("listas").select("id", { count: "exact", head: true }).eq("status", "publicada"),
-      supabase.from("tentativas").select("id", { count: "exact", head: true }),
+      supabase.from("cursos").select("id", { count: "exact", head: true }),
+      supabase.from("turmas").select("id", { count: "exact", head: true }),
+      supabase.from("matriculas").select("turma_id, turmas(nome)").eq("situacao", "pendente"),
     ]);
-    const erro = listas.error ?? publicadas.error ?? respostas.error;
-    return { data: { listas: listas.count ?? 0, publicadas: publicadas.count ?? 0, respostas: respostas.count ?? 0 }, error: erro };
+    const erro = listas.error ?? publicadas.error ?? cursos.error ?? turmas.error ?? pedidos.error;
+    return {
+      data: {
+        listas: listas.count ?? 0,
+        publicadas: publicadas.count ?? 0,
+        cursos: cursos.count ?? 0,
+        turmas: turmas.count ?? 0,
+        pedidos: (pedidos.data ?? []) as unknown as Contagens["pedidos"],
+      },
+      error: erro,
+    };
   });
+
+  // Pedidos para entrar, agrupados por turma.
+  const porTurma = new Map<string, { nome: string; quantos: number }>();
+  for (const p of contagens?.pedidos ?? []) {
+    const atual = porTurma.get(p.turma_id) ?? { nome: p.turmas?.nome ?? "Turma", quantos: 0 };
+    porTurma.set(p.turma_id, { ...atual, quantos: atual.quantos + 1 });
+  }
 
   return (
     <>
       <CabecalhoPagina
         etiqueta="Área do professor"
         titulo={`Olá, ${primeiroNome(perfil?.nome ?? "") || "professor"}!`}
-        descricao="Crie listas de exercícios, publique para os alunos e acompanhe as respostas."
+        descricao="Suas turmas, o material das aulas e os exercícios, num lugar só."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+      {porTurma.size > 0 && (
+        <div className="mb-8 rounded-2xl border-2 border-coral/50 bg-coral-suave p-5">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-marca"><UserPlus className="size-5" /> Alunos pedindo para entrar</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {[...porTurma.entries()].map(([id, t]) => (
+              <li key={id}>
+                <Link to={`/turmas/${id}?aba=alunos`} className="inline-flex items-center gap-2 rounded-xl bg-superficie px-4 py-2 text-sm font-semibold text-marca hover:shadow-sm">
+                  {t.nome} <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">{t.quantos}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <h2 className="mb-3 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">Dia a dia</h2>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Atalho para="/turmas" icone={UsersRound} titulo="Turmas" numero={contagens?.turmas} texto="Libere as aulas, mande exercícios extras e aprove quem pediu para entrar." />
+        <Atalho para="/resultados" icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que os alunos mais erram." />
         <Atalho para="/exercicios/nova" icone={Sparkles} titulo="Criar com o Assistente UP" texto="Peça os exercícios em uma frase, inclusive listening com áudio." />
+      </div>
+
+      <h2 className="mt-10 mb-3 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">Biblioteca</h2>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Atalho para="/cursos" icone={BookMarked} titulo="Cursos e aulas" numero={contagens?.cursos} texto="O material de cada aula (PDF) e os exercícios dela. Um curso serve a várias turmas." />
         <Atalho
           para="/exercicios"
           icone={ClipboardList}
           titulo="Exercícios"
           numero={contagens?.listas}
-          texto={`${contagens?.publicadas ?? 0} publicadas para os alunos. Edite, publique ou teste como aluno.`}
+          texto={`${contagens?.publicadas ?? 0} publicadas. O aluno só vê as que estão numa aula liberada ou nos extras da turma dele.`}
         />
-        <Atalho para="/praticar" icone={PenLine} titulo="Visão do aluno" numero={contagens?.respostas} texto="Respostas enviadas até agora. Veja as listas como o aluno vê." />
-        <Atalho para="/resultados" icone={BarChart3} titulo="Resultados" texto="Quem fez, as notas e as questões em que os alunos mais erram." />
+        <Atalho para="/aluno" icone={PenLine} titulo="Visão do aluno" texto="Veja uma turma exatamente como os alunos dela veem." />
       </div>
-      {perfil?.papel === "admin" && !CURSOS_E_TURMAS_ATIVOS && (
-        <>
-          <h2 className="mt-10 mb-1 text-xl font-bold text-marca">Em construção</h2>
-          <p className="mb-4 text-sm text-suave">Só você (admin) vê estas partes. Professores e alunos ainda não.</p>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Atalho para="/cursos" icone={BookMarked} titulo="Cursos e aulas" texto="Cursos por idioma e nível, com as aulas e o material de cada uma." />
-            <Atalho para="/turmas" icone={UsersRound} titulo="Turmas" texto="Turmas com código de convite e aulas liberadas por turma." />
-          </div>
-        </>
-      )}
     </>
   );
 }
