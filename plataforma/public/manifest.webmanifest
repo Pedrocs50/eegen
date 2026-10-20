@@ -1,0 +1,14 @@
+{
+  "name": "UP English",
+  "short_name": "UP English",
+  "description": "Aulas, exercícios e aulas ao vivo da UP English.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8e7",
+  "theme_color": "#1d3a5e",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
