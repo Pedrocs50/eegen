@@ -18,6 +18,8 @@ export type Perfil = {
   papel: Papel;
   bloqueado: boolean;
   criado_em: string;
+  /** Quais notificações a pessoa quer receber ({tipo: true|false}); o que faltar segue o padrão. */
+  preferencias_notificacao?: Record<string, boolean>;
 };
 
 export const NOMES_PAPEIS: Record<Papel, string> = {

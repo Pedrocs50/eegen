@@ -4,6 +4,8 @@ import { Plus, Users } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Curso, type Turma } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
+import CopiarTexto from "../componentes/CopiarTexto";
+import { mensagemDeConvite } from "../lib/turmas";
 import { Aviso, Botao, Campo, CampoSelecao, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 
 type TurmaResumo = Turma & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel">; matriculas: { situacao: "pendente" | "aprovada" }[]; aulas_liberadas: { count: number }[] };
@@ -93,7 +95,7 @@ export default function Turmas() {
             const pedidos = turma.matriculas.length - alunos;
             const aulasLiberadas = turma.aulas_liberadas[0]?.count ?? 0;
             return (
-              <li key={turma.id}>
+              <li key={turma.id} className="relative">
                 <Link to={`/turmas/${turma.id}`} className="flex h-full flex-col rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
                   <div className="flex items-start justify-between gap-2">
                     <Etiqueta>{IDIOMAS[turma.cursos.idioma]} · {nomeNivel(turma.cursos.idioma, turma.cursos.nivel)}</Etiqueta>
@@ -106,9 +108,10 @@ export default function Turmas() {
                   <p className="text-sm text-suave">{turma.cursos.titulo}</p>
                   <div className="mt-auto flex items-center justify-between pt-5 text-sm">
                     <span className="text-suave">{alunos} {alunos === 1 ? "aluno" : "alunos"} · {aulasLiberadas} {aulasLiberadas === 1 ? "aula liberada" : "aulas liberadas"}</span>
-                    <span className="rounded-lg bg-creme px-2.5 py-1 font-mono font-bold tracking-widest text-marca">{turma.codigo}</span>
+                    <span className="mr-10 rounded-lg bg-creme px-2.5 py-1 font-mono font-bold tracking-widest text-marca">{turma.codigo}</span>
                   </div>
                 </Link>
+                <CopiarTexto texto={mensagemDeConvite(turma.nome, turma.codigo)} compacto dica="Copiar convite da turma (link e código)" className="absolute right-4 bottom-4" />
               </li>
             );
           })}

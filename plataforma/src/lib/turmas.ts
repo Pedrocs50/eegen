@@ -7,8 +7,47 @@ export function linkDeConvite(codigo: string) {
   return `${window.location.origin}/convite/${codigo}`;
 }
 
+/** Mensagem de convite para o grupo da turma: o link (que já leva o código) e o código, para quem preferir digitar. */
 export function mensagemDeConvite(nomeTurma: string, codigo: string) {
-  return `Olá! Este é o convite para a turma "${nomeTurma}" na plataforma UP English: ${linkDeConvite(codigo)}\nCrie sua conta (ou entre, se já tiver) e aguarde a professora aprovar. Código da turma: ${codigo}`;
+  return [
+    `Olá, turma ${nomeTurma}! 👋`,
+    "",
+    "As aulas e os exercícios agora ficam na plataforma da UP English.",
+    "",
+    `👉 Entre por este link: ${linkDeConvite(codigo)}`,
+    "",
+    "1. Crie sua conta (ou entre, se já tiver uma).",
+    `2. Confira se aparece a turma "${nomeTurma}" e envie o pedido.`,
+    "3. Assim que eu aprovar, você já vê as aulas e os exercícios.",
+    "",
+    `Se pedirem o código da turma, é: ${codigo}`,
+    "",
+    "Qualquer dúvida, é só me chamar! 😊",
+  ].join("\n");
+}
+
+/** Aviso de aula liberada, com o link direto para a aula. */
+export function mensagemDeAula(aula: { id: string; numero: number; titulo: string; subtitulo?: string }) {
+  return [
+    `📚 Aula ${aula.numero} liberada: ${aula.titulo}`,
+    ...(aula.subtitulo ? [aula.subtitulo] : []),
+    "",
+    "O material e os exercícios já estão na plataforma:",
+    `👉 ${window.location.origin}/aulas/${aula.id}`,
+    "",
+    "Bons estudos! 💪",
+  ].join("\n");
+}
+
+/** Aviso dos exercícios extras da turma, um link para cada. */
+export function mensagemDeExtras(listas: { id: string; titulo: string }[]) {
+  return [
+    listas.length === 1 ? "✨ Exercício extra para praticar:" : "✨ Exercícios extras para praticar:",
+    "",
+    ...listas.map((l) => `• ${l.titulo}: ${window.location.origin}/praticar/${l.id}`),
+    "",
+    "Pode refazer quantas vezes quiser: vale a sua melhor nota!",
+  ].join("\n");
 }
 
 export type SituacaoMatricula = "pendente" | "aprovada";

@@ -247,7 +247,12 @@ export function AulaAluno() {
         <h2 id="hora-de-praticar" className="text-2xl font-bold text-marca">Hora de praticar!</h2>
         <p className="mb-4 text-suave">Depois de estudar o material, faça os exercícios desta aula. Vale a sua melhor nota.</p>
         {listas.length === 0 ? (
-          <EstadoVazio icone={ClipboardList} titulo="Sem exercícios por enquanto" texto="Quando a professora ligar exercícios a esta aula, eles aparecem aqui." />
+          <EstadoVazio
+            icone={ClipboardList}
+            titulo="Sem exercícios por enquanto"
+            texto="Quando a professora ligar exercícios a esta aula, eles aparecem aqui."
+            acao={equipe ? <Link to={`/exercicios/nova?aula=${aula.id}`} className="font-semibold text-destaque underline">Criar exercício para esta aula</Link> : undefined}
+          />
         ) : (
           <ol className="grid gap-4 sm:grid-cols-2">
             {listas.map((lista, i) => {

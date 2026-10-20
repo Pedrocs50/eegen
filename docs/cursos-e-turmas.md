@@ -81,8 +81,38 @@ Os PDFs ficam no bucket **privado** `materiais` (até 50 MB) e abrem por um link
 
 Rode depois de `listas_de_exemplo.sql`.
 
+## Atalhos para a professora
+- **Criar exercício dentro da aula:**
+  - o botão "+ Exercício" em cada aula do curso (ou no formulário da aula) abre o editor em `/exercicios/nova?aula=ID`;
+  - idioma, nível e tema já vêm da aula, e o Assistente UP já traz o pedido com o tema;
+  - no primeiro salvamento, a lista entra na aula;
+  - no editor, a faixa "Aparece em" mostra em quais aulas e turmas cada lista está.
+- **Mensagens prontas para o grupo** (WhatsApp), em `plataforma/src/lib/turmas.ts`:
+  - **convite:** link `/convite/CÓDIGO`, passo a passo e o código. Fica na aba Alunos, com prévia, e no ícone de cada card em Turmas;
+  - **aviso de aula liberada:** aparece logo depois de liberar e no ícone de cada aula liberada;
+  - **aviso dos extras:** um link para cada lista.
+- **Reordenar aulas:** arraste pela alça (no computador) ou use as setas. Os números são regravados na ordem nova.
+
+## Notificações
+Migração `0012`. São criadas por gatilhos no banco, então não dependem de ninguém estar com o site aberto. Ficam no sininho do menu, com o número de não lidas, e na página `/notificacoes`. O menu também mostra quantos pedidos de entrada estão pendentes em **Turmas**.
+
+| Tipo | Para quem | Padrão |
+|---|---|---|
+| `pedido_entrada`: aluno pediu para entrar | professora da turma | ligada |
+| `nota_baixa`: aluno da turma tirou menos de 60% | professoras das turmas do aluno | ligada |
+| `exercicio_feito`: aluno enviou um exercício | professoras das turmas do aluno | desligada |
+| `entrada_aprovada` | aluno | ligada |
+| `aula_liberada` | alunos aprovados da turma | ligada |
+| `extra_liberado`: lista publicada nos extras | alunos aprovados da turma | ligada |
+
+**Detalhes:**
+- Cada pessoa liga e desliga os tipos na própria página de notificações. As escolhas ficam em `perfis.preferencias_notificacao`, e o que não estiver lá segue o padrão da função `quer_notificacao`.
+- Tentativas da equipe não geram aviso.
+- Ninguém cria notificação pela API, só os gatilhos.
+- Próximos tipos possíveis: aluno parado há X dias, extra com prazo chegando e resumo semanal por e-mail (quando o e-mail próprio estiver configurado).
+
 ## Pendente
 - Datas de liberação: abrir a aula sozinha num dia marcado.
-- Reordenar aulas arrastando, em vez de editar o número.
+
 - Prazo de entrega nos extras.
 - Confirmar os nomes dos níveis com a escola.

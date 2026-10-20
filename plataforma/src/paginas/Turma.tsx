@@ -5,7 +5,9 @@ import {
 } from "lucide-react";
 import { supabase, traduzirErro, type Perfil } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso, type Turma as TipoTurma } from "../lib/dados";
-import { linkDeConvite, mensagemDeConvite, type SituacaoMatricula } from "../lib/turmas";
+import { linkDeConvite, mensagemDeAula, mensagemDeConvite, mensagemDeExtras, type SituacaoMatricula } from "../lib/turmas";
+import { recontar } from "../lib/notificacoes";
+import CopiarTexto from "../componentes/CopiarTexto";
 import { quandoFoi } from "../lib/resultados";
 import { CabecalhoPagina } from "../componentes/Painel";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
@@ -17,7 +19,7 @@ type TurmaCompleta = TipoTurma & {
   cursos: Curso & { aulas: (Aula & { aula_listas: { lista_id: string }[] })[] };
   matriculas: Matricula[];
   aulas_liberadas: { aula_id: string; liberada_em: string }[];
-  turma_listas: { lista_id: string; ordem: number }[];
+  turma_listas: { lista_id: string; ordem: number; listas: { titulo: string } | null }[];
 };
 type Aba = "aulas" | "extras" | "alunos";
 
@@ -46,11 +48,12 @@ export default function Turma() {
   const [parametros, setParametros] = useSearchParams();
   const [erroAcao, setErroAcao] = useState("");
   const [copiado, setCopiado] = useState<"" | "link" | "mensagem">("");
+  const [recemLiberada, setRecemLiberada] = useState<Aula | null>(null);
   const { dados: turma, erro, carregando, recarregar, setDados } = useConsulta<TurmaCompleta>(
     () =>
       supabase
         .from("turmas")
-        .select("*, cursos(*, aulas(*, aula_listas(lista_id))), matriculas(situacao, criado_em, aprovada_em, perfis(id, nome, email)), aulas_liberadas(aula_id, liberada_em), turma_listas(lista_id, ordem)")
+        .select("*, cursos(*, aulas(*, aula_listas(lista_id))), matriculas(situacao, criado_em, aprovada_em, perfis(id, nome, email)), aulas_liberadas(aula_id, liberada_em), turma_listas(lista_id, ordem, listas(titulo))")
         .eq("id", id)
         .single(),
     [id],
@@ -73,6 +76,7 @@ export default function Turma() {
     const { error } = await promessa;
     if (error) setErroAcao(traduzirErro(error.message));
     recarregar();
+    recontar();
   }
 
   async function copiar(tipo: "link" | "mensagem") {
@@ -90,6 +94,7 @@ export default function Turma() {
     if (!turma) return;
     setErroAcao("");
     const estavaLiberada = liberadas.has(aula.id);
+    setRecemLiberada(estavaLiberada ? null : aula);
     // Atualiza na hora e desfaz se o banco recusar.
     setDados({
       ...turma,
@@ -102,6 +107,7 @@ export default function Turma() {
       : await supabase.from("aulas_liberadas").insert({ turma_id: turma.id, aula_id: aula.id });
     if (error) {
       setErroAcao(traduzirErro(error.message));
+      setRecemLiberada(null);
       recarregar();
     }
   }
@@ -109,7 +115,8 @@ export default function Turma() {
   /** Grava os extras na ordem escolhida: tira os removidos, inclui os novos e acerta a ordem. */
   async function salvarExtras(ids: string[]) {
     if (!turma) return;
-    setDados({ ...turma, turma_listas: ids.map((lista_id, ordem) => ({ lista_id, ordem })) });
+    const titulos = new Map(turma.turma_listas.map((t) => [t.lista_id, t.listas]));
+    setDados({ ...turma, turma_listas: ids.map((lista_id, ordem) => ({ lista_id, ordem, listas: titulos.get(lista_id) ?? null })) });
     setErroAcao("");
     const removidos = extras.filter((x) => !ids.includes(x));
     const novos = ids.filter((x) => !extras.includes(x));
@@ -175,6 +182,15 @@ export default function Turma() {
             Libere cada aula depois de dá-la: o aluno vê o material e os exercícios dela. As aulas são montadas no curso{" "}
             <Link to={`/cursos/${turma.curso_id}`} className="font-semibold text-destaque underline">{turma.cursos.titulo}</Link>, que pode servir a várias turmas.
           </p>
+          {recemLiberada && liberadas.has(recemLiberada.id) && (
+            <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-sucesso/40 bg-sucesso-suave p-4">
+              <Check className="size-5 shrink-0 text-sucesso" />
+              <p className="min-w-0 flex-1 text-sm">
+                <strong>Aula {recemLiberada.numero} liberada.</strong> Os alunos da turma já veem e receberam a notificação na plataforma. Quer avisar no grupo também?
+              </p>
+              <CopiarTexto texto={mensagemDeAula(recemLiberada)}>Copiar aviso para o grupo</CopiarTexto>
+            </div>
+          )}
           {aulas.length === 0 ? (
             <Aviso tipo="info">Este curso ainda não tem aulas. <Link to={`/cursos/${turma.curso_id}`} className="font-semibold underline">Adicionar aulas</Link></Aviso>
           ) : (
@@ -193,6 +209,7 @@ export default function Turma() {
                         {liberada && quando && <span className="text-xs text-suave">liberada {quandoFoi(quando)}</span>}
                       </span>
                     </span>
+                    {liberada && <CopiarTexto texto={mensagemDeAula(aula)} compacto dica={`Copiar aviso da aula ${aula.numero} para o grupo`} />}
                     <Link to={`/aulas/${aula.id}`} className="grid size-9 place-items-center rounded-lg text-suave hover:bg-fundo hover:text-texto" title="Ver aula" aria-label={`Ver aula ${aula.numero}`}>
                       <Eye className="size-4" />
                     </Link>
@@ -223,6 +240,16 @@ export default function Turma() {
             rotulo="Exercícios extras da turma"
             descricao="Listas avulsas, além das aulas (revisão, prática extra, prova). Aparecem para os alunos desta turma na aba Extras, na ordem abaixo. Salva sozinho."
           />
+          {turma.turma_listas.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-borda pt-4">
+              <p className="min-w-0 flex-1 text-sm text-suave">Cada extra novo já avisa os alunos na plataforma. Para avisar no grupo, copie a mensagem com os links.</p>
+              <CopiarTexto
+                texto={mensagemDeExtras([...turma.turma_listas].sort((a, b) => a.ordem - b.ordem).map((t) => ({ id: t.lista_id, titulo: t.listas?.titulo ?? "Exercício" })))}
+              >
+                Copiar aviso dos extras
+              </CopiarTexto>
+            </div>
+          )}
         </section>
       )}
 
@@ -281,6 +308,8 @@ export default function Turma() {
             <p className="text-[11px] font-bold tracking-[0.14em] text-azul-300 uppercase">Convite da turma</p>
             <p className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{turma.codigo}</p>
             <p className="mt-3 text-sm break-all text-white/80">{linkDeConvite(turma.codigo)}</p>
+            <p className="mt-4 text-[11px] font-bold tracking-[0.14em] text-azul-300 uppercase">Mensagem que será copiada</p>
+            <p className="mt-1 max-h-56 overflow-y-auto rounded-xl bg-white/10 p-3 text-xs leading-relaxed whitespace-pre-line text-white/90">{mensagemDeConvite(turma.nome, turma.codigo)}</p>
             <p className="mt-3 text-sm text-white/75">
               {turma.ativa
                 ? "Mande o link no grupo da turma. O aluno cria a conta pelo link e aparece aqui como pedido, para você aprovar."

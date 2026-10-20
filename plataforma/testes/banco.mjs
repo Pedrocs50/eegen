@@ -280,5 +280,36 @@ conferir(Number(questaoErrada.acerto) === 0.5 && Number(questaoErrada.respostas)
 conferir(questaoErrada.erradas.length === 1 && questaoErrada.erradas[0].resposta.opcao === opcaoErrada, "resposta errada mais comum aparece");
 conferir(daLista.tentativas.length === 2 && daLista.alunos.length === 1, "tentativas e alunos da lista");
 
+// ----------------------------------------------------------------------------- notificações
+console.log("Notificações");
+const contar = (uid, tipo) => numero(uid, "select count(*) from public.notificacoes where tipo = $1", [tipo]);
+conferir((await contar(PROFESSOR, "pedido_entrada")) >= 2, "professora é avisada dos pedidos para entrar");
+conferir((await contar(ALUNO, "entrada_aprovada")) >= 1, "aluno é avisado quando é aprovado");
+conferir((await numero(ALUNO, "select count(*) from public.notificacoes where para <> $1", [ALUNO])) === 0, "cada um só vê as próprias notificações");
+conferir(await falhaComo(ALUNO, `insert into public.notificacoes (para, tipo, titulo) values ('${PROFESSOR}', 'x', 'falsa')`), "ninguém cria notificação pela API");
+conferir(await falhaComo(ALUNO, `select public.notificar('${PROFESSOR}', 'x', 'falsa', '', '')`), "função de notificar não é chamada direto");
+
+const { rows: [{ id: aulaBase1 }] } = await como(PROFESSOR, "insert into public.aulas (curso_id, numero, titulo) values ($1, 1, 'Saludos') returning id", [idCursoBase]);
+await como(PROFESSOR, "insert into public.aulas_liberadas (turma_id, aula_id) values ($1, $2)", [idTurmaBase, aulaBase1]);
+conferir((await contar(ALUNO, "aula_liberada")) === 1, "aluno aprovado é avisado da aula liberada");
+await como(PROFESSOR, "insert into public.turma_listas (turma_id, lista_id) values ($1, $2)", [idTurmaBase, listaErrada]);
+conferir((await contar(ALUNO, "extra_liberado")) === 1, "aluno é avisado do exercício extra");
+
+await como(ALUNO, "select public.enviar_tentativa($1, '{}'::jsonb)", [listaErrada]);
+conferir((await contar(PROFESSOR, "nota_baixa")) === 1, "professora é avisada da nota baixa");
+conferir((await contar(PROFESSOR, "exercicio_feito")) === 0, "\"exercício enviado\" vem desligado por padrão");
+
+await como(ALUNO, `update public.perfis set preferencias_notificacao = '{"aula_liberada": false}' where id = '${ALUNO}'`);
+const { rows: [{ id: aulaBase2 }] } = await como(PROFESSOR, "insert into public.aulas (curso_id, numero, titulo) values ($1, 2, 'Números') returning id", [idCursoBase]);
+await como(PROFESSOR, "insert into public.aulas_liberadas (turma_id, aula_id) values ($1, $2)", [idTurmaBase, aulaBase2]);
+conferir((await contar(ALUNO, "aula_liberada")) === 1, "quem desliga um tipo deixa de receber");
+
+await como(ALUNO, "update public.notificacoes set lida_em = now()");
+conferir((await numero(ALUNO, "select count(*) from public.notificacoes where lida_em is null")) === 0, "aluno marca as suas como lidas");
+conferir(
+  await barrado(ALUNO, "update public.notificacoes set lida_em = now() where para <> auth.uid()", async () => (await numero(PROFESSOR, "select count(*) from public.notificacoes where lida_em is null")) > 0),
+  "ninguém marca as notificações dos outros",
+);
+
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

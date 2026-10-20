@@ -1,13 +1,15 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BarChart3, BookMarked, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, Bell, BookMarked, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
+import { useContadores } from "../lib/notificacoes";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
 
 /** emConstrucao: parte em espera; só o admin vê (com selo), para acompanhar tudo o que existe. */
-type ItemMenu = { para: string; rotulo: string; icone: LucideIcon; emConstrucao?: boolean };
+type ItemMenu = { para: string; rotulo: string; icone: LucideIcon; emConstrucao?: boolean; contador?: keyof Contadores };
+type Contadores = { naoLidas: number; pedidos: number };
 type SecaoMenu = { titulo: string; itens: ItemMenu[] };
 
 const SOBRE: SecaoMenu = { titulo: "UP English", itens: [{ para: "/sobre", rotulo: "Sobre a professora", icone: UserRound }] };
@@ -17,7 +19,8 @@ const ENSINO: SecaoMenu = {
   titulo: "Ensino",
   itens: [
     { para: "/professor", rotulo: "Início", icone: GraduationCap },
-    { para: "/turmas", rotulo: "Turmas", icone: UsersRound },
+    { para: "/notificacoes", rotulo: "Notificações", icone: Bell, contador: "naoLidas" },
+    { para: "/turmas", rotulo: "Turmas", icone: UsersRound, contador: "pedidos" },
     { para: "/resultados", rotulo: "Resultados", icone: BarChart3 },
   ],
 };
@@ -53,6 +56,7 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
       itens: [
         { para: "/aluno", rotulo: "Minha turma", icone: GraduationCap },
         { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
+        { para: "/notificacoes", rotulo: "Notificações", icone: Bell, contador: "naoLidas" },
       ],
     },
     SOBRE,
@@ -65,7 +69,7 @@ function iniciais(nome: string, email: string) {
   return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : "")).toUpperCase();
 }
 
-function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
+function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contadores: Contadores }) {
   const { perfil, sair } = useAuth();
   const { tema, alternar } = useTema();
   if (!perfil) return null;
@@ -86,7 +90,7 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
           <div key={secao.titulo}>
             <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">{secao.titulo}</p>
             <ul className="space-y-1">
-              {secao.itens.map(({ para, rotulo, icone: Icone, emConstrucao }) => (
+              {secao.itens.map(({ para, rotulo, icone: Icone, emConstrucao, contador }) => (
                 <li key={para}>
                   <NavLink
                     to={para}
@@ -101,6 +105,14 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
                   >
                     <Icone className="size-5 shrink-0" />
                     <span className="flex-1">{rotulo}</span>
+                    {contador && contadores[contador] > 0 && (
+                      <span
+                        className="min-w-6 rounded-full bg-coral px-1.5 py-0.5 text-center text-[11px] font-bold text-white"
+                        aria-label={contador === "pedidos" ? `${contadores[contador]} pedidos para entrar` : `${contadores[contador]} não lidas`}
+                      >
+                        {contadores[contador] > 99 ? "99+" : contadores[contador]}
+                      </span>
+                    )}
                     {emConstrucao && <span className="rounded-full bg-creme px-2 py-0.5 text-[10px] font-bold text-suave uppercase" title="Parte em construção: só o admin vê">Em obra</span>}
                   </NavLink>
                 </li>
@@ -139,6 +151,8 @@ function ConteudoMenu({ aoFechar }: { aoFechar?: () => void }) {
 export default function Painel({ children }: { children?: ReactNode }) {
   const [aberto, setAberto] = useState(false);
   const local = useLocation();
+  const { perfil } = useAuth();
+  const contadores = useContadores(perfil?.papel, local.pathname);
 
   useEffect(() => {
     setAberto(false);
@@ -147,21 +161,28 @@ export default function Painel({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-dvh lg:pl-72">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-borda bg-lateral lg:block">
-        <ConteudoMenu />
+        <ConteudoMenu contadores={contadores} />
       </aside>
 
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-borda bg-lateral/95 px-4 py-3 backdrop-blur lg:hidden">
         <Marca />
-        <button onClick={() => setAberto(true)} aria-label="Abrir menu" aria-expanded={aberto} className="grid size-10 place-items-center rounded-xl text-texto hover:bg-fundo">
-          <Menu className="size-6" />
-        </button>
+        <div className="flex items-center gap-1">
+          <NavLink to="/notificacoes" aria-label={`Notificações${contadores.naoLidas ? `: ${contadores.naoLidas} não lidas` : ""}`} className="relative grid size-10 place-items-center rounded-xl text-texto hover:bg-fundo">
+            <Bell className="size-5" />
+            {contadores.naoLidas > 0 && <span className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-coral ring-2 ring-lateral" />}
+          </NavLink>
+          <button onClick={() => setAberto(true)} aria-label="Abrir menu" aria-expanded={aberto} className="relative grid size-10 place-items-center rounded-xl text-texto hover:bg-fundo">
+            <Menu className="size-6" />
+            {contadores.pedidos > 0 && <span className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-coral ring-2 ring-lateral" />}
+          </button>
+        </div>
       </header>
 
       {aberto && (
         <div className="fixed inset-0 z-30 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button className="absolute inset-0 bg-marinho-900/50" aria-label="Fechar menu" onClick={() => setAberto(false)} />
           <aside className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-lateral shadow-xl">
-            <ConteudoMenu aoFechar={() => setAberto(false)} />
+            <ConteudoMenu aoFechar={() => setAberto(false)} contadores={contadores} />
           </aside>
         </div>
       )}

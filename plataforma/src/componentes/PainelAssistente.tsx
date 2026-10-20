@@ -19,6 +19,8 @@ type Props = {
   aberto: boolean;
   aoAlternar: () => void;
   aoUsar: (resultado: ResultadoImportacao, modo: "substituir" | "adicionar") => void;
+  /** Pedido pronto quando a lista nasce de uma aula (vira a primeira sugestão e já vem no campo). */
+  sugestaoInicial?: string;
 };
 
 function resumoDosFormatos(resultado: ResultadoImportacao) {
@@ -38,9 +40,9 @@ async function mensagemDeErro(erro: unknown): Promise<string> {
 }
 
 /** Chat com a IA da plataforma: o professor pede, o assistente devolve a lista pronta para entrar no editor. */
-export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: Props) {
+export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar, sugestaoInicial }: Props) {
   const [conversa, setConversa] = useState<ItemConversa[]>([]);
-  const [entrada, setEntrada] = useState("");
+  const [entrada, setEntrada] = useState(sugestaoInicial ?? "");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [restantes, setRestantes] = useState<number | null>(null);
@@ -50,6 +52,10 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: 
   useEffect(() => {
     setSugestoes(sortearSugestoes(lista.idioma, lista.nivel));
   }, [lista.idioma, lista.nivel]);
+  useEffect(() => {
+    if (sugestaoInicial) setEntrada((atual) => atual || sugestaoInicial);
+  }, [sugestaoInicial]);
+  const ideias = sugestaoInicial ? [sugestaoInicial, ...sugestoes.slice(0, 2)] : sugestoes;
   const listaVazia = !lista.secoes.some((s) => s.questoes.length > 0 || s.estimulo.texto);
 
   // Chaves de propósito: scrollIntoView devolve uma Promise nos navegadores novos, e o React não aceita isso como retorno.
@@ -121,7 +127,7 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar }: 
                   </button>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {sugestoes.map((s) => (
+                  {ideias.map((s) => (
                     <button key={s} onClick={() => enviar(s)} className="rounded-full border border-borda px-3 py-1.5 text-left text-xs font-semibold text-texto hover:border-destaque hover:text-destaque">
                       {s}
                     </button>

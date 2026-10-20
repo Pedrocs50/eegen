@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, ClipboardList, Eye, FileText, Link2, NotebookPen, Pencil, Plus, Trash2, Upload, UsersRound } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, ClipboardList, Eye, FileText, GripVertical, Link2, NotebookPen, Pencil, Plus, Trash2, Upload, UsersRound } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso as TipoCurso } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
@@ -135,7 +135,16 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
         )}
       </fieldset>
 
-      <ExerciciosDaAula selecionadas={exercicios} aoMudar={setExercicios} />
+      <div>
+        <ExerciciosDaAula selecionadas={exercicios} aoMudar={setExercicios} />
+        {inicial ? (
+          <Link to={`/exercicios/nova?aula=${inicial.id}`} className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-destaque hover:underline">
+            <Plus className="size-4" /> Criar um exercício novo para esta aula
+          </Link>
+        ) : (
+          <p className="mt-2 text-xs text-suave">Depois de salvar a aula, dá para criar um exercício novo direto nela.</p>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <Botao type="submit" carregando={salvando}>{inicial ? "Salvar aula" : "Adicionar aula"}</Botao>
@@ -151,6 +160,10 @@ export default function Curso() {
   const [editandoCurso, setEditandoCurso] = useState(false);
   const [aulaEmEdicao, setAulaEmEdicao] = useState<string | "nova" | null>(null);
   const [erroAcao, setErroAcao] = useState("");
+  // Reordenar: enquanto arrasta, a ordem nova fica só na tela; ao soltar, os números são gravados.
+  const [arrastando, setArrastando] = useState<string | null>(null);
+  const [ordemLocal, setOrdemLocal] = useState<string[] | null>(null);
+  const [avisoOrdem, setAvisoOrdem] = useState("");
   const { dados: curso, erro, carregando, recarregar } = useConsulta<CursoComAulas>(
     () => supabase.from("cursos").select("*, aulas(*, aula_listas(lista_id, ordem)), turmas(id, nome)").eq("id", id).order("numero", { referencedTable: "aulas" }).single(),
     [id],
@@ -177,6 +190,36 @@ export default function Curso() {
       if (aula.material_arquivo) await supabase.storage.from("materiais").remove([aula.material_arquivo]);
       recarregar();
     }
+  }
+
+  const porId = new Map(curso.aulas.map((a) => [a.id, a]));
+  const aulasNaTela = ordemLocal ? ordemLocal.map((idAula) => porId.get(idAula)!).filter(Boolean) : curso.aulas;
+
+  function moverPara(idAula: string, destino: number) {
+    const ids = (ordemLocal ?? curso!.aulas.map((a) => a.id)).filter((x) => x !== idAula);
+    ids.splice(Math.max(0, Math.min(destino, ids.length)), 0, idAula);
+    setOrdemLocal(ids);
+    return ids;
+  }
+
+  /** Renumera as aulas na ordem da tela (1, 2, 3...) e grava só as que mudaram. */
+  async function gravarOrdem(ids: string[]) {
+    setArrastando(null);
+    const mudaram = ids.map((idAula, i) => ({ idAula, numero: i + 1 })).filter(({ idAula, numero }) => porId.get(idAula)?.numero !== numero);
+    if (mudaram.length === 0) {
+      setOrdemLocal(null);
+      return;
+    }
+    setErroAcao("");
+    const respostas = await Promise.all(mudaram.map(({ idAula, numero }) => supabase.from("aulas").update({ numero }).eq("id", idAula)));
+    const falha = respostas.find((r) => r.error);
+    if (falha?.error) setErroAcao(traduzirErro(falha.error.message));
+    else {
+      setAvisoOrdem("Nova ordem salva. As turmas veem as aulas nessa ordem.");
+      setTimeout(() => setAvisoOrdem(""), 3000);
+    }
+    await recarregar();
+    setOrdemLocal(null);
   }
 
   const fecharEdicao = () => setAulaEmEdicao(null);
@@ -235,7 +278,10 @@ export default function Curso() {
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-marca">Aulas</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-marca">Aulas</h2>
+          {curso.aulas.length > 1 && <p className="text-sm text-suave">Para mudar a ordem, arraste pela alça <GripVertical className="inline size-4 align-text-bottom" /> ou use as setas.</p>}
+        </div>
         {curso.aulas.length > 0 && aulaEmEdicao !== "nova" && (
           <Botao onClick={() => setAulaEmEdicao("nova")}><Plus className="size-4" /> Nova aula</Botao>
         )}
@@ -257,7 +303,8 @@ export default function Curso() {
         />
       ) : (
         <ol className="space-y-3">
-          {curso.aulas.map((aula) =>
+          {avisoOrdem && <li className="rounded-xl bg-sucesso-suave px-4 py-2 text-sm text-sucesso">{avisoOrdem}</li>}
+          {aulasNaTela.map((aula, posicao) =>
             aulaEmEdicao === aula.id ? (
               <li key={aula.id}>
                 <Cartao>
@@ -265,9 +312,49 @@ export default function Curso() {
                 </Cartao>
               </li>
             ) : (
-              <li key={aula.id} className="flex items-center gap-4 rounded-2xl border border-borda bg-superficie p-4">
+              <li
+                key={aula.id}
+                draggable={!aulaEmEdicao}
+                onDragStart={(e) => {
+                  e.dataTransfer.effectAllowed = "move";
+                  setArrastando(aula.id);
+                }}
+                onDragOver={(e) => {
+                  if (!arrastando || arrastando === aula.id) return;
+                  e.preventDefault();
+                  moverPara(arrastando, posicao);
+                }}
+                onDrop={(e) => e.preventDefault()}
+                onDragEnd={() => arrastando && gravarOrdem(ordemLocal ?? curso.aulas.map((a) => a.id))}
+                className={`flex flex-wrap items-center gap-3 rounded-2xl border bg-superficie p-4 transition sm:flex-nowrap sm:gap-4 ${
+                  arrastando === aula.id ? "border-destaque opacity-60 shadow-lg" : "border-borda"
+                }`}
+              >
+                {curso.aulas.length > 1 && (
+                  <span className="flex shrink-0 flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={() => gravarOrdem(moverPara(aula.id, posicao - 1))}
+                      disabled={posicao === 0}
+                      aria-label={`Subir aula ${aula.titulo}`}
+                      className="grid size-6 place-items-center rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
+                    >
+                      <ArrowUp className="size-3.5" />
+                    </button>
+                    <GripVertical className="hidden size-5 cursor-grab text-suave active:cursor-grabbing sm:block" aria-hidden="true" />
+                    <button
+                      type="button"
+                      onClick={() => gravarOrdem(moverPara(aula.id, posicao + 1))}
+                      disabled={posicao === aulasNaTela.length - 1}
+                      aria-label={`Descer aula ${aula.titulo}`}
+                      className="grid size-6 place-items-center rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
+                    >
+                      <ArrowDown className="size-3.5" />
+                    </button>
+                  </span>
+                )}
                 <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-marinho-800 font-serif text-lg font-bold text-white">
-                  {aula.numero}
+                  {ordemLocal ? posicao + 1 : aula.numero}
                 </span>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-lg font-bold text-marca">{aula.titulo}</h3>
@@ -280,7 +367,14 @@ export default function Curso() {
                     <Etiqueta tom="creme"><ClipboardList className="mr-1 size-3.5" /> {aula.aula_listas.length} {aula.aula_listas.length === 1 ? "exercício" : "exercícios"}</Etiqueta>
                   )}
                 </div>
-                <div className="flex shrink-0">
+                <div className="flex w-full shrink-0 justify-end border-t border-borda pt-2 sm:w-auto sm:border-0 sm:pt-0">
+                  <Link
+                    to={`/exercicios/nova?aula=${aula.id}`}
+                    className="inline-flex h-11 items-center gap-1 rounded-xl px-3 text-sm font-semibold text-destaque hover:bg-destaque-suave"
+                    title="Criar um exercício novo que já entra nesta aula"
+                  >
+                    <Plus className="size-4" /> Exercício
+                  </Link>
                   <Link to={`/aulas/${aula.id}`} className="inline-flex h-11 items-center rounded-xl px-3 text-suave hover:bg-fundo hover:text-texto" aria-label={`Ver aula ${aula.numero} como aluno`} title="Ver como aluno">
                     <Eye className="size-4" />
                   </Link>

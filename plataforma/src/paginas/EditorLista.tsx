@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
-import { AlertTriangle, ArrowDown, ArrowLeft, ArrowUp, ChevronDown, Copy, Eye, Lightbulb, Plus, Save, Trash2 } from "lucide-react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { AlertTriangle, ArrowDown, ArrowLeft, ArrowUp, BookOpen, ChevronDown, Copy, Eye, Lightbulb, MapPin, Plus, Save, Trash2 } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, NIVEIS, type Idioma } from "../lib/dados";
 import {
@@ -60,10 +60,68 @@ function mover<T>(itens: T[], de: number, para: number): T[] {
   return copia;
 }
 
+type AulaDestino = {
+  id: string;
+  numero: number;
+  titulo: string;
+  subtitulo: string;
+  curso_id: string;
+  cursos: { titulo: string; idioma: Idioma; nivel: number };
+};
+type Usos = {
+  aula_listas: { aulas: { id: string; numero: number; titulo: string; curso_id: string; cursos: { titulo: string } | null } | null }[];
+  turma_listas: { turmas: { id: string; nome: string } | null }[];
+};
+
+/** Onde a lista está em uso (aulas e extras de turma). Sem nenhum, nenhum aluno a vê. */
+function OndeAparece({ idLista, atualizar }: { idLista: string; atualizar: number }) {
+  const [usos, setUsos] = useState<Usos | null>(null);
+  useEffect(() => {
+    supabase
+      .from("listas")
+      .select("aula_listas(aulas(id, numero, titulo, curso_id, cursos(titulo))), turma_listas(turmas(id, nome))")
+      .eq("id", idLista)
+      .single()
+      .then(({ data }) => setUsos(data as unknown as Usos | null));
+  }, [idLista, atualizar]);
+  if (!usos) return null;
+  const aulas = usos.aula_listas.map((u) => u.aulas).filter((a): a is NonNullable<typeof a> => !!a);
+  const turmas = usos.turma_listas.map((u) => u.turmas).filter((t): t is NonNullable<typeof t> => !!t);
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-borda bg-superficie px-4 py-3 text-sm">
+      <MapPin className="size-4 shrink-0 text-suave" />
+      {aulas.length === 0 && turmas.length === 0 ? (
+        <span className="text-suave">
+          Esta lista ainda não está em nenhuma aula nem nos extras de uma turma, então nenhum aluno a vê. Coloque-a numa aula (em Cursos e aulas) ou nos extras de uma turma.
+        </span>
+      ) : (
+        <>
+          <span className="text-suave">Aparece em:</span>
+          {aulas.map((a) => (
+            <Link key={a.id} to={`/cursos/${a.curso_id}`} className="rounded-full bg-destaque-suave px-3 py-1 font-semibold text-marca hover:underline">
+              Aula {a.numero} · {a.titulo}{a.cursos ? ` (${a.cursos.titulo})` : ""}
+            </Link>
+          ))}
+          {turmas.map((t) => (
+            <Link key={t.id} to={`/turmas/${t.id}?aba=extras`} className="rounded-full bg-creme px-3 py-1 font-semibold text-marca hover:underline">
+              Extra · {t.nome}
+            </Link>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function EditorLista() {
   const { id } = useParams();
   const nova = !id || id === "nova";
   const navegar = useNavigate();
+  // /exercicios/nova?aula=ID: a lista nasce de uma aula e entra nela no primeiro salvamento.
+  const [parametros] = useSearchParams();
+  const idAulaDestino = nova ? parametros.get("aula") : null;
+  const [aulaDestino, setAulaDestino] = useState<AulaDestino | null>(null);
+  const [usosAtualizados, setUsosAtualizados] = useState(0);
   const [lista, setLista] = useState<Lista | null>(nova ? novaLista() : null);
   const [abertas, setAbertas] = useState<Set<string>>(new Set());
   const [sujo, setSujo] = useState(false);
@@ -91,6 +149,26 @@ export default function EditorLista() {
         else setLista(daBase(data));
       });
   }, [id, nova]);
+
+  useEffect(() => {
+    if (!idAulaDestino) return;
+    supabase
+      .from("aulas")
+      .select("id, numero, titulo, subtitulo, curso_id, cursos(titulo, idioma, nivel)")
+      .eq("id", idAulaDestino)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        const aula = data as unknown as AulaDestino;
+        setAulaDestino(aula);
+        // Idioma, nível e tema vêm do curso e da aula (sem marcar a lista como alterada).
+        setLista((atual) =>
+          atual && !atual.titulo && atual.secoes.every((s) => s.questoes.length === 0)
+            ? { ...atual, idioma: aula.cursos.idioma, nivel: aula.cursos.nivel, tema: atual.tema || aula.titulo }
+            : atual,
+        );
+      });
+  }, [idAulaDestino]);
 
   // Avisa antes de sair da página com alterações não salvas.
   useEffect(() => {
@@ -194,6 +272,13 @@ export default function EditorLista() {
       setPersistida(true);
       // Troca o endereço sem recarregar a tela (recarregar fecharia a questão aberta no meio da edição).
       window.history.replaceState(window.history.state, "", `/exercicios/${lista.id}`);
+      if (aulaDestino) {
+        const { count } = await supabase.from("aula_listas").select("lista_id", { count: "exact", head: true }).eq("aula_id", aulaDestino.id);
+        const { error: erroAula } = await supabase.from("aula_listas").insert({ aula_id: aulaDestino.id, lista_id: lista.id, ordem: count ?? 0 });
+        if (erroAula) setErro(`A lista foi salva, mas não entrou na aula: ${traduzirErro(erroAula.message)}`);
+        else setAviso(`Lista criada e colocada na Aula ${aulaDestino.numero} · ${aulaDestino.titulo}. Os alunos a veem quando ela estiver publicada e a aula liberada.`);
+        setUsosAtualizados((n) => n + 1);
+      }
     }
     return true;
   }
@@ -222,9 +307,22 @@ export default function EditorLista() {
 
   return (
     <div className="pb-24">
-      <Link to="/exercicios" className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-suave hover:text-texto">
-        <ArrowLeft className="size-4" /> Exercícios
+      <Link
+        to={aulaDestino ? `/cursos/${aulaDestino.curso_id}` : "/exercicios"}
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-suave hover:text-texto"
+      >
+        <ArrowLeft className="size-4" /> {aulaDestino ? `Voltar ao curso ${aulaDestino.cursos.titulo}` : "Exercícios"}
       </Link>
+      {aulaDestino && !persistida && (
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-destaque/40 bg-destaque-suave p-4 text-sm">
+          <BookOpen className="mt-0.5 size-5 shrink-0 text-marca" />
+          <p>
+            Esta lista vai entrar na <strong>Aula {aulaDestino.numero} · {aulaDestino.titulo}</strong> ({aulaDestino.cursos.titulo}) assim que for salva.
+            Idioma, nível e tema já vieram da aula.
+          </p>
+        </div>
+      )}
+      {persistida && <OndeAparece idLista={lista.id} atualizar={usosAtualizados} />}
 
       {/* Dados da lista */}
       <section className="rounded-3xl bg-marinho-800 p-6 text-white sm:p-8">
@@ -269,7 +367,13 @@ export default function EditorLista() {
         </label>
       </section>
 
-      <PainelAssistente lista={lista} aberto={painelAssistente} aoAlternar={() => setPainelAssistente(!painelAssistente)} aoUsar={importar} />
+      <PainelAssistente
+        lista={lista}
+        aberto={painelAssistente}
+        aoAlternar={() => setPainelAssistente(!painelAssistente)}
+        aoUsar={importar}
+        sugestaoInicial={aulaDestino ? `Exercícios para a aula "${aulaDestino.titulo}"${aulaDestino.subtitulo ? ` (${aulaDestino.subtitulo})` : ""}: 1 listening e cerca de 12 questões variadas` : undefined}
+      />
       <PainelClaude lista={lista} aberto={painelClaude} aoAlternar={() => setPainelClaude(!painelClaude)} aoImportar={importar} />
 
       {erro && <div className="mt-4"><Aviso>{erro}</Aviso></div>}
