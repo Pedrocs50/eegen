@@ -93,6 +93,25 @@ Rode depois de `listas_de_exemplo.sql`.
   - **aviso dos extras:** um link para cada lista.
 - **Reordenar aulas:** arraste pela alça (no computador) ou use as setas. Os números são regravados na ordem nova.
 
+## Aula ao vivo
+Migração `0013`. Cada turma pode ter:
+- um **link fixo da reunião** (Google Meet; outras plataformas também funcionam, desde que o link comece com `https://`);
+- os **horários semanais**, no horário de Brasília;
+- um **aviso do dia** opcional, com a data até quando fica visível.
+
+**Professora:** aba **Ao vivo** da turma. Tem o passo a passo para criar um link fixo no Google Agenda, o botão "testar o link" e "Copiar link e horários para o grupo".
+
+**Aluno:** cartão "Aula ao vivo" em **Minha turma**:
+- **verde**, "Acontecendo agora", durante a aula;
+- **azul-marinho**, "Começa em X minutos", a partir de 15 minutos antes;
+- **discreto**, com "Próxima aula: amanhã às 19:00", no resto do tempo.
+
+O cálculo usa o horário de Brasília (`plataforma/src/lib/aoVivo.ts`), então funciona mesmo com o aluno em outro fuso.
+
+**Segurança:** o link fica numa tabela própria (`turma_encontros`) e só os alunos **aprovados** leem. Quem está com o pedido pendente vê o nome da turma, mas não o link.
+
+**Depois, com e-mail próprio:** lembrete por e-mail antes da aula e, se fizer sentido, gerar o Meet automaticamente pela API do Google Agenda.
+
 ## Notificações
 Migração `0012`. São criadas por gatilhos no banco, então não dependem de ninguém estar com o site aberto. Ficam no sininho do menu, com o número de não lidas, e na página `/notificacoes`. O menu também mostra quantos pedidos de entrada estão pendentes em **Turmas**.
 

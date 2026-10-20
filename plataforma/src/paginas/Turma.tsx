@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import {
-  ArrowLeft, BarChart3, BookOpen, Check, ClipboardList, Copy, Eye, FileText, Link2, Lock, Sparkles, Trash2, Unlock, UserCheck, UserMinus, Users, UserX,
+  ArrowLeft, BarChart3, BookOpen, Check, ClipboardList, Copy, Eye, FileText, Link2, Lock, Sparkles, Trash2, Unlock, UserCheck, UserMinus, Users, UserX, Video,
 } from "lucide-react";
 import { supabase, traduzirErro, type Perfil } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso, type Turma as TipoTurma } from "../lib/dados";
@@ -11,6 +11,7 @@ import CopiarTexto from "../componentes/CopiarTexto";
 import { quandoFoi } from "../lib/resultados";
 import { CabecalhoPagina } from "../componentes/Painel";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
+import EditorAoVivo from "../componentes/EditorAoVivo";
 import { Aviso, Botao, Etiqueta, TextoCarregando } from "../componentes/ui";
 
 type Pessoa = Pick<Perfil, "id" | "nome" | "email">;
@@ -21,7 +22,7 @@ type TurmaCompleta = TipoTurma & {
   aulas_liberadas: { aula_id: string; liberada_em: string }[];
   turma_listas: { lista_id: string; ordem: number; listas: { titulo: string } | null }[];
 };
-type Aba = "aulas" | "extras" | "alunos";
+type Aba = "aulas" | "aovivo" | "extras" | "alunos";
 
 function BotaoAba({ ativa, onClick, icone: Icone, children, contador, alerta }: {
   ativa: boolean; onClick: () => void; icone: typeof BookOpen; children: ReactNode; contador?: number; alerta?: number;
@@ -172,6 +173,7 @@ export default function Turma() {
 
       <div className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-borda" role="tablist">
         <BotaoAba ativa={aba === "aulas"} onClick={() => mudarAba("aulas")} icone={BookOpen} contador={aulas.length}>Aulas</BotaoAba>
+        <BotaoAba ativa={aba === "aovivo"} onClick={() => mudarAba("aovivo")} icone={Video}>Ao vivo</BotaoAba>
         <BotaoAba ativa={aba === "extras"} onClick={() => mudarAba("extras")} icone={Sparkles} contador={extras.length}>Extras</BotaoAba>
         <BotaoAba ativa={aba === "alunos"} onClick={() => mudarAba("alunos")} icone={Users} contador={aprovados.length} alerta={pendentes.length}>Alunos</BotaoAba>
       </div>
@@ -231,6 +233,8 @@ export default function Turma() {
           )}
         </section>
       )}
+
+      {aba === "aovivo" && <EditorAoVivo idTurma={turma.id} nomeTurma={turma.nome} />}
 
       {aba === "extras" && (
         <section className="max-w-3xl rounded-2xl border border-borda bg-superficie p-5 sm:p-6">

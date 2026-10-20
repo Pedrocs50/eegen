@@ -311,5 +311,20 @@ conferir(
   "ninguém marca as notificações dos outros",
 );
 
+// ----------------------------------------------------------------------------- aula ao vivo
+console.log("Aula ao vivo");
+const PENDENTE = "00000000-0000-0000-0000-0000000000b3";
+await como(PROFESSOR, `insert into public.turma_encontros (turma_id, link, horarios) values ($1, 'https://meet.google.com/abc-defg-hij', '[{"dia":2,"inicio":"19:00","fim":"20:00"}]')`, [idTurmaBase]);
+conferir((await numero(ALUNO, "select count(*) from public.turma_encontros where link like 'https://meet%'")) === 1, "aluno aprovado vê o link da aula");
+conferir((await numero(PENDENTE, "select count(*) from public.turma_encontros")) === 0, "quem está com o pedido pendente não vê o link");
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.turma_encontros where turma_id = $1", [idTurmaBase])) === 0, "aluno de outra turma não vê o link");
+conferir(
+  await barrado(ALUNO, "update public.turma_encontros set link = 'https://golpe.example'", async () => (await numero(PROFESSOR, "select count(*) from public.turma_encontros where link like 'https://meet%'")) === 1),
+  "aluno não muda o link",
+);
+conferir(await falhaComo(PROFESSOR, "update public.turma_encontros set link = 'javascript:alert(1)' where turma_id = $1", [idTurmaBase]), "só aceita link https");
+await como(PROFESSOR, "update public.turma_encontros set aviso = 'Hoje às 20h', aviso_ate = current_date where turma_id = $1", [idTurmaBase]);
+conferir((await numero(ALUNO, "select count(*) from public.turma_encontros where aviso = 'Hoje às 20h'")) === 1, "aluno vê o aviso do dia");
+
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

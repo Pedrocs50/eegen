@@ -74,7 +74,7 @@ React + Vite + TypeScript + Tailwind, com Supabase (banco, login, arquivos).
 
 ### Rodar no computador
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0012_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0013_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 
@@ -126,6 +126,7 @@ Para apagar os exemplos: `delete from public.listas where origem = 'exemplo';`. 
 | Login, cadastro, papéis, tela de usuários (com bloqueio) e página de Configurações | Pronto |
 | Identidade visual, menu lateral, tema escuro, página da professora | Pronto |
 | Turmas, cursos e aulas | Pronto: entrada por convite com aprovação, aulas liberadas por turma, exercícios das aulas e extras; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
+| Aula ao vivo (link fixo do Meet e horários por turma) | Pronto: migração `0013`; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
 | Notificações (sininho, com escolha do que receber) | Pronto: migração `0012`; veja [docs/cursos-e-turmas.md](docs/cursos-e-turmas.md) |
 | Resultados (painel com gráficos, por lista e por aluno) | Pronto: `/resultados`, funções da migração `0010` |
 | Exercícios | **Foco atual**: editor + aluno respondendo prontos; próximas fases em [docs/exercicios.md](docs/exercicios.md) |

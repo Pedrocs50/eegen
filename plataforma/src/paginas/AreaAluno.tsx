@@ -6,6 +6,7 @@ import { nomeNivel, useConsulta, type Aula, type Curso } from "../lib/dados";
 import { buscarConteudoDaTurma, ehNova, type AulaDaTurma, type ConteudoDaTurma, type ListaDaTurma, type TurmaDoAluno } from "../lib/turmas";
 import { CabecalhoPagina } from "../componentes/Painel";
 import LeitorPdf from "../componentes/LeitorPdf";
+import AulaAoVivo from "../componentes/AulaAoVivo";
 import { BarraProgresso, CartaoLista, EntrarNaTurma, PedidosPendentes, SeletorTurma, descricaoDaTurma, useTurmasDoAluno } from "../componentes/TurmaAluno";
 import { Aviso, Etiqueta, EstadoVazio, Pontilhado, TextoCarregando } from "../componentes/ui";
 
@@ -96,6 +97,8 @@ function PainelDaTurma({ turma }: { turma: TurmaDoAluno }) {
           </div>
         </div>
       </section>
+
+      <AulaAoVivo idTurma={turma.id} />
 
       {proximo && (
         <Link
