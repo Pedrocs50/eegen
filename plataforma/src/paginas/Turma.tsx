@@ -161,7 +161,7 @@ export default function Turma() {
             <Link to={`/resultados?turma=${turma.id}`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-borda bg-superficie px-4 text-sm font-semibold hover:bg-fundo">
               <BarChart3 className="size-4" /> Resultados
             </Link>
-            <Link to={`/aluno?turma=${turma.id}`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-borda bg-superficie px-4 text-sm font-semibold hover:bg-fundo">
+            <Link to={`/aluno/turmas/${turma.id}`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-borda bg-superficie px-4 text-sm font-semibold hover:bg-fundo">
               <Eye className="size-4" /> Ver como aluno
             </Link>
             <Botao variante="fantasma" onClick={apagarTurma} aria-label="Apagar turma" title="Apagar turma"><Trash2 className="size-4" /></Botao>
@@ -171,7 +171,7 @@ export default function Turma() {
 
       {erroAcao && <div className="mb-4"><Aviso>{erroAcao}</Aviso></div>}
 
-      <div className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-borda" role="tablist">
+      <div className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-borda [scrollbar-width:none]" role="tablist">
         <BotaoAba ativa={aba === "aulas"} onClick={() => mudarAba("aulas")} icone={BookOpen} contador={aulas.length}>Aulas</BotaoAba>
         <BotaoAba ativa={aba === "aovivo"} onClick={() => mudarAba("aovivo")} icone={Video}>Ao vivo</BotaoAba>
         <BotaoAba ativa={aba === "extras"} onClick={() => mudarAba("extras")} icone={Sparkles} contador={extras.length}>Extras</BotaoAba>

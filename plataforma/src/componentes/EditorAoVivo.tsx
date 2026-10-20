@@ -58,7 +58,7 @@ function Formulario({ idTurma, nomeTurma, inicial, aoSalvar }: { idTurma: string
     "",
     ...resumoHorarios(horarios).map((r) => `🗓️ ${r} (horário de Brasília)`),
     "",
-    "O link também fica sempre na plataforma, em Minha turma → Entrar na aula.",
+    "O link também fica sempre na plataforma, na página da turma (botão Entrar na aula).",
   ].join("\n");
 
   return (

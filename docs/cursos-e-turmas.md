@@ -31,7 +31,7 @@ Um curso pode servir a várias turmas, e cada turma libera as aulas no próprio 
 1. A professora copia a mensagem de convite na aba **Alunos** da turma. Ela traz o link `/convite/CÓDIGO`.
 2. O aluno abre o link, e o cadastro já vem com o código preenchido. Sem um código válido, o cadastro não é enviado.
 3. O pedido fica **pendente**. A professora vê o aviso no início e na turma, e então aprova ou recusa. "Aprovar todos" também existe.
-4. Aprovado, o aluno passa a ver a turma em **Minha turma** e em **Exercícios**.
+4. Aprovado, o aluno passa a ver a turma em **Minhas turmas**.
 
 Quem já tem conta abre o mesmo link (ou digita o código em Minha turma) e o pedido é criado do mesmo jeito. "Encerrar entradas" faz o código parar de aceitar pedidos.
 
@@ -41,12 +41,12 @@ Quem já tem conta abre o mesmo link (ou digita o código em Minha turma) e o pe
 | `/turmas` | professor, admin | Turmas com alunos, aulas liberadas e selo de pedidos |
 | `/turmas/:id` | professor, admin | Abas Aulas (liberar), Extras (listas avulsas, salva sozinho) e Alunos (pedidos, alunos e convite). Atalhos para Resultados e "Ver como aluno" |
 | `/cursos`, `/cursos/:id` | professor, admin | Biblioteca: cursos e aulas, com PDF ou link e os exercícios de cada aula. Mostra as turmas que seguem o curso |
-| `/aluno` | aluno (e a equipe, como visão do aluno) | Minha turma: progresso, próximo exercício, aulas da mais recente para a primeira (selo "Nova" por 7 dias), extras e entrada em outra turma |
-| `/praticar` | aluno (e equipe) | Exercícios separados em abas **Das aulas** (agrupados por aula) e **Extras**, com filtro feitos/não feitos e busca |
+| `/aluno` | aluno (e a equipe, como visão do aluno) | **Minhas turmas**: um bloco por turma, com curso, progresso, a próxima aula ao vivo e os selos "Aula nova" e "extras novos". Pedidos pendentes aparecem como blocos à parte. Embaixo, entrar em outra turma |
+| `/aluno/turmas/:id` | aluno (e equipe) | Página da turma: topo com o progresso e "Entrar na aula", e as abas **Início** (aula ao vivo, próximo exercício, atalhos, aula mais recente), **Aulas**, **Exercícios** ("Das aulas", agrupados por aula, e "Extras", com filtro e busca) e **Ao vivo** |
 | `/aulas/:id` | aluno, equipe | Capa, PDF dentro do site e "Hora de praticar!" |
 | `/convite/:codigo` | todos | Cadastro com o código (sem login) ou pedido de entrada (logado) |
 
-Se o aluno está em mais de uma turma (por exemplo, inglês e espanhol), escolhe a turma no topo. A última escolhida fica lembrada.
+Cada turma fica separada: o aluno escolhe o bloco e tudo o que vê dentro é daquela turma. Os links de aula e de exercício levam `?turma=`, então o "voltar" leva de volta à turma certa. Os endereços antigos `/praticar` e `/aluno?turma=` redirecionam para a página nova.
 
 ## Banco
 Migrações `0002` (cursos, aulas, turmas, matrículas, aulas liberadas), `0009` (PDF e exercícios da aula) e `0011` (aprovação, extras e a nova regra de visibilidade).
@@ -101,7 +101,7 @@ Migração `0013`. Cada turma pode ter:
 
 **Professora:** aba **Ao vivo** da turma. Tem o passo a passo para criar um link fixo no Google Agenda, o botão "testar o link" e "Copiar link e horários para o grupo".
 
-**Aluno:** cartão "Aula ao vivo" em **Minha turma**:
+**Aluno:** cartão "Aula ao vivo" no Início e na aba Ao vivo da turma, e o botão compacto no topo da turma:
 - **verde**, "Acontecendo agora", durante a aula;
 - **azul-marinho**, "Começa em X minutos", a partir de 15 minutos antes;
 - **discreto**, com "Próxima aula: amanhã às 19:00", no resto do tempo.

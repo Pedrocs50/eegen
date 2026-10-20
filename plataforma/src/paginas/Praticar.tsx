@@ -1,179 +1,18 @@
 import { useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
-import { ArrowLeft, BookOpen, ClipboardList, Lightbulb, RotateCcw, Search, Sparkles } from "lucide-react";
+import { Link, Navigate, useParams, useSearchParams } from "react-router";
+import { ArrowLeft, Lightbulb, RotateCcw } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta } from "../lib/dados";
 import { respondida, type Lista, type Questao, type Resposta, type Secao } from "../lib/exercicios";
-import { CabecalhoPagina } from "../componentes/Painel";
-import { BarraProgresso, CartaoLista, PedidosPendentes, Pilula, SeletorTurma, useTurmasDoAluno } from "../componentes/TurmaAluno";
-import { buscarConteudoDaTurma, ehNova, type ConteudoDaTurma, type ListaDaTurma, type TurmaDoAluno } from "../lib/turmas";
 import QuestaoAluno, { type Correcao } from "../componentes/QuestaoAluno";
 import PlayerListening from "../componentes/PlayerListening";
-import { Aviso, Botao, Etiqueta, EstadoVazio, Pontilhado, TextoCarregando } from "../componentes/ui";
+import { Aviso, Botao, Pontilhado, TextoCarregando } from "../componentes/ui";
 
-type Situacao = "todas" | "pendentes" | "feitas";
-type Aba = "aulas" | "extras";
-
-/** Exercícios da turma, separados entre os das aulas (agrupados por aula) e os extras, com filtro de situação e busca. */
+/** /praticar antigo: leva para a turma (aba de exercícios) ou para Minhas turmas. */
 export function ListasDoAluno() {
-  const { perfil } = useAuth();
-  const { turmas, atual, escolher, erro, carregando } = useTurmasDoAluno();
-  const equipe = perfil?.papel !== "aluno";
-
-  return (
-    <>
-      <CabecalhoPagina
-        etiqueta={equipe ? "Visão do aluno" : "Meus estudos"}
-        titulo="Exercícios"
-        descricao="Responda e veja a correção na hora. Pode refazer quantas vezes quiser: vale a sua melhor nota."
-      />
-      {erro && <Aviso>{erro}</Aviso>}
-      {carregando && <TextoCarregando />}
-      {!carregando && (
-        <>
-          <PedidosPendentes turmas={turmas} />
-          {atual ? (
-            <>
-              <SeletorTurma turmas={turmas} atual={atual} aoEscolher={escolher} />
-              <ExerciciosDaTurma turma={atual} />
-            </>
-          ) : (
-            <EstadoVazio
-              icone={ClipboardList}
-              titulo={equipe ? "Nenhuma turma ainda" : turmas.length ? "Aguardando aprovação" : "Você ainda não está numa turma"}
-              texto={
-                equipe
-                  ? "Crie uma turma para ver os exercícios como os alunos dela veem."
-                  : turmas.length
-                    ? "Assim que a professora aprovar a sua entrada, os exercícios da turma aparecem aqui."
-                    : "Os exercícios são liberados por turma. Entre com o código que a sua professora enviou."
-              }
-              acao={!equipe && turmas.length === 0 ? <Link to="/aluno" className="font-semibold text-destaque underline">Entrar numa turma</Link> : undefined}
-            />
-          )}
-        </>
-      )}
-    </>
-  );
-}
-
-function ExerciciosDaTurma({ turma }: { turma: TurmaDoAluno }) {
-  const { perfil } = useAuth();
-  const [parametros, setParametros] = useSearchParams();
-  const aba: Aba = parametros.get("aba") === "extras" ? "extras" : "aulas";
-  const [situacao, setSituacao] = useState<Situacao>("todas");
-  const [busca, setBusca] = useState("");
-  const { dados, erro, carregando } = useConsulta<ConteudoDaTurma>(() => buscarConteudoDaTurma(turma.id, perfil?.id ?? ""), [turma.id, perfil?.id]);
-
-  if (carregando && !dados) return <TextoCarregando />;
-  if (erro || !dados) return <Aviso>{erro || "Não foi possível abrir os exercícios."}</Aviso>;
-
-  const mudarAba = (nova: Aba) => {
-    const novos = new URLSearchParams(parametros);
-    novos.set("aba", nova);
-    setParametros(novos, { replace: true });
-  };
-  const termo = busca.trim().toLowerCase();
-  const passa = (l: ListaDaTurma) =>
-    (situacao === "todas" || (situacao === "feitas" ? dados.notas[l.id] !== undefined : dados.notas[l.id] === undefined)) &&
-    (!termo || `${l.titulo} ${l.descricao}`.toLowerCase().includes(termo));
-
-  const listasDasAulas = dados.aulas.flatMap((a) => a.listas);
-  const doTotal = aba === "aulas" ? listasDasAulas : dados.extras;
-  const feitas = doTotal.filter((l) => dados.notas[l.id] !== undefined).length;
-  const aulas = [...dados.aulas].reverse().map((a) => ({ ...a, visiveis: a.listas.filter(passa) })).filter((a) => a.visiveis.length > 0);
-  const extras = dados.extras.filter(passa);
-  const nadaComFiltro = aba === "aulas" ? aulas.length === 0 : extras.length === 0;
-
-  return (
-    <>
-      <div className="mb-6 flex gap-1 border-b border-borda" role="tablist">
-        {([
-          ["aulas", "Das aulas", BookOpen, listasDasAulas.length],
-          ["extras", "Extras", Sparkles, dados.extras.length],
-        ] as const).map(([valor, rotulo, Icone, quantidade]) => (
-          <button
-            key={valor}
-            role="tab"
-            aria-selected={aba === valor}
-            onClick={() => mudarAba(valor)}
-            className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-              aba === valor ? "border-marca text-marca" : "border-transparent text-suave hover:text-texto"
-            }`}
-          >
-            <Icone className="size-4" /> {rotulo}
-            <span className="rounded-full bg-creme px-2 py-0.5 text-xs text-suave">{quantidade}</span>
-          </button>
-        ))}
-      </div>
-
-      {doTotal.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-borda bg-superficie p-5">
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="font-semibold">{aba === "aulas" ? "Exercícios das aulas" : "Exercícios extras"}</span>
-            <span className="text-suave">{feitas} de {doTotal.length} feitos</span>
-          </div>
-          <BarraProgresso feitas={feitas} total={doTotal.length} rotulo="Progresso" />
-        </div>
-      )}
-
-      {doTotal.length > 0 && (
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex flex-wrap gap-2">
-            <Pilula ativa={situacao === "todas"} onClick={() => setSituacao("todas")}>Todos</Pilula>
-            <Pilula ativa={situacao === "pendentes"} onClick={() => setSituacao("pendentes")}>Não feitos</Pilula>
-            <Pilula ativa={situacao === "feitas"} onClick={() => setSituacao("feitas")}>Feitos</Pilula>
-          </div>
-          <label className="relative flex-1">
-            <span className="sr-only">Buscar exercício</span>
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-suave" />
-            <input
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar por nome"
-              className="h-10 w-full rounded-xl border border-borda bg-superficie pr-3 pl-9 text-sm focus:border-destaque focus:outline-none"
-            />
-          </label>
-        </div>
-      )}
-
-      {doTotal.length === 0 ? (
-        <EstadoVazio
-          icone={aba === "aulas" ? BookOpen : Sparkles}
-          titulo={aba === "aulas" ? "Nenhum exercício de aula ainda" : "Nenhum exercício extra ainda"}
-          texto={aba === "aulas" ? "Os exercícios aparecem aqui quando a professora libera as aulas." : "Quando a professora liberar exercícios extras para a turma, eles aparecem aqui."}
-        />
-      ) : nadaComFiltro ? (
-        <p className="text-sm text-suave">Nenhum exercício com esses filtros.</p>
-      ) : aba === "aulas" ? (
-        <div className="space-y-8">
-          {aulas.map((aula) => (
-            <section key={aula.id} aria-labelledby={`aula-${aula.id}`}>
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h2 id={`aula-${aula.id}`} className="flex items-center gap-3 text-lg font-bold text-marca">
-                  <span className="grid size-9 place-items-center rounded-lg bg-marinho-800 font-serif text-white">{aula.numero}</span>
-                  {aula.titulo}
-                  {ehNova(aula.liberadaEm) && <Etiqueta tom="coral">Nova</Etiqueta>}
-                </h2>
-                <span className="flex items-center gap-3 text-sm">
-                  <span className="text-suave">{aula.listas.filter((l) => dados.notas[l.id] !== undefined).length} de {aula.listas.length} feitos</span>
-                  <Link to={`/aulas/${aula.id}`} className="font-semibold text-destaque hover:underline">Abrir aula →</Link>
-                </span>
-              </div>
-              <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {aula.visiveis.map((l) => <CartaoLista key={l.id} lista={l} nota={dados.notas[l.id]} />)}
-              </ul>
-            </section>
-          ))}
-        </div>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {extras.map((l) => <CartaoLista key={l.id} lista={l} nota={dados.notas[l.id]} contexto={ehNova(l.liberadaEm) ? <Etiqueta tom="coral">Novo</Etiqueta> : undefined} />)}
-        </ul>
-      )}
-    </>
-  );
+  const idTurma = useSearchParams()[0].get("turma");
+  return <Navigate to={idTurma ? `/aluno/turmas/${idTurma}?aba=exercicios` : "/aluno"} replace />;
 }
 
 type QuestaoAluno_ = Omit<Questao, "gabarito" | "explicacao"> & { ordem: number };
@@ -183,6 +22,8 @@ type Resultado = { nota: number; acertos: number; total: number; questoes: Recor
 /** Tela de responder uma lista, com a correção depois do envio. */
 export function ResponderLista() {
   const { id = "" } = useParams();
+  // Veio de uma turma? A volta leva para os exercícios dela.
+  const idTurma = useSearchParams()[0].get("turma");
   const { perfil } = useAuth();
   const [respostas, setRespostas] = useState<Record<string, Resposta>>({});
   const [resultado, setResultado] = useState<Resultado | null>(null);
@@ -211,7 +52,7 @@ export function ResponderLista() {
   if (erro || !lista) return <Aviso>{erro ? "Essa lista não está disponível." : "Lista não encontrada."}</Aviso>;
 
   const pendentes = todas.filter((q) => !respondida(q, respostas[q.id])).length;
-  const voltarPara = perfil?.papel === "aluno" ? "/praticar" : `/exercicios/${lista.id}`;
+  const voltarPara = idTurma ? `/aluno/turmas/${idTurma}?aba=exercicios` : perfil?.papel === "aluno" ? "/aluno" : `/exercicios/${lista.id}`;
 
   async function enviar() {
     if (pendentes > 0 && !confirm(`Você deixou ${pendentes} ${pendentes === 1 ? "questão" : "questões"} sem resposta. Enviar mesmo assim?`)) return;

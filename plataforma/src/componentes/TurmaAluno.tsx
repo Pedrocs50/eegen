@@ -31,11 +31,11 @@ export function BarraProgresso({ feitas, total, rotulo }: { feitas: number; tota
 }
 
 /** Card de uma lista de exercícios, com a situação (feita e a melhor nota, ou não feita). */
-export function CartaoLista({ lista, nota, contexto }: { lista: ListaDaTurma; nota: number | undefined; contexto?: ReactNode }) {
+export function CartaoLista({ lista, nota, contexto, idTurma }: { lista: ListaDaTurma; nota: number | undefined; contexto?: ReactNode; idTurma?: string }) {
   const temAudio = lista.secoes.some((s) => s.tipo_estimulo === "audio");
   return (
     <li>
-      <Link to={`/praticar/${lista.id}`} className="flex h-full flex-col rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
+      <Link to={`/praticar/${lista.id}${idTurma ? `?turma=${idTurma}` : ""}`} className="flex h-full flex-col rounded-2xl border border-borda bg-superficie p-5 transition hover:border-destaque hover:shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
           {temAudio && <Etiqueta><Headphones className="mr-1 size-3.5" /> Listening</Etiqueta>}
           {nota !== undefined ? (

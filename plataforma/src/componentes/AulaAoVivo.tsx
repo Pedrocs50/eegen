@@ -1,29 +1,60 @@
 import { useEffect, useState } from "react";
 import { CalendarClock, Megaphone, Radio, Video } from "lucide-react";
-import { useConsulta } from "../lib/dados";
-import { avisoValido, buscarEncontros, duracaoTexto, quandoE, resumoHorarios, situacaoDaAula, type Encontros } from "../lib/aoVivo";
+import { avisoValido, duracaoTexto, quandoE, resumoHorarios, situacaoDaAula, type Encontros } from "../lib/aoVivo";
 
-/**
- * Cartão "Aula ao vivo" da Minha turma: o link fixo da reunião, sempre à mão.
- * Destaque forte durante a aula e nos 15 minutos antes; no resto do tempo, mostra quando é a próxima.
- */
-export default function AulaAoVivo({ idTurma }: { idTurma: string }) {
-  const { dados } = useConsulta<Encontros | null>(() => buscarEncontros(idTurma), [idTurma]);
-  // Recalcula a situação a cada 30 s (a aula pode começar com a página aberta).
+/** Hora atual que se atualiza a cada 30 s (a aula pode começar com a página aberta). */
+export function useRelogio() {
   const [agora, setAgora] = useState(() => new Date());
   useEffect(() => {
     const relogio = setInterval(() => setAgora(new Date()), 30_000);
     return () => clearInterval(relogio);
   }, []);
+  return agora;
+}
 
-  if (!dados || !dados.link) return null;
-  const situacao = situacaoDaAula(dados.horarios, agora);
-  const aviso = avisoValido(dados, agora) ? dados.aviso : "";
+/** Texto curto da situação, para cards e abas: "Ao vivo agora", "Começa em 12 min", "Próxima: amanhã às 19:00". */
+export function resumoAoVivo(encontros: Encontros | null, agora: Date) {
+  if (!encontros?.link) return null;
+  const s = situacaoDaAula(encontros.horarios, agora);
+  if (s.tipo === "agora") return { texto: "Ao vivo agora", destaque: true };
+  if (s.tipo === "em_breve") return { texto: `Começa em ${s.comecaEm} min`, destaque: true };
+  if (s.tipo === "proxima") return { texto: `Próxima aula: ${quandoE(s, agora)}`, destaque: false };
+  return { texto: "Link da aula disponível", destaque: false };
+}
+
+/**
+ * Cartão "Aula ao vivo": o link fixo da reunião, sempre à mão.
+ * Destaque forte durante a aula e nos 15 minutos antes; no resto do tempo, mostra quando é a próxima.
+ * compacto: só o botão com a situação (para o topo da página da turma).
+ */
+export default function AulaAoVivo({ encontros, compacto = false }: { encontros: Encontros | null; compacto?: boolean }) {
+  const agora = useRelogio();
+  if (!encontros || !encontros.link) return null;
+  const situacao = situacaoDaAula(encontros.horarios, agora);
+  const aviso = avisoValido(encontros, agora) ? encontros.aviso : "";
   const destaque = situacao.tipo === "agora" || situacao.tipo === "em_breve";
+
+  if (compacto) {
+    const resumo = resumoAoVivo(encontros, agora)!;
+    return (
+      <a
+        href={encontros.link}
+        target="_blank"
+        rel="noreferrer"
+        className={`inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${
+          situacao.tipo === "agora" ? "bg-sucesso text-white hover:opacity-90" : destaque ? "bg-white text-marinho-800 hover:bg-white/90" : "border border-white/30 text-white hover:bg-white/10"
+        }`}
+      >
+        {situacao.tipo === "agora" ? <Radio className="size-4 animate-pulse" /> : <Video className="size-4" />}
+        Entrar na aula
+        {situacao.tipo !== "proxima" && situacao.tipo !== "sem_horario" && <span className="font-normal opacity-80">· {resumo.texto.toLowerCase()}</span>}
+      </a>
+    );
+  }
 
   const botao = (
     <a
-      href={dados.link}
+      href={encontros.link}
       target="_blank"
       rel="noreferrer"
       className={`inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition sm:w-auto ${
@@ -60,8 +91,8 @@ export default function AulaAoVivo({ idTurma }: { idTurma: string }) {
           <p className={`text-sm ${destaque ? "text-white/80" : "text-suave"}`}>
             {situacao.tipo === "agora"
               ? `Termina em ${duracaoTexto(situacao.terminaEm)}. Clique para entrar.`
-              : dados.horarios.length
-                ? `${resumoHorarios(dados.horarios).join(" · ")} (horário de Brasília)`
+              : encontros.horarios.length
+                ? `${resumoHorarios(encontros.horarios).join(" · ")} (horário de Brasília)`
                 : "A professora ainda não colocou os horários."}
           </p>
         </div>

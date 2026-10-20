@@ -46,7 +46,7 @@ function PedirEntrada({ codigo }: { codigo: string }) {
 
   if (!estado) return <Carregando />;
   return (
-    <CartaoAuth titulo={estado.erro ? "Não deu para entrar" : estado.aprovada ? "Você já está na turma" : "Pedido enviado"} rodape={<LinkTexto para="/aluno">Ir para minha turma</LinkTexto>}>
+    <CartaoAuth titulo={estado.erro ? "Não deu para entrar" : estado.aprovada ? "Você já está na turma" : "Pedido enviado"} rodape={<LinkTexto para="/aluno">Ir para minhas turmas</LinkTexto>}>
       {estado.erro ? (
         <Aviso>{estado.erro}</Aviso>
       ) : estado.aprovada ? (
@@ -54,7 +54,7 @@ function PedirEntrada({ codigo }: { codigo: string }) {
       ) : (
         <p className="flex items-start gap-2 text-texto">
           <Hourglass className="mt-0.5 size-5 shrink-0 text-destaque" />
-          <span>Seu pedido para entrar na turma <strong>{estado.turma}</strong> foi enviado. Assim que a professora aprovar, as aulas e os exercícios aparecem em <Link to="/aluno" className="font-semibold underline">Minha turma</Link>.</span>
+          <span>Seu pedido para entrar na turma <strong>{estado.turma}</strong> foi enviado. Assim que a professora aprovar, as aulas e os exercícios aparecem em <Link to="/aluno" className="font-semibold underline">Minhas turmas</Link>.</span>
         </p>
       )}
     </CartaoAuth>

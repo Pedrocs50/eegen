@@ -14,7 +14,8 @@ import Sobre from "./paginas/Sobre";
 const Admin = lazy(() => import("./paginas/Admin"));
 const Configuracoes = lazy(() => import("./paginas/Configuracoes"));
 const InicioProfessor = lazy(() => import("./paginas/Inicios").then((m) => ({ default: m.InicioProfessor })));
-const InicioAluno = lazy(() => import("./paginas/AreaAluno").then((m) => ({ default: m.InicioAluno })));
+const MinhasTurmas = lazy(() => import("./paginas/MinhasTurmas").then((m) => ({ default: m.MinhasTurmas })));
+const TurmaDoAluno = lazy(() => import("./paginas/MinhasTurmas").then((m) => ({ default: m.TurmaDoAluno })));
 const AulaAluno = lazy(() => import("./paginas/AreaAluno").then((m) => ({ default: m.AulaAluno })));
 const Cursos = lazy(() => import("./paginas/Cursos"));
 const Curso = lazy(() => import("./paginas/Curso"));
@@ -129,7 +130,8 @@ export default function App() {
             <Route path="/turmas/:id" element={<Turma />} />
           </Route>
           <Route element={<Protegida papeis={["aluno", "professor"]} />}>
-            <Route path="/aluno" element={<InicioAluno />} />
+            <Route path="/aluno" element={<MinhasTurmas />} />
+            <Route path="/aluno/turmas/:id" element={<TurmaDoAluno />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
             <Route path="/aulas/:id" element={<AulaAluno />} />
             <Route path="/praticar" element={<ListasDoAluno />} />

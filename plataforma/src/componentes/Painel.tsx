@@ -54,8 +54,7 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
     {
       titulo: "Estudos",
       itens: [
-        { para: "/aluno", rotulo: "Minha turma", icone: GraduationCap },
-        { para: "/praticar", rotulo: "Exercícios", icone: PenLine },
+        { para: "/aluno", rotulo: "Minhas turmas", icone: GraduationCap },
         { para: "/notificacoes", rotulo: "Notificações", icone: Bell, contador: "naoLidas" },
       ],
     },
@@ -94,7 +93,7 @@ function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contado
                 <li key={para}>
                   <NavLink
                     to={para}
-                    end={para === "/professor" || para === "/aluno" || para === "/admin"}
+                    end={para === "/professor" || para === "/admin"}
                     className={({ isActive }) =>
                       `flex items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 text-sm transition ${
                         isActive
