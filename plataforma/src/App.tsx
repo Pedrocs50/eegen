@@ -23,6 +23,7 @@ const Turmas = lazy(() => import("./paginas/Turmas"));
 const Turma = lazy(() => import("./paginas/Turma"));
 const Listas = lazy(() => import("./paginas/Listas"));
 const Convite = lazy(() => import("./paginas/Convite"));
+const Biblioteca = lazy(() => import("./paginas/Biblioteca"));
 const Notificacoes = lazy(() => import("./paginas/Notificacoes"));
 const Resultados = lazy(() => import("./paginas/Resultados"));
 const ResultadoLista = lazy(() => import("./paginas/Resultados").then((m) => ({ default: m.ResultadoLista })));
@@ -124,6 +125,7 @@ export default function App() {
             <Route path="/resultados" element={<Resultados />} />
             <Route path="/resultados/listas/:id" element={<ResultadoLista />} />
             <Route path="/resultados/alunos/:id" element={<ResultadoAluno />} />
+            <Route path="/biblioteca" element={<Biblioteca />} />
             <Route path="/cursos" element={<Cursos />} />
             <Route path="/cursos/:id" element={<Curso />} />
             <Route path="/turmas" element={<Turmas />} />

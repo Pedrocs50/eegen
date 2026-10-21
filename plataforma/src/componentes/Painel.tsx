@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { BarChart3, Bell, BookMarked, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
+import { BarChart3, Bell, BookMarked, FileStack, ClipboardList, GraduationCap, LogOut, Menu, Moon, PenLine, Settings, Sun, UserRound, Users, UsersRound, X, type LucideIcon } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useTema } from "../lib/tema";
 import { useContadores } from "../lib/notificacoes";
@@ -27,6 +27,7 @@ const ENSINO: SecaoMenu = {
 const BIBLIOTECA: SecaoMenu = {
   titulo: "Biblioteca",
   itens: [
+    { para: "/biblioteca", rotulo: "Aulas em PDF", icone: FileStack },
     { para: "/cursos", rotulo: "Cursos e aulas", icone: BookMarked },
     { para: "/exercicios", rotulo: "Exercícios", icone: ClipboardList },
     { para: "/aluno", rotulo: "Visão do aluno", icone: PenLine },

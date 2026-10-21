@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, BookMarked, ClipboardList, PenLine, Sparkles, UserPlus, UsersRound } from "lucide-react";
+import { BarChart3, BookMarked, ClipboardList, FileStack, PenLine, Sparkles, UserPlus, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
@@ -87,6 +87,7 @@ export function InicioProfessor() {
 
       <h2 className="mt-10 mb-3 text-[11px] font-bold tracking-[0.14em] text-suave uppercase">Biblioteca</h2>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Atalho para="/biblioteca" icone={FileStack} titulo="Aulas em PDF" texto="Os slides das aulas, guardados uma vez só. Envie vários de uma vez e use em qualquer curso." />
         <Atalho para="/cursos" icone={BookMarked} titulo="Cursos e aulas" numero={contagens?.cursos} texto="O material de cada aula (PDF) e os exercícios dela. Um curso serve a várias turmas." />
         <Atalho
           para="/exercicios"

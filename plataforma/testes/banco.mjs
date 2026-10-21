@@ -334,6 +334,30 @@ conferir((await contarNotif(ALUNO, "extra_liberado")) - antesExtras === 1, "o al
 const { rows: [{ titulo: tituloAviso }] } = await db.query("select titulo from public.notificacoes where para = $1 and tipo = 'extra_liberado' order by criada_em desc limit 1", [ALUNO]);
 conferir(/exercícios extras novos/.test(tituloAviso), `o aviso diz quantos foram (“${tituloAviso}”)`);
 
+// ----------------------------------------------------------------------------- biblioteca de aulas em PDF
+console.log("Biblioteca de aulas");
+const { rows: [{ id: materialA }] } = await como(PROFESSOR, "insert into public.materiais (titulo, idioma, arquivo, nome_original, tamanho) values ('Countries and Nationalities', 'ingles', 'biblioteca-a.pdf', 'ENGLISH CLASS - COUNTRIES AND NATIONALITIES.pdf', 2048) returning id");
+conferir(!!materialA, "professora adiciona um PDF à biblioteca (nível ainda em branco)");
+conferir((await numero(ALUNO, "select count(*) from public.materiais")) === 0, "aluno não vê a biblioteca");
+conferir(await falhaComo(ALUNO, "insert into public.materiais (titulo, idioma, arquivo) values ('x', 'ingles', 'y.pdf')"), "aluno não adiciona à biblioteca");
+conferir(await falhaComo(PROFESSOR, "insert into public.materiais (titulo, idioma, arquivo) values ('copia', 'ingles', 'biblioteca-a.pdf')"), "o mesmo arquivo não entra duas vezes");
+await como(PROFESSOR, "update public.materiais set nivel = 2, titulo = 'Countries & Nationalities' where id = $1", [materialA]);
+conferir((await numero(PROFESSOR, "select count(*) from public.materiais where nivel = 2")) === 1, "professora define o nível e ajusta o título");
+// Duas aulas de cursos diferentes usam o mesmo PDF.
+const { rows: [{ id: cursoBib }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Curso da biblioteca', 'ingles', 2) returning id");
+await como(PROFESSOR, "insert into public.aulas (curso_id, numero, titulo, material_arquivo, material_nome) values ($1, 1, 'Countries', 'biblioteca-a.pdf', 'Countries.pdf'), ($1, 2, 'Countries de novo', 'biblioteca-a.pdf', 'Countries.pdf')", [cursoBib]);
+conferir(await falhaComo(PROFESSOR, "delete from public.materiais where id = $1", [materialA]), "PDF em uso por aulas não pode ser apagado da biblioteca");
+const { rows: [{ id: materialB }] } = await como(PROFESSOR, "insert into public.materiais (titulo, idioma, arquivo) values ('Sem uso', 'espanhol', 'biblioteca-b.pdf') returning id");
+await como(PROFESSOR, "delete from public.materiais where id = $1", [materialB]);
+conferir((await numero(PROFESSOR, "select count(*) from public.materiais where id = $1", [materialB])) === 0, "PDF sem uso pode ser apagado");
+await como(PROFESSOR, "insert into storage.objects (bucket_id, name) values ('materiais', 'biblioteca-a.pdf')");
+await como(PROFESSOR, "insert into public.turmas (nome, curso_id) values ('Turma da biblioteca', $1)", [cursoBib]);
+const { rows: [{ id: turmaBib }] } = await como(PROFESSOR, "select id from public.turmas where curso_id = $1", [cursoBib]);
+await db.query("insert into public.matriculas (turma_id, aluno_id, situacao) values ($1, $2, 'aprovada') on conflict do nothing", [turmaBib, OUTRO_ALUNO]);
+conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where name = 'biblioteca-a.pdf'")) === 0, "aula não liberada: o PDF da biblioteca continua fechado para o aluno");
+await db.query("insert into public.aulas_liberadas (turma_id, aula_id) select $1, id from public.aulas where curso_id = $2 and numero = 2", [turmaBib, cursoBib]);
+conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where name = 'biblioteca-a.pdf'")) === 1, "aula liberada: o aluno abre o PDF compartilhado pela aula");
+
 // ----------------------------------------------------------------------------- aula ao vivo
 console.log("Aula ao vivo");
 const PENDENTE = "00000000-0000-0000-0000-0000000000b3";

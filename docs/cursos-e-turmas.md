@@ -2,14 +2,32 @@
 
 **Status (19/10/2026):** ativo. É a espinha da plataforma: o aluno só vê o que foi liberado para a turma dele.
 
+## Biblioteca de aulas em PDF (migração `0015`)
+Os slides das aulas ficam guardados **uma vez**, na **Biblioteca → Aulas em PDF**, com título, idioma e nível. Qualquer curso pode usar o mesmo PDF numa aula, sem enviar de novo e sem procurar no Drive.
+
+- **Enviar em lote:** escolha o idioma (e o nível, se todos forem do mesmo), arraste vários PDFs ou uma pasta, e envie. O título sai do nome do arquivo (`ENGLISH CLASS - REGULAR AND IRREGULAR PLURALS (1).pdf` vira "Regular and Irregular Plurals"; `1° CLASE DE ESPAÑOL.pdf` vira "1° Clase de Español"). Se o nome tiver o nível (Beginner, Elementary, A2...), ele é reconhecido. PDFs repetidos (mesmo nome e tamanho) e arquivos acima de 50 MB são pulados, com o motivo.
+- **Organizar:** como os nomes costumam não trazer o nível, marque vários PDFs e use "Definir nível" (ou "Definir idioma"). Dá para editar o título e o nível de cada um na própria linha, filtrar por idioma, nível, busca ou "só os que nenhuma aula usa", e ver em quantas aulas cada PDF está.
+- **Na aula:** o material pode ser **Da biblioteca** (busca; os do nível do curso aparecem primeiro e o tema da aula é preenchido com o título do PDF), **Enviar novo PDF** (vai para a biblioteca também) ou **Colar link**.
+- **Montar o curso pela biblioteca:** na página do curso, "Montar aulas com os PDFs da biblioteca" cria uma aula para cada PDF marcado (nível do curso e "sem nível"), em ordem natural (1°, 2°, 10°), pulando os que o curso já usa. Depois, em cada aula, a professora coloca os exercícios.
+- **Segurança:** os arquivos continuam no bucket privado `materiais`. Só a equipe vê a biblioteca. O aluno só abre o PDF pela aula liberada para a turma dele, com a mesma regra de antes (a aula guarda o caminho do arquivo). O banco **não deixa apagar** um PDF que alguma aula usa, e excluir uma aula **não apaga** o arquivo (outras aulas podem usá-lo).
+- **PDFs que já estavam nas aulas** entram sozinhos na biblioteca ao rodar a migração, com o idioma e o nível do curso.
+
+Os cursos de exemplo (`cursos_de_exemplo.sql`) foram criados com uma aula para cada lista de exercícios e **sem PDF**, só para testar. Para o conteúdo real, apague-os e monte os cursos pela biblioteca:
+```sql
+delete from public.cursos where descricao = 'Curso de demonstração: uma aula por lista de exemplo, do nível 1 ao 6.';
+```
+
 ## A ideia
 O conteúdo (**biblioteca**) fica separado de para quem e quando (**turma**):
 
 ```
 BIBLIOTECA (montada uma vez)
+├─ Aulas em PDF   → os slides, com título, idioma e nível
+└─ Exercícios     → as listas (banco em /exercicios)
+
+CURSOS
 └─ Curso "Inglês · Beginner"
-   └─ Aula 1, 2, 3...   → material (PDF ou link) + exercícios da aula
-                          (os exercícios vêm do banco de listas, em /exercicios)
+   └─ Aula 1, 2, 3...   → um PDF da biblioteca (ou link) + os exercícios do fim da aula
 
 TURMAS (o dia a dia da professora)
 └─ Turma "Beginner · Terça 19h" → segue um curso

@@ -7,16 +7,21 @@ import { CabecalhoPagina } from "../componentes/Painel";
 import { Aviso, Botao, Campo, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 import { FormularioCurso } from "./Cursos";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
-import AulasDosExercicios from "../componentes/AulasDosExercicios";
-import { TAMANHO_MAXIMO_MB, enviarMaterial } from "../lib/materiais";
+import AulasDaBiblioteca from "../componentes/AulasDaBiblioteca";
+import EscolherPdf from "../componentes/EscolherPdf";
+import { TAMANHO_MAXIMO_MB } from "../lib/materiais";
+import { adicionarABiblioteca } from "../lib/biblioteca";
+import type { Idioma } from "../lib/dados";
 
 type CursoComAulas = TipoCurso & { aulas: (Aula & { aula_listas: { lista_id: string; ordem: number }[] })[]; turmas: { id: string; nome: string }[] };
 
 type AulaCompleta = Aula & { aula_listas: { lista_id: string; ordem: number }[] };
-type ModoMaterial = "nenhum" | "arquivo" | "link";
+type ModoMaterial = "nenhum" | "biblioteca" | "arquivo" | "link";
 
-function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar }: {
+function FormularioAula({ cursoId, idioma, nivel, inicial, proximoNumero, aoSalvar, aoCancelar }: {
   cursoId: string;
+  idioma: Idioma;
+  nivel: number;
   inicial?: AulaCompleta;
   proximoNumero: number;
   aoSalvar: () => void;
@@ -24,8 +29,13 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
 }) {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
-  const [modo, setModo] = useState<ModoMaterial>(inicial?.material_arquivo ? "arquivo" : inicial?.material_url ? "link" : "nenhum");
+  // Todo PDF mora na biblioteca: uma aula que já tem PDF abre em "Da biblioteca", com o arquivo atual marcado.
+  const [modo, setModo] = useState<ModoMaterial>(inicial?.material_arquivo ? "biblioteca" : inicial?.material_url ? "link" : "nenhum");
   const [arquivo, setArquivo] = useState<File | null>(null);
+  const [escolhido, setEscolhido] = useState<{ arquivo: string; nome: string; titulo: string } | null>(
+    inicial?.material_arquivo ? { arquivo: inicial.material_arquivo, nome: inicial.material_nome, titulo: inicial.material_nome || "PDF atual" } : null,
+  );
+  const [titulo, setTitulo] = useState(inicial?.titulo ?? "");
   const [exercicios, setExercicios] = useState<string[]>(
     [...(inicial?.aula_listas ?? [])].sort((a, b) => a.ordem - b.ordem).map((l) => l.lista_id),
   );
@@ -34,19 +44,23 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
     evento.preventDefault();
     const dados = new FormData(evento.currentTarget);
     setErro("");
-    if (modo === "arquivo" && !arquivo && !inicial?.material_arquivo) {
-      setErro("Escolha o PDF da aula ou mude a opção de material.");
+    if (modo === "arquivo" && !arquivo) {
+      setErro("Escolha o PDF no seu computador ou mude a opção de material.");
+      return;
+    }
+    if (modo === "biblioteca" && !escolhido) {
+      setErro("Escolha um PDF da biblioteca ou mude a opção de material.");
       return;
     }
     setSalvando(true);
     try {
-      // 1. Material: envia o PDF novo (se houver) antes de gravar a aula.
+      // 1. Material. PDF novo: vai para a biblioteca (e fica disponível para outras aulas); da biblioteca: só aponta para o arquivo.
       let material = { material_url: "", material_arquivo: "", material_nome: "" };
       if (modo === "link") material.material_url = String(dados.get("material_url") ?? "").trim();
+      if (modo === "biblioteca") material = { material_url: "", material_arquivo: escolhido!.arquivo, material_nome: escolhido!.nome || `${escolhido!.titulo}.pdf` };
       if (modo === "arquivo") {
-        material = arquivo
-          ? { material_url: "", ...(await enviarMaterial(arquivo).then((r) => ({ material_arquivo: r.caminho, material_nome: r.nome }))) }
-          : { material_url: "", material_arquivo: inicial!.material_arquivo, material_nome: inicial!.material_nome };
+        const novo = await adicionarABiblioteca(arquivo!, { idioma, nivel, titulo: titulo.trim() || undefined });
+        material = { material_url: "", material_arquivo: novo.arquivo, material_nome: novo.nome_original };
       }
       const aula = {
         numero: Number(dados.get("numero")),
@@ -74,10 +88,7 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
         if (error) throw new Error(traduzirErro(error.message));
       }
 
-      // 4. O PDF antigo sai do bucket quando foi trocado ou removido.
-      if (inicial?.material_arquivo && inicial.material_arquivo !== material.material_arquivo) {
-        await supabase.storage.from("materiais").remove([inicial.material_arquivo]);
-      }
+      // O PDF antigo fica na biblioteca: outras aulas podem usá-lo. Quem apaga arquivo é a página da biblioteca.
       aoSalvar();
     } catch (e) {
       setErro((e as Error).message);
@@ -91,7 +102,7 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
       {erro && <Aviso>{erro}</Aviso>}
       <div className="grid gap-4 sm:grid-cols-[7rem_minmax(0,1fr)]">
         <Campo rotulo="Número" name="numero" type="number" min={1} defaultValue={inicial?.numero ?? proximoNumero} required />
-        <Campo rotulo="Tema da aula" name="titulo" defaultValue={inicial?.titulo} placeholder="Prepositions of movement" required />
+        <Campo rotulo="Tema da aula" name="titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Prepositions of movement" required />
       </div>
       <Campo rotulo="Frase de abertura" name="subtitulo" defaultValue={inicial?.subtitulo} placeholder="Vamos aprender como indicar a direção certa?" dica="Aparece em itálico, como na capa dos materiais." />
 
@@ -101,7 +112,8 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
           {(
             [
               ["nenhum", "Sem material"],
-              ["arquivo", "Enviar PDF"],
+              ["biblioteca", "Da biblioteca"],
+              ["arquivo", "Enviar novo PDF"],
               ["link", "Colar link"],
             ] as const
           ).map(([valor, rotulo]) => (
@@ -111,17 +123,31 @@ function FormularioAula({ cursoId, inicial, proximoNumero, aoSalvar, aoCancelar 
             </label>
           ))}
         </div>
+        {modo === "biblioteca" && (
+          <div className="space-y-2">
+            {escolhido && (
+              <p className="flex items-center gap-2 rounded-xl bg-destaque-suave px-3 py-2 text-sm"><FileText className="size-4 shrink-0 text-marca" /> PDF da aula: <strong className="truncate">{escolhido.titulo}</strong></p>
+            )}
+            <EscolherPdf
+              idioma={idioma}
+              nivel={nivel}
+              escolhido={escolhido?.arquivo ?? null}
+              aoEscolher={(m) => {
+                setEscolhido({ arquivo: m.arquivo, nome: m.nome_original, titulo: m.titulo });
+                // Aula nova sem tema ainda: usa o título do PDF.
+                if (!titulo.trim()) setTitulo(m.titulo);
+              }}
+            />
+          </div>
+        )}
         {modo === "arquivo" && (
           <div className="rounded-xl border-2 border-dashed border-borda p-4">
-            {inicial?.material_arquivo && !arquivo && (
-              <p className="mb-2 flex items-center gap-2 text-sm"><FileText className="size-4 text-marca" /> Atual: <strong>{inicial.material_nome}</strong></p>
-            )}
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-borda bg-superficie px-4 py-2.5 text-sm font-semibold hover:bg-fundo">
-              <Upload className="size-4" /> {arquivo ? "Trocar arquivo" : inicial?.material_arquivo ? "Enviar outro PDF" : "Escolher PDF"}
+              <Upload className="size-4" /> {arquivo ? "Trocar arquivo" : "Escolher PDF"}
               <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(e) => setArquivo(e.target.files?.[0] ?? null)} />
             </label>
             {arquivo && <p className="mt-2 text-sm">Novo: <strong>{arquivo.name}</strong> ({(arquivo.size / 1024 / 1024).toFixed(1)} MB) — sobe quando você salvar.</p>}
-            <p className="mt-2 text-xs text-suave">Até {TAMANHO_MAXIMO_MB} MB. Fica guardado de forma privada: só a equipe e os alunos com a aula liberada abrem.</p>
+            <p className="mt-2 text-xs text-suave">Até {TAMANHO_MAXIMO_MB} MB. Vai para a biblioteca, e outras aulas podem usá-lo. Fica guardado de forma privada: só a equipe e os alunos com a aula liberada abrem. Para enviar vários de uma vez, use <Link to="/biblioteca" className="font-semibold text-destaque underline">Biblioteca → Aulas em PDF</Link>.</p>
           </div>
         )}
         {modo === "link" && (
@@ -187,10 +213,7 @@ export default function Curso() {
     if (!confirm(`Apagar a aula ${aula.numero} — ${aula.titulo}?`)) return;
     const { error } = await supabase.from("aulas").delete().eq("id", aula.id);
     if (error) setErroAcao(traduzirErro(error.message));
-    else {
-      if (aula.material_arquivo) await supabase.storage.from("materiais").remove([aula.material_arquivo]);
-      recarregar();
-    }
+    else recarregar(); // o PDF continua na biblioteca (outras aulas podem usá-lo)
   }
 
   const porId = new Map(curso.aulas.map((a) => [a.id, a]));
@@ -288,12 +311,12 @@ export default function Curso() {
         )}
       </div>
 
-      <AulasDosExercicios curso={curso} aulas={curso.aulas} aoCriar={recarregar} />
+      <AulasDaBiblioteca curso={curso} aulas={curso.aulas} aoCriar={recarregar} />
 
       {aulaEmEdicao === "nova" && (
         <Cartao className="mb-4">
           <h3 className="mb-4 text-lg font-bold text-marca">Nova aula</h3>
-          <FormularioAula cursoId={curso.id} proximoNumero={proximoNumero} aoSalvar={salvarAula} aoCancelar={fecharEdicao} />
+          <FormularioAula cursoId={curso.id} idioma={curso.idioma} nivel={curso.nivel} proximoNumero={proximoNumero} aoSalvar={salvarAula} aoCancelar={fecharEdicao} />
         </Cartao>
       )}
 
@@ -301,7 +324,7 @@ export default function Curso() {
         <EstadoVazio
           icone={NotebookPen}
           titulo="Adicione a primeira aula"
-          texto="Cada aula tem um tema, uma frase de abertura, o material em PDF (arquivo ou link) e os exercícios que aparecem no fim."
+          texto="Cada aula tem um tema, os slides em PDF (da biblioteca, enviado na hora ou por link) e os exercícios que aparecem no fim."
           acao={<Botao onClick={() => setAulaEmEdicao("nova")}><Plus className="size-4" /> Nova aula</Botao>}
         />
       ) : (
@@ -311,7 +334,7 @@ export default function Curso() {
             aulaEmEdicao === aula.id ? (
               <li key={aula.id}>
                 <Cartao>
-                  <FormularioAula cursoId={curso.id} inicial={aula} proximoNumero={proximoNumero} aoSalvar={salvarAula} aoCancelar={fecharEdicao} />
+                  <FormularioAula cursoId={curso.id} idioma={curso.idioma} nivel={curso.nivel} inicial={aula} proximoNumero={proximoNumero} aoSalvar={salvarAula} aoCancelar={fecharEdicao} />
                 </Cartao>
               </li>
             ) : (
