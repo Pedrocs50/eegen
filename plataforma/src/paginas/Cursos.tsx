@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { BookMarked, Plus } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, NIVEIS, nomeNivel, useConsulta, type Curso, type Idioma } from "../lib/dados";
@@ -9,7 +9,7 @@ import { Aviso, Botao, Campo, CampoAreaTexto, CampoSelecao, Cartao, Etiqueta, Es
 type CursoComAulas = Curso & { aulas: { count: number }[] };
 
 /** Formulário de curso, usado para criar e para editar. */
-export function FormularioCurso({ inicial, aoSalvar, aoCancelar }: { inicial?: Curso; aoSalvar: (id: string) => void; aoCancelar: () => void }) {
+export function FormularioCurso({ inicial, existentes = [], aoSalvar, aoCancelar }: { inicial?: Curso; existentes?: Pick<Curso, "id" | "titulo" | "idioma">[]; aoSalvar: (id: string) => void; aoCancelar: () => void }) {
   const [idioma, setIdioma] = useState<Idioma>(inicial?.idioma ?? "ingles");
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -24,6 +24,10 @@ export function FormularioCurso({ inicial, aoSalvar, aoCancelar }: { inicial?: C
       descricao: String(dados.get("descricao")).trim(),
     };
     setErro("");
+    if (existentes.some((c) => c.id !== inicial?.id && c.idioma === curso.idioma && c.titulo.trim().toLowerCase() === curso.titulo.toLowerCase())) {
+      setErro(`Já existe um curso chamado "${curso.titulo}" em ${IDIOMAS[curso.idioma]}. Procure na lista ou escolha outro nome.`);
+      return;
+    }
     setSalvando(true);
     const resposta = inicial
       ? await supabase.from("cursos").update(curso).eq("id", inicial.id).select("id").single()
@@ -56,8 +60,9 @@ export function FormularioCurso({ inicial, aoSalvar, aoCancelar }: { inicial?: C
 
 export default function Cursos() {
   const [criando, setCriando] = useState(false);
+  const navegar = useNavigate();
   const [filtro, setFiltro] = useState<Idioma | "todos">("todos");
-  const { dados: cursos, erro, carregando, recarregar } = useConsulta<CursoComAulas[]>(() =>
+  const { dados: cursos, erro, carregando } = useConsulta<CursoComAulas[]>(() =>
     supabase.from("cursos").select("*, aulas(count)").order("idioma").order("nivel").order("titulo"),
   );
 
@@ -77,10 +82,12 @@ export default function Cursos() {
         <Cartao className="mb-6">
           <h2 className="mb-4 text-xl font-bold text-marca">Novo curso</h2>
           <FormularioCurso
+            existentes={cursos ?? []}
             aoCancelar={() => setCriando(false)}
-            aoSalvar={() => {
+            aoSalvar={(idNovo) => {
+              // Abre o curso criado: ali ela já adiciona as aulas.
               setCriando(false);
-              recarregar();
+              navegar(`/cursos/${idNovo}`);
             }}
           />
         </Cartao>

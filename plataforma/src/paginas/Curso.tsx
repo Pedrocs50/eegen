@@ -7,6 +7,7 @@ import { CabecalhoPagina } from "../componentes/Painel";
 import { Aviso, Botao, Campo, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 import { FormularioCurso } from "./Cursos";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
+import AulasDosExercicios from "../componentes/AulasDosExercicios";
 import { TAMANHO_MAXIMO_MB, enviarMaterial } from "../lib/materiais";
 
 type CursoComAulas = TipoCurso & { aulas: (Aula & { aula_listas: { lista_id: string; ordem: number }[] })[]; turmas: { id: string; nome: string }[] };
@@ -286,6 +287,8 @@ export default function Curso() {
           <Botao onClick={() => setAulaEmEdicao("nova")}><Plus className="size-4" /> Nova aula</Botao>
         )}
       </div>
+
+      <AulasDosExercicios curso={curso} aulas={curso.aulas} aoCriar={recarregar} />
 
       {aulaEmEdicao === "nova" && (
         <Cartao className="mb-4">

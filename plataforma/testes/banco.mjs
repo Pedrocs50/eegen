@@ -311,6 +311,29 @@ conferir(
   "ninguém marca as notificações dos outros",
 );
 
+// ----------------------------------------------------------------------------- fluxo da professora (não admin)
+console.log("Fluxo da professora");
+const contarNotif = async (uid, tipo) => Number((await db.query("select count(*) as n from public.notificacoes where para = $1 and tipo = $2", [uid, tipo])).rows[0].n);
+const { rows: [{ id: cursoProf }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Upper-Intermediate', 'ingles', 5) returning id");
+conferir(!!cursoProf, "professora cria curso e já recebe o id de volta");
+const criada = await como(PROFESSOR, "insert into public.turmas (nome, curso_id) values ('Upper-Intermediate · terça 20h30', $1) returning id, codigo", [cursoProf]).catch(() => null);
+conferir(!!criada?.rows?.[0]?.id, "professora cria turma e já recebe o id e o código de volta (permite abrir a turma logo depois)");
+const { rows: listadas } = await como(PROFESSOR, "select t.id, c.titulo, (select count(*) from public.matriculas m where m.turma_id = t.id) as alunos from public.turmas t join public.cursos c on c.id = t.curso_id where t.curso_id = $1", [cursoProf]);
+conferir(listadas.length === 1, "a turma criada continua aparecendo na lista da professora");
+conferir((await numero(PROFESSOR, "select count(*) from public.cursos where id = $1", [cursoProf])) === 1, "o curso criado continua aparecendo");
+
+// Liberar vários de uma vez gera um aviso só por aluno.
+const turmaLote = criada?.rows?.[0]?.id;
+await como(PROFESSOR, "insert into public.matriculas (turma_id, aluno_id, situacao) select $1, $2, 'aprovada'", [turmaLote, ALUNO]).catch(() => null);
+await db.query("insert into public.matriculas (turma_id, aluno_id, situacao) values ($1, $2, 'aprovada') on conflict do nothing", [turmaLote, ALUNO]);
+const antesExtras = await contarNotif(ALUNO, "extra_liberado");
+await como(PROFESSOR, "insert into public.turma_listas (turma_id, lista_id) select $1, id from public.listas where origem = 'exemplo' and nivel <= 2 and status = 'publicada'", [turmaLote]);
+const { rows: [{ n: quantosExtras }] } = await db.query("select count(*) as n from public.turma_listas where turma_id = $1", [turmaLote]);
+conferir(Number(quantosExtras) > 1, `liberou ${quantosExtras} exercícios de uma vez`);
+conferir((await contarNotif(ALUNO, "extra_liberado")) - antesExtras === 1, "o aluno recebe um aviso só pelos exercícios liberados em lote");
+const { rows: [{ titulo: tituloAviso }] } = await db.query("select titulo from public.notificacoes where para = $1 and tipo = 'extra_liberado' order by criada_em desc limit 1", [ALUNO]);
+conferir(/exercícios extras novos/.test(tituloAviso), `o aviso diz quantos foram (“${tituloAviso}”)`);
+
 // ----------------------------------------------------------------------------- aula ao vivo
 console.log("Aula ao vivo");
 const PENDENTE = "00000000-0000-0000-0000-0000000000b3";

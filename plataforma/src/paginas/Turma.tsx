@@ -113,6 +113,18 @@ export default function Turma() {
     }
   }
 
+  /** Libera de uma vez todas as aulas ainda bloqueadas (o aluno recebe um aviso só). */
+  async function liberarTodas() {
+    if (!turma) return;
+    const faltam = turma.cursos.aulas.filter((a) => !liberadas.has(a.id));
+    if (faltam.length === 0) return;
+    if (!confirm(`Liberar ${faltam.length} ${faltam.length === 1 ? "aula" : "aulas"} para os alunos desta turma?`)) return;
+    setErroAcao("");
+    const { error } = await supabase.from("aulas_liberadas").insert(faltam.map((a) => ({ turma_id: turma.id, aula_id: a.id })));
+    if (error) setErroAcao(traduzirErro(error.message));
+    recarregar();
+  }
+
   /** Grava os extras na ordem escolhida: tira os removidos, inclui os novos e acerta a ordem. */
   async function salvarExtras(ids: string[]) {
     if (!turma) return;
@@ -184,6 +196,12 @@ export default function Turma() {
             Libere cada aula depois de dá-la: o aluno vê o material e os exercícios dela. As aulas são montadas no curso{" "}
             <Link to={`/cursos/${turma.curso_id}`} className="font-semibold text-destaque underline">{turma.cursos.titulo}</Link>, que pode servir a várias turmas.
           </p>
+          {aulas.length > 1 && liberadas.size < aulas.length && (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-borda bg-superficie p-4">
+              <p className="text-sm text-suave">Ainda não vai dar as aulas? Libere uma a uma conforme acontecem. Se a turma já está adiantada, libere tudo de uma vez.</p>
+              <Botao variante="secundario" onClick={liberarTodas}><Unlock className="size-4" /> Liberar todas ({aulas.length - liberadas.size})</Botao>
+            </div>
+          )}
           {recemLiberada && liberadas.has(recemLiberada.id) && (
             <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-sucesso/40 bg-sucesso-suave p-4">
               <Check className="size-5 shrink-0 text-sucesso" />
@@ -243,6 +261,7 @@ export default function Turma() {
             aoMudar={salvarExtras}
             rotulo="Exercícios extras da turma"
             descricao="Listas avulsas, além das aulas (revisão, prática extra, prova). Aparecem para os alunos desta turma na aba Extras, na ordem abaixo. Salva sozinho."
+            porNivel={{ idioma: turma.cursos.idioma, nivel: turma.cursos.nivel }}
           />
           {turma.turma_listas.length > 0 && (
             <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-borda pt-4">

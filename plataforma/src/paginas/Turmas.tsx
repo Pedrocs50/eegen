@@ -1,16 +1,18 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Plus, Users } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
+import { useAuth } from "../lib/auth";
 import { IDIOMAS, nomeNivel, useConsulta, type Curso, type Turma } from "../lib/dados";
 import { CabecalhoPagina } from "../componentes/Painel";
 import CopiarTexto from "../componentes/CopiarTexto";
 import { mensagemDeConvite } from "../lib/turmas";
 import { Aviso, Botao, Campo, CampoSelecao, Cartao, Etiqueta, EstadoVazio, TextoCarregando } from "../componentes/ui";
 
-type TurmaResumo = Turma & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel">; matriculas: { situacao: "pendente" | "aprovada" }[]; aulas_liberadas: { count: number }[] };
+type TurmaResumo = Turma & { cursos: Pick<Curso, "titulo" | "idioma" | "nivel">; matriculas: { situacao: "pendente" | "aprovada" }[]; aulas_liberadas: { count: number }[]; professor: { nome: string } | null };
 
-function FormularioTurma({ aoSalvar, aoCancelar }: { aoSalvar: () => void; aoCancelar: () => void }) {
+/** Cria a turma e abre a página dela. Avisa se já existe uma com o mesmo nome (para não criar duas sem querer). */
+function FormularioTurma({ nomesExistentes, aoSalvar, aoCancelar }: { nomesExistentes: string[]; aoSalvar: (idNova?: string) => void; aoCancelar: () => void }) {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
   const { dados: cursos } = useConsulta<Curso[]>(() => supabase.from("cursos").select("*").order("idioma").order("nivel"));
@@ -18,15 +20,24 @@ function FormularioTurma({ aoSalvar, aoCancelar }: { aoSalvar: () => void; aoCan
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const dados = new FormData(evento.currentTarget);
+    const nome = String(dados.get("nome")).trim();
+    const cursoId = String(dados.get("curso_id"));
     setErro("");
+    if (nomesExistentes.some((n) => n.trim().toLowerCase() === nome.toLowerCase())) {
+      setErro(`Você já tem uma turma chamada "${nome}". Procure na lista abaixo ou escolha outro nome.`);
+      return;
+    }
     setSalvando(true);
-    const { error } = await supabase.from("turmas").insert({
-      nome: String(dados.get("nome")).trim(),
-      curso_id: String(dados.get("curso_id")),
-    });
+    const { error } = await supabase.from("turmas").insert({ nome, curso_id: cursoId });
+    if (error) {
+      setSalvando(false);
+      setErro(traduzirErro(error.message));
+      return;
+    }
+    // Busca a turma recém-criada para abrir a página dela (um pedido separado: funciona mesmo antes da migração 0014).
+    const { data: nova } = await supabase.from("turmas").select("id").eq("curso_id", cursoId).eq("nome", nome).order("criado_em", { ascending: false }).limit(1).maybeSingle();
     setSalvando(false);
-    if (error) setErro(traduzirErro(error.message));
-    else aoSalvar();
+    aoSalvar((nova as { id: string } | null)?.id);
   }
 
   if (cursos && cursos.length === 0) {
@@ -55,8 +66,10 @@ function FormularioTurma({ aoSalvar, aoCancelar }: { aoSalvar: () => void; aoCan
 
 export default function Turmas() {
   const [criando, setCriando] = useState(false);
+  const navegar = useNavigate();
+  const { perfil } = useAuth();
   const { dados: turmas, erro, carregando, recarregar } = useConsulta<TurmaResumo[]>(() =>
-    supabase.from("turmas").select("*, cursos(titulo, idioma, nivel), matriculas(situacao), aulas_liberadas(count)").order("criado_em", { ascending: false }),
+    supabase.from("turmas").select("*, cursos(titulo, idioma, nivel), matriculas(situacao), aulas_liberadas(count), professor:perfis!professor_id(nome)").order("criado_em", { ascending: false }),
   );
   const botaoNova = <Botao onClick={() => setCriando(true)}><Plus className="size-4" /> Nova turma</Botao>;
 
@@ -72,7 +85,15 @@ export default function Turmas() {
       {criando && (
         <Cartao className="mb-6">
           <h2 className="mb-4 text-xl font-bold text-marca">Nova turma</h2>
-          <FormularioTurma aoCancelar={() => setCriando(false)} aoSalvar={() => { setCriando(false); recarregar(); }} />
+          <FormularioTurma
+            nomesExistentes={(turmas ?? []).filter((t) => t.professor_id === perfil?.id).map((t) => t.nome)}
+            aoCancelar={() => setCriando(false)}
+            aoSalvar={(idNova) => {
+              setCriando(false);
+              if (idNova) navegar(`/turmas/${idNova}`);
+              else recarregar();
+            }}
+          />
         </Cartao>
       )}
 
@@ -106,6 +127,9 @@ export default function Turmas() {
                   </div>
                   <h2 className="mt-4 text-xl font-bold text-marca">{turma.nome}</h2>
                   <p className="text-sm text-suave">{turma.cursos.titulo}</p>
+                  {perfil?.papel === "admin" && turma.professor_id !== perfil.id && (
+                    <p className="mt-1 text-xs text-suave">Turma de {turma.professor?.nome || "outra professora"}</p>
+                  )}
                   <div className="mt-auto flex items-center justify-between pt-5 text-sm">
                     <span className="text-suave">{alunos} {alunos === 1 ? "aluno" : "alunos"} · {aulasLiberadas} {aulasLiberadas === 1 ? "aula liberada" : "aulas liberadas"}</span>
                     <span className="mr-10 rounded-lg bg-creme px-2.5 py-1 font-mono font-bold tracking-widest text-marca">{turma.codigo}</span>

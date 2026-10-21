@@ -93,6 +93,15 @@ Rode depois de `listas_de_exemplo.sql`.
   - **aviso dos extras:** um link para cada lista.
 - **Reordenar aulas:** arraste pela alça (no computador) ou use as setas. Os números são regravados na ordem nova.
 
+## Montar tudo de uma vez (migração `0014`)
+Para a professora criar todos os cursos e turmas antes de chamar os alunos:
+- **Criar e já abrir:** ao criar um curso ou uma turma, o site abre a página do que foi criado (o curso, para adicionar as aulas; a turma, com o código e o convite). Se já existir um curso ou uma turma com o mesmo nome, avisa antes de criar outro.
+- **Montar aulas com os exercícios que já existem** (página do curso): cada exercício publicado do idioma, nos níveis marcados, vira uma aula já com o exercício dentro. Pula os que já estão em alguma aula do curso, e a numeração continua de onde parou.
+- **Adicionar vários exercícios por nível** (aba Extras da turma): marca os níveis (ex.: Beginner e Elementary) e entram de uma vez todas as listas publicadas deles. Rascunhos ficam de fora e as que já estão na turma não repetem.
+- **Liberar todas as aulas** (aba Aulas da turma): para turmas que já estão adiantadas.
+- **Um aviso só por aluno:** liberar várias aulas ou vários extras no mesmo comando gera uma notificação ("5 exercícios extras novos"), não uma por item.
+- **Banco:** a professora passa a ler a turma que acabou de criar no mesmo comando de criar (antes só o admin lia). O admin vê "Turma de ..." nas turmas das outras professoras.
+
 ## Aula ao vivo
 Migração `0013`. Cada turma pode ter:
 - um **link fixo da reunião** (Google Meet; outras plataformas também funcionam, desde que o link comece com `https://`);
