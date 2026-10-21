@@ -2,6 +2,14 @@
 
 **Status (19/10/2026):** ativo. É a espinha da plataforma: o aluno só vê o que foi liberado para a turma dele.
 
+## Registro de exclusões (migração `0016`)
+Tudo o que for apagado de **cursos, turmas, aulas e matrículas** fica anotado: o que era (com uma cópia do conteúdo), quando, quem pediu e por onde. Só o admin vê, em **Configurações → Exclusões recentes**.
+
+- **Por onde:** "DELETE /cursos" quando o pedido veio do site, e "SQL direto" (sem usuário) quando veio do SQL Editor do Supabase.
+- **Cascata:** apagar um curso também apaga as aulas e as turmas dele; cada linha que sumiu junto tem o seu registro.
+- **Restaurar:** a cópia fica em `registro_exclusoes.linha` (JSON), então dá para recriar a linha a partir dela.
+- Foi criado para investigar turmas e cursos que "sumiam" sem ninguém ter apagado.
+
 ## Biblioteca de aulas em PDF (migração `0015`)
 Os slides das aulas ficam guardados **uma vez**, na **Biblioteca → Aulas em PDF**, com título, idioma e nível. Qualquer curso pode usar o mesmo PDF numa aula, sem enviar de novo e sem procurar no Drive.
 

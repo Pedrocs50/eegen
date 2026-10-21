@@ -358,6 +358,25 @@ conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where 
 await db.query("insert into public.aulas_liberadas (turma_id, aula_id) select $1, id from public.aulas where curso_id = $2 and numero = 2", [turmaBib, cursoBib]);
 conferir((await numero(OUTRO_ALUNO, "select count(*) from storage.objects where name = 'biblioteca-a.pdf'")) === 1, "aula liberada: o aluno abre o PDF compartilhado pela aula");
 
+// ----------------------------------------------------------------------------- registro de exclusões
+console.log("Registro de exclusões");
+const { rows: [{ id: cursoApagado }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Curso que será apagado', 'ingles', 1) returning id");
+await como(PROFESSOR, "insert into public.aulas (curso_id, numero, titulo) values ($1, 1, 'Aula do curso apagado')", [cursoApagado]);
+await como(PROFESSOR, "delete from public.cursos where id = $1", [cursoApagado]);
+const { rows: apagados } = await como(ADMIN, "select tabela, linha ->> 'titulo' as titulo, por, via from public.registro_exclusoes where linha ->> 'titulo' like '%apagad%' order by tabela");
+conferir(apagados.length === 2 && apagados.some((r) => r.tabela === "cursos" && r.titulo === "Curso que será apagado"), "apagar um curso anota o curso e as aulas que sumiram junto");
+conferir(apagados.every((r) => r.por === PROFESSOR), "o registro diz quem apagou");
+conferir(apagados.every((r) => r.via === "SQL direto"), "sem o site no meio, o registro diz que foi SQL direto");
+conferir((await numero(PROFESSOR, "select count(*) from public.registro_exclusoes")) === 0, "só o admin lê o registro de exclusões");
+conferir(await falhaComo(ADMIN, "insert into public.registro_exclusoes (tabela, linha) values ('x', '{}')"), "ninguém escreve no registro pela API");
+conferir(await falhaComo(ADMIN, "delete from public.registro_exclusoes"), "ninguém apaga o registro pela API");
+await db.exec("select set_config('request.method', 'DELETE', false), set_config('request.path', '/cursos', false)");
+const { rows: [{ id: cursoSite }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Pelo site apagado', 'ingles', 1) returning id");
+await como(PROFESSOR, "delete from public.cursos where id = $1", [cursoSite]);
+await db.exec("select set_config('request.method', '', false), set_config('request.path', '', false)");
+const { rows: [doSite] } = await como(ADMIN, "select via from public.registro_exclusoes where linha ->> 'titulo' = 'Pelo site apagado'");
+conferir(doSite?.via === "DELETE /cursos", "quando vem do site, o registro guarda o pedido (DELETE /cursos)");
+
 // ----------------------------------------------------------------------------- aula ao vivo
 console.log("Aula ao vivo");
 const PENDENTE = "00000000-0000-0000-0000-0000000000b3";
