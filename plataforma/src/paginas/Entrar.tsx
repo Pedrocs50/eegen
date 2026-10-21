@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { comVolta, lerVolta } from "../lib/volta";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
+import BotaoGoogle, { SeparadorOu } from "../componentes/BotaoGoogle";
 
 export default function Entrar() {
   const navegar = useNavigate();
@@ -30,7 +31,11 @@ export default function Entrar() {
       subtitulo="Acesse seus exercícios e listenings."
       rodape={<>Ainda não tem conta? <LinkTexto para={comVolta("/cadastro", volta)}>Criar conta</LinkTexto></>}
     >
-      <form onSubmit={enviar} className="space-y-4">
+      <div className="space-y-5">
+        <BotaoGoogle destino={volta ?? "/"} />
+        <SeparadorOu texto="ou entre com e-mail" />
+      </div>
+      <form onSubmit={enviar} className="mt-5 space-y-4">
         {erro && <Aviso>{erro}</Aviso>}
         <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" placeholder="voce@email.com" required />
         <Campo rotulo="Senha" name="senha" type="password" autoComplete="current-password" required />

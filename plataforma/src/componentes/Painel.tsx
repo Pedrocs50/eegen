@@ -6,6 +6,7 @@ import { useTema } from "../lib/tema";
 import { useContadores } from "../lib/notificacoes";
 import { NOMES_PAPEIS, type Papel } from "../lib/supabase";
 import { Marca } from "./ui";
+import Avatar from "./Avatar";
 
 /** emConstrucao: parte em espera; só o admin vê (com selo), para acompanhar tudo o que existe. */
 type ItemMenu = { para: string; rotulo: string; icone: LucideIcon; emConstrucao?: boolean; contador?: keyof Contadores };
@@ -62,12 +63,6 @@ const MENUS: Record<Papel, SecaoMenu[]> = {
     SOBRE,
   ]),
 };
-
-function iniciais(nome: string, email: string) {
-  const partes = nome.trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return email.slice(0, 2).toUpperCase();
-  return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : "")).toUpperCase();
-}
 
 function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contadores: Contadores }) {
   const { perfil, sair } = useAuth();
@@ -131,13 +126,13 @@ function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contado
           {tema === "claro" ? "Tema escuro" : "Tema claro"}
         </button>
         <div className="flex items-center gap-3 rounded-xl bg-fundo p-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-marca text-sm font-bold text-sobre-marca">
-            {iniciais(perfil.nome, perfil.email)}
-          </span>
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-sm font-semibold">{perfil.nome || perfil.email}</span>
-            <span className="block text-xs text-suave">{NOMES_PAPEIS[perfil.papel]}</span>
-          </span>
+          <NavLink to="/perfil" title="Meu perfil" className="flex min-w-0 flex-1 items-center gap-3 rounded-lg hover:opacity-80">
+            <Avatar />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-sm font-semibold">{perfil.nome || perfil.email}</span>
+              <span className="block text-xs text-suave">{NOMES_PAPEIS[perfil.papel]} · Meu perfil</span>
+            </span>
+          </NavLink>
           <button onClick={sair} aria-label="Sair" title="Sair" className="grid size-9 shrink-0 place-items-center rounded-lg text-suave pointer-coarse:size-11 hover:bg-superficie hover:text-erro">
             <LogOut className="size-5" />
           </button>

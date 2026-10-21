@@ -69,7 +69,7 @@ plataforma/             o site
 ├─ src/lib/             regras e acesso a dados
 └─ testes/banco.mjs     testes do banco (todas as migrações + regras de acesso)
 supabase/
-├─ migrations/          o banco, em ordem (0001 a 0016)
+├─ migrations/          o banco, em ordem (0001 a 0017)
 ├─ functions/           assistente (IA das listas) e audio (voz dos listenings)
 └─ exemplos/            listas e cursos de exemplo, com gerador
 docs/                   documentação de cada parte
@@ -80,7 +80,7 @@ gerador.py, roteiros/…  o gerador de listening original (veja o fim)
 
 ## Rodar no computador
 
-1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0016_...`).
+1. No Supabase: **SQL Editor** → cole e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_...` a `0017_...`).
 2. Copie `plataforma/.env.example` para `plataforma/.env.local` e preencha a publishable key.
 3. Rode:
 
@@ -117,6 +117,7 @@ Papéis: todo cadastro novo entra como **aluno**; um **admin** promove professor
 | `0014` | Ajustes para a professora montar tudo de uma vez (e avisos em lote) |
 | `0015` | Biblioteca de aulas em PDF |
 | `0016` | Registro de exclusões |
+| `0017` | Nome vindo do Google no cadastro |
 
 ## Assistente de IA e áudio
 

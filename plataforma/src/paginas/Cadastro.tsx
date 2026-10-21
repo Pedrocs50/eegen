@@ -5,6 +5,7 @@ import { supabase, traduzirErro } from "../lib/supabase";
 import { comVolta, lerVolta } from "../lib/volta";
 import { IDIOMAS, type Idioma } from "../lib/dados";
 import { Aviso, Botao, Campo, CartaoAuth, LinkTexto } from "../componentes/ui";
+import BotaoGoogle, { SeparadorOu } from "../componentes/BotaoGoogle";
 
 type InfoTurma = { turma: string; curso: string; idioma: Idioma; professor: string | null };
 
@@ -134,6 +135,9 @@ export default function Cadastro({ codigoInicial = "" }: { codigoInicial?: strin
             <p className="mt-1.5 text-sm text-erro">Código não encontrado. Confira com a sua professora.</p>
           )}
         </div>
+        {/* Pelo Google, a pessoa volta para o convite da turma, que já registra o pedido de entrada. */}
+        <BotaoGoogle destino={`/convite/${codigo.trim().toUpperCase()}`} desabilitado={!turma} dica="Digite o código da turma acima para continuar com o Google." />
+        <SeparadorOu texto="ou crie a conta com e-mail" />
         <Campo rotulo="Nome completo" name="nome" autoComplete="name" placeholder="Maria Souza" required />
         <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" placeholder="voce@email.com" required />
         <Campo rotulo="Senha" name="senha" type="password" autoComplete="new-password" minLength={8} dica="Pelo menos 8 caracteres." required />

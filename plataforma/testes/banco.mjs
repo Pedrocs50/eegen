@@ -377,6 +377,26 @@ await db.exec("select set_config('request.method', '', false), set_config('reque
 const { rows: [doSite] } = await como(ADMIN, "select via from public.registro_exclusoes where linha ->> 'titulo' = 'Pelo site apagado'");
 conferir(doSite?.via === "DELETE /cursos", "quando vem do site, o registro guarda o pedido (DELETE /cursos)");
 
+// ----------------------------------------------------------------------------- perfil: nome e edição
+console.log("Perfil");
+await db.exec(`insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d1', 'google@teste', '{"full_name":"Ana Souza (Google)","avatar_url":"https://x/foto.png"}'),
+  ('00000000-0000-0000-0000-0000000000d2', 'ambos@teste', '{"nome":"Nome do cadastro","full_name":"Nome do Google"}'),
+  ('00000000-0000-0000-0000-0000000000d3', 'vazio@teste', '{}'),
+  ('00000000-0000-0000-0000-0000000000d4', 'espacos@teste', '{"nome":"   ","name":"  Só o name  "}')`);
+const nomeDe = async (id) => (await db.query("select nome from public.perfis where id = $1", [id])).rows[0].nome;
+conferir((await nomeDe("00000000-0000-0000-0000-0000000000d1")) === "Ana Souza (Google)", "quem entra com Google ganha o nome do Google");
+conferir((await nomeDe("00000000-0000-0000-0000-0000000000d2")) === "Nome do cadastro", "o nome do cadastro por e-mail vem primeiro");
+conferir((await nomeDe("00000000-0000-0000-0000-0000000000d3")) === "", "sem nome nenhum, o perfil nasce em branco (a pessoa preenche em Meu perfil)");
+conferir((await nomeDe("00000000-0000-0000-0000-0000000000d4")) === "Só o name", "nome só com espaços é ignorado e o espaço sobrando é cortado");
+await como(ALUNO, `update public.perfis set nome = 'Aluno com nome novo' where id = '${ALUNO}'`);
+conferir((await nomeDe(ALUNO)) === "Aluno com nome novo", "a pessoa muda o próprio nome");
+conferir(
+  await barrado(ALUNO, `update public.perfis set nome = 'Invasor' where id = '${OUTRO_ALUNO}'`, async () => (await nomeDe(OUTRO_ALUNO)) !== "Invasor"),
+  "ninguém muda o nome de outra pessoa",
+);
+conferir(await falhaComo(ALUNO, `update public.perfis set email = 'outro@x' where id = '${ALUNO}'`), "a pessoa não muda o e-mail do perfil");
+
 // ----------------------------------------------------------------------------- aula ao vivo
 console.log("Aula ao vivo");
 const PENDENTE = "00000000-0000-0000-0000-0000000000b3";
