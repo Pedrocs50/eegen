@@ -1,5 +1,7 @@
 import { Check, Lightbulb, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { normalizarResposta, partesDoEnunciado, type Gabarito, type Questao, type Resposta } from "../lib/exercicios";
+import { LANG_HTML, type Idioma } from "../lib/idiomas";
 
 export type Correcao = { fracao: number; gabarito: Gabarito; explicacao: string };
 
@@ -9,13 +11,23 @@ type Props = {
   resposta: Resposta | undefined;
   aoResponder: (r: Resposta) => void;
   correcao?: Correcao;
+  /** Idioma da lista: o texto do exercício é marcado com esse idioma (leitor de tela) e fica fora da tradução automática. */
+  idioma?: Idioma;
 };
+
+/**
+ * Texto que está na língua estudada. O leitor de tela passa a pronunciá-lo no idioma certo, e o tradutor do navegador
+ * não o traduz (o que entregaria a resposta). Sem idioma, vira um span comum.
+ */
+export function NoIdioma({ idioma, children, className }: { idioma?: Idioma; children: ReactNode; className?: string }) {
+  return idioma ? <span lang={LANG_HTML[idioma]} translate="no" className={className}>{children}</span> : <span className={className}>{children}</span>;
+}
 
 const ENTRADA =
   "rounded-lg border-b-2 border-borda bg-creme px-2 py-1 text-center font-semibold focus:border-destaque focus:outline-none disabled:opacity-100";
 
 /** Uma questão para o aluno responder; depois do envio, mostra a correção. */
-export default function QuestaoAluno({ numero, questao: q, resposta, aoResponder, correcao }: Props) {
+export default function QuestaoAluno({ numero, questao: q, resposta, aoResponder, correcao, idioma }: Props) {
   const corrigida = !!correcao;
   const status = !correcao ? null : correcao.fracao === 1 ? "certa" : correcao.fracao > 0 ? "parcial" : "errada";
   const borda = { certa: "border-sucesso", parcial: "border-[#d39b3a]", errada: "border-erro" }[status ?? "certa"];
@@ -25,12 +37,12 @@ export default function QuestaoAluno({ numero, questao: q, resposta, aoResponder
       <div className="flex items-start gap-3">
         <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-marinho-800 text-sm font-bold text-white">{numero}</span>
         <div className="min-w-0 flex-1">
-          {q.formato === "multipla_escolha" && <MultiplaEscolha q={q} r={resposta} responder={aoResponder} correcao={correcao} />}
-          {q.formato === "verdadeiro_falso" && <VerdadeiroFalso q={q} r={resposta} responder={aoResponder} correcao={correcao} />}
+          {q.formato === "multipla_escolha" && <MultiplaEscolha q={q} r={resposta} responder={aoResponder} correcao={correcao} idioma={idioma} />}
+          {q.formato === "verdadeiro_falso" && <VerdadeiroFalso q={q} r={resposta} responder={aoResponder} correcao={correcao} idioma={idioma} />}
           {(q.formato === "lacuna" || q.formato === "completar_letras" || q.formato === "lacuna_opcoes") && (
-            <Lacunas q={q} r={resposta} responder={aoResponder} correcao={correcao} />
+            <Lacunas q={q} r={resposta} responder={aoResponder} correcao={correcao} idioma={idioma} />
           )}
-          {q.formato === "resposta_curta" && <RespostaCurta q={q} r={resposta} responder={aoResponder} correcao={correcao} />}
+          {q.formato === "resposta_curta" && <RespostaCurta q={q} r={resposta} responder={aoResponder} correcao={correcao} idioma={idioma} />}
         </div>
         {status && (
           <span
@@ -52,13 +64,13 @@ export default function QuestaoAluno({ numero, questao: q, resposta, aoResponder
   );
 }
 
-type PropsParte = { q: Props["questao"]; r: Resposta | undefined; responder: (r: Resposta) => void; correcao?: Correcao };
+type PropsParte = { q: Props["questao"]; r: Resposta | undefined; responder: (r: Resposta) => void; correcao?: Correcao; idioma?: Idioma };
 
-function MultiplaEscolha({ q, r, responder, correcao }: PropsParte) {
+function MultiplaEscolha({ q, r, responder, correcao, idioma }: PropsParte) {
   const opcoes = (q.conteudo.opcoes as string[] | undefined) ?? [];
   return (
     <fieldset>
-      <legend className="mb-3 font-semibold">{q.enunciado}</legend>
+      <legend className="mb-3 font-semibold"><NoIdioma idioma={idioma}>{q.enunciado}</NoIdioma></legend>
       <div className="space-y-2">
         {opcoes.map((opcao, i) => {
           const escolhida = r?.opcao === i;
@@ -74,11 +86,11 @@ function MultiplaEscolha({ q, r, responder, correcao }: PropsParte) {
               : "border-borda hover:border-destaque";
           return (
             <label key={i} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${estilo}`}>
-              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ opcao: i })} aria-label={`${"ABCDE"[i]}: ${opcao}`} className="sr-only" />
+              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ opcao: i })} className="sr-only" />
               <span className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold ${escolhida || certa ? "bg-marca text-sobre-marca" : "bg-creme text-suave"}`}>
                 {"ABCDE"[i]}
               </span>
-              <span>{opcao}</span>
+              <NoIdioma idioma={idioma}>{opcao}</NoIdioma>
             </label>
           );
         })}
@@ -87,10 +99,10 @@ function MultiplaEscolha({ q, r, responder, correcao }: PropsParte) {
   );
 }
 
-function VerdadeiroFalso({ q, r, responder, correcao }: PropsParte) {
+function VerdadeiroFalso({ q, r, responder, correcao, idioma }: PropsParte) {
   return (
     <fieldset>
-      <legend className="mb-3 font-semibold">{q.enunciado}</legend>
+      <legend className="mb-3 font-semibold"><NoIdioma idioma={idioma}>{q.enunciado}</NoIdioma></legend>
       <div className="flex gap-2">
         {[true, false].map((valor) => {
           const escolhida = r?.valor === valor;
@@ -106,8 +118,8 @@ function VerdadeiroFalso({ q, r, responder, correcao }: PropsParte) {
               : "border-borda hover:border-destaque";
           return (
             <label key={String(valor)} className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${estilo}`}>
-              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ valor })} aria-label={valor ? "True" : "False"} className="sr-only" />
-              {valor ? "True" : "False"}
+              <input type="radio" name={q.id} checked={escolhida} disabled={!!correcao} onChange={() => responder({ valor })} className="sr-only" />
+              <span lang="en" translate="no">{valor ? "True" : "False"}</span>
             </label>
           );
         })}
@@ -117,7 +129,7 @@ function VerdadeiroFalso({ q, r, responder, correcao }: PropsParte) {
 }
 
 /** Lacunas digitadas, lacunas com opções e completar letras: o enunciado com campos no meio. */
-function Lacunas({ q, r, responder, correcao }: PropsParte) {
+function Lacunas({ q, r, responder, correcao, idioma }: PropsParte) {
   const partes = partesDoEnunciado(q.enunciado);
   const valores = r?.lacunas ?? [];
   const opcoes = (q.conteudo.opcoes as string[][] | undefined) ?? [];
@@ -148,13 +160,13 @@ function Lacunas({ q, r, responder, correcao }: PropsParte) {
     <div>
       {banco.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
-          {banco.map((palavra) => <span key={palavra} className="rounded-full bg-destaque-suave px-2.5 py-1 text-xs font-semibold text-marca">{palavra}</span>)}
+          {banco.map((palavra) => <NoIdioma key={palavra} idioma={idioma} className="rounded-full bg-destaque-suave px-2.5 py-1 text-xs font-semibold text-marca">{palavra}</NoIdioma>)}
         </div>
       )}
       <p className={`leading-[2.6] ${letras ? "font-mono text-2xl tracking-wide" : ""}`}>
         {partes.map((texto, i) => (
           <span key={i}>
-            {texto}
+            <NoIdioma idioma={idioma}>{texto}</NoIdioma>
             {i < partes.length - 1 && (
               <span className="inline-flex flex-col items-center align-middle">
                 {q.formato === "lacuna_opcoes" ? (
@@ -166,7 +178,7 @@ function Lacunas({ q, r, responder, correcao }: PropsParte) {
                     className={`${ENTRADA} mx-1 text-base ${correcao ? (lacunaCerta(i) ? "text-sucesso" : "text-erro") : "text-marca"}`}
                   >
                     <option value="" disabled>escolha</option>
-                    {(opcoes[i] ?? []).map((opcao, k) => <option key={k} value={k}>{opcao.trim()}</option>)}
+                    {(opcoes[i] ?? []).map((opcao, k) => <option key={k} value={k} lang={idioma ? LANG_HTML[idioma] : undefined}>{opcao.trim()}</option>)}
                   </select>
                 ) : (
                   <input
@@ -174,6 +186,7 @@ function Lacunas({ q, r, responder, correcao }: PropsParte) {
                     disabled={!!correcao}
                     onChange={(e) => definir(i, e.target.value)}
                     aria-label={`Lacuna ${i + 1}`}
+                    lang={idioma ? LANG_HTML[idioma] : undefined}
                     autoComplete="off"
                     autoCapitalize="off"
                     spellCheck={false}
@@ -181,7 +194,7 @@ function Lacunas({ q, r, responder, correcao }: PropsParte) {
                   />
                 )}
                 {correcao && !lacunaCerta(i) && respostaCerta(i) && (
-                  <span className="text-xs leading-tight font-semibold text-sucesso">{respostaCerta(i)}</span>
+                  <NoIdioma idioma={idioma} className="text-xs leading-tight font-semibold text-sucesso">{respostaCerta(i)}</NoIdioma>
                 )}
               </span>
             )}
@@ -192,21 +205,24 @@ function Lacunas({ q, r, responder, correcao }: PropsParte) {
   );
 }
 
-function RespostaCurta({ q, r, responder, correcao }: PropsParte) {
+function RespostaCurta({ q, r, responder, correcao, idioma }: PropsParte) {
   const aceita = correcao?.gabarito.aceitas?.map((a) => a.trim()).find(Boolean);
   return (
     <div>
-      <label htmlFor={`resposta-${q.id}`} className="mb-3 block font-semibold">{q.enunciado}</label>
+      <label htmlFor={`resposta-${q.id}`} className="mb-3 block font-semibold"><NoIdioma idioma={idioma}>{q.enunciado}</NoIdioma></label>
       <input
         id={`resposta-${q.id}`}
         value={r?.texto ?? ""}
         disabled={!!correcao}
         onChange={(e) => responder({ texto: e.target.value })}
+        lang={idioma ? LANG_HTML[idioma] : undefined}
         autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
         className="h-12 w-full rounded-xl border border-borda bg-superficie px-3.5 focus:border-destaque focus:outline-none focus:ring-4 focus:ring-destaque-suave disabled:bg-fundo"
       />
       {correcao && correcao.fracao < 1 && aceita && (
-        <p className="mt-2 text-sm"><span className="text-suave">Resposta esperada: </span><span className="font-semibold text-sucesso">{aceita}</span></p>
+        <p className="mt-2 text-sm"><span className="text-suave">Resposta esperada: </span><NoIdioma idioma={idioma} className="font-semibold text-sucesso">{aceita}</NoIdioma></p>
       )}
     </div>
   );

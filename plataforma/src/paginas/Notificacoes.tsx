@@ -143,7 +143,7 @@ export default function Notificacoes() {
                     onClick={() => alternarTipo(tipo, !ligado)}
                     className={`relative h-6 w-11 shrink-0 rounded-full transition ${ligado ? "bg-sucesso" : "bg-borda"}`}
                   >
-                    <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${ligado ? "left-[22px]" : "left-0.5"}`} />
+                    <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-[left] ${ligado ? "left-[22px]" : "left-0.5"}`} />
                   </button>
                 </li>
               );

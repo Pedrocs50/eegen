@@ -230,7 +230,7 @@ export default function Turma() {
                       </span>
                     </span>
                     {liberada && <CopiarTexto texto={mensagemDeAula(aula)} compacto dica={`Copiar aviso da aula ${aula.numero} para o grupo`} />}
-                    <Link to={`/aulas/${aula.id}`} className="grid size-9 place-items-center rounded-lg text-suave hover:bg-fundo hover:text-texto" title="Ver aula" aria-label={`Ver aula ${aula.numero}`}>
+                    <Link to={`/aulas/${aula.id}`} className="grid size-9 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-fundo hover:text-texto" title="Ver aula" aria-label={`Ver aula ${aula.numero}`}>
                       <Eye className="size-4" />
                     </Link>
                     <button

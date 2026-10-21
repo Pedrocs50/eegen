@@ -25,7 +25,7 @@ export function Pilula({ ativa, onClick, children }: { ativa: boolean; onClick: 
 export function BarraProgresso({ feitas, total, rotulo }: { feitas: number; total: number; rotulo: string }) {
   return (
     <div className="h-2 overflow-hidden rounded-full bg-borda" role="progressbar" aria-label={rotulo} aria-valuenow={feitas} aria-valuemin={0} aria-valuemax={total}>
-      <div className="h-full rounded-full bg-sucesso transition-all" style={{ width: `${total ? (feitas / total) * 100 : 0}%` }} />
+      <div className="h-full rounded-full bg-sucesso transition-[width]" style={{ width: `${total ? (feitas / total) * 100 : 0}%` }} />
     </div>
   );
 }

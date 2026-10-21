@@ -363,7 +363,7 @@ export default function Curso() {
                       onClick={() => gravarOrdem(moverPara(aula.id, posicao - 1))}
                       disabled={posicao === 0}
                       aria-label={`Subir aula ${aula.titulo}`}
-                      className="grid size-6 place-items-center rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
+                      className="grid size-6 place-items-center pointer-coarse:size-11 rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
                     >
                       <ArrowUp className="size-3.5" />
                     </button>
@@ -373,7 +373,7 @@ export default function Curso() {
                       onClick={() => gravarOrdem(moverPara(aula.id, posicao + 1))}
                       disabled={posicao === aulasNaTela.length - 1}
                       aria-label={`Descer aula ${aula.titulo}`}
-                      className="grid size-6 place-items-center rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
+                      className="grid size-6 place-items-center pointer-coarse:size-11 rounded text-suave hover:bg-fundo hover:text-texto disabled:opacity-30"
                     >
                       <ArrowDown className="size-3.5" />
                     </button>

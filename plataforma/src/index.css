@@ -20,11 +20,11 @@
   --c-destaque: #336fae; /* #5291cc dos slides, escurecido para dar contraste em texto */
   --c-destaque-suave: #e8f0f9;
   --c-creme: #f5f0e1;
-  --c-coral: #b85f5e;
+  --c-coral: #9e5150;
   --c-coral-suave: #f8e7e6;
-  --c-sucesso: #2e7d5b;
+  --c-sucesso: #2c7857;
   --c-sucesso-suave: #e3f2ea;
-  --c-erro: #c2414a;
+  --c-erro: #b83d46;
   --c-erro-suave: #fbe7e8;
   color-scheme: light;
 }
@@ -90,4 +90,32 @@ h1,
 h2,
 h3 {
   @apply font-serif;
+}
+
+/* Foco do teclado: um anel só, visível em tudo que se clica ou digita. Fica na camada "base" para os campos que já têm
+   o próprio realce (focus:ring) continuarem mandando. */
+@layer base {
+  :where(a, button, summary, select, input, textarea, [role="button"], [role="tab"], [role="switch"], [role="option"], [tabindex]):focus-visible {
+    outline: 3px solid var(--c-destaque);
+    outline-offset: 2px;
+  }
+  /* Sem o atraso de toque duplo e sem zoom por toque duplo em botões e links. */
+  :where(a, button, summary, select, input, textarea, label, [role="button"], [role="tab"], [role="switch"], [role="option"]) {
+    touch-action: manipulation;
+  }
+}
+
+/* Quem pede menos movimento no sistema: sem pulsar nem balançar, e transições quase instantâneas.
+   O carregando (animate-spin) continua, porque é o único sinal de que algo está acontecendo. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -183,7 +183,7 @@ function ZonaDeEnvio({ materiais, aoTerminar }: { materiais: Material[]; aoTermi
                   <span className="block truncate text-xs text-suave">{item.mensagem || `${item.arquivo.name} · ${tamanhoLegivel(item.arquivo.size)}`}</span>
                 </span>
                 {item.estado !== "enviando" && item.estado !== "ok" && (
-                  <button onClick={() => setItens((atuais) => atuais.filter((i) => i.id !== item.id))} aria-label="Tirar da lista" className="grid size-7 place-items-center rounded-md text-suave hover:bg-fundo"><X className="size-4" /></button>
+                  <button onClick={() => setItens((atuais) => atuais.filter((i) => i.id !== item.id))} aria-label="Tirar da lista" className="grid size-7 place-items-center pointer-coarse:size-11 rounded-md text-suave hover:bg-fundo"><X className="size-4" /></button>
                 )}
               </li>
             ))}
@@ -451,13 +451,13 @@ function LinhaMaterial({ material: m, usos, marcado, aoMarcar, aoMudar, aoAbrir,
         <Etiqueta tom={usos > 0 ? "verde" : "creme"}>{usos > 0 ? `${usos} ${usos === 1 ? "aula" : "aulas"}` : "Não usado"}</Etiqueta>
       </div>
       <div className="flex shrink-0">
-        <button onClick={aoAbrir} title="Abrir o PDF" aria-label={`Abrir ${m.titulo}`} className="grid size-9 place-items-center rounded-lg text-suave hover:bg-fundo hover:text-texto"><ExternalLink className="size-4" /></button>
+        <button onClick={aoAbrir} title="Abrir o PDF" aria-label={`Abrir ${m.titulo}`} className="grid size-9 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-fundo hover:text-texto"><ExternalLink className="size-4" /></button>
         <button
           onClick={aoApagar}
           disabled={usos > 0}
           title={usos > 0 ? "Em uso por aulas: tire das aulas antes de apagar" : "Apagar da biblioteca"}
           aria-label={`Apagar ${m.titulo}`}
-          className="grid size-9 place-items-center rounded-lg text-suave hover:bg-erro-suave hover:text-erro disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-suave"
+          className="grid size-9 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-erro-suave hover:text-erro disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-suave"
         >
           <Trash2 className="size-4" />
         </button>

@@ -29,7 +29,7 @@ export default function CopiarTexto({ texto, children = "Copiar aviso", copiado:
 
   if (compacto) {
     return (
-      <button onClick={copiar} title={dica} aria-label={dica} className={`grid size-9 shrink-0 place-items-center rounded-lg text-suave hover:bg-destaque-suave hover:text-marca ${className}`}>
+      <button onClick={copiar} title={dica} aria-label={dica} className={`grid size-9 shrink-0 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-destaque-suave hover:text-marca ${className}`}>
         {copiado ? <Check className="size-4 text-sucesso" /> : <MessageSquareShare className="size-4" />}
       </button>
     );

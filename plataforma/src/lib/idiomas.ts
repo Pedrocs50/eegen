@@ -21,6 +21,9 @@ export const NIVEIS: Record<Idioma, string[]> = {
 /** Rótulo do nível que vale para qualquer idioma (referência CEFR usada na escola). */
 export const CEFR = ["A1", "A2", "B1", "B1+/B2", "B2", "C1"];
 
+/** Código de idioma para o atributo lang do HTML (leitores de tela e tradutores precisam saber em que língua o texto está). */
+export const LANG_HTML: Record<Idioma, string> = { ingles: "en", espanhol: "es", frances: "fr" };
+
 export function nomeNivel(idioma: Idioma, nivel: number) {
   return NIVEIS[idioma][nivel - 1] ?? `Nível ${nivel}`;
 }

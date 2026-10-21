@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import { FileText, Headphones } from "lucide-react";
 import type { Estimulo } from "../lib/exercicios";
+import { LANG_HTML, type Idioma } from "../lib/idiomas";
 
 const VELOCIDADES = [0.75, 1, 1.25];
 
 /** Player do listening para o aluno: velocidade ajustável e transcrição conforme a escolha do professor. */
-export default function PlayerListening({ estimulo, enviado }: { estimulo: Estimulo; enviado: boolean }) {
+export default function PlayerListening({ estimulo, enviado, idioma }: { estimulo: Estimulo; enviado: boolean; idioma?: Idioma }) {
   const audio = useRef<HTMLAudioElement>(null);
   const [velocidade, setVelocidade] = useState(1);
   const [verTranscricao, setVerTranscricao] = useState(false);
@@ -47,7 +48,7 @@ export default function PlayerListening({ estimulo, enviado }: { estimulo: Estim
         {quando === "depois" && !enviado && <span className="ml-auto text-xs text-suave">A transcrição aparece depois que você enviar.</span>}
       </div>
       {podeVer && verTranscricao && (
-        <div className="mt-3 space-y-1 rounded-xl bg-superficie p-4 text-sm">
+        <div lang={idioma ? LANG_HTML[idioma] : undefined} translate={idioma ? "no" : undefined} className="mt-3 space-y-1 rounded-xl bg-superficie p-4 text-sm">
           {(estimulo.roteiro ?? "").split(/\r?\n/).filter((l) => l.trim()).map((linha, i) => {
             const separador = linha.indexOf(":");
             return separador > 0 ? (

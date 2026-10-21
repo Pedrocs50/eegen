@@ -60,7 +60,7 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar, su
 
   // Chaves de propósito: scrollIntoView devolve uma Promise nos navegadores novos, e o React não aceita isso como retorno.
   useEffect(() => {
-    fim.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    fim.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [conversa, enviando]);
 
   async function enviar(texto: string) {

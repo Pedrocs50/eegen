@@ -94,7 +94,7 @@ export function Colunas({ dados, altura = 176, sufixo = "", maximo, resumo }: {
               <span className="mb-1 text-center text-xs font-semibold text-suave">{d.valor}{sufixo}</span>
             )}
             <div
-              className={`min-h-[3px] rounded-t-md transition-all group-hover:opacity-80 ${d.valor > 0 ? COR_BARRA[d.tom ?? "azul"] : "bg-borda"}`}
+              className={`min-h-[3px] rounded-t-md transition-[height,opacity] group-hover:opacity-80 ${d.valor > 0 ? COR_BARRA[d.tom ?? "azul"] : "bg-borda"}`}
               style={{ height: `${(d.valor / topo) * 100}%` }}
             />
           </div>

@@ -113,7 +113,7 @@ function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contado
                         {contadores[contador] > 99 ? "99+" : contadores[contador]}
                       </span>
                     )}
-                    {emConstrucao && <span className="rounded-full bg-creme px-2 py-0.5 text-[10px] font-bold text-suave uppercase" title="Parte em construção: só o admin vê">Em obra</span>}
+                    {emConstrucao && <span className="rounded-full bg-creme px-2 py-0.5 text-[11px] font-bold text-suave uppercase" title="Parte em construção: só o admin vê">Em obra</span>}
                   </NavLink>
                 </li>
               ))}
@@ -138,7 +138,7 @@ function ConteudoMenu({ aoFechar, contadores }: { aoFechar?: () => void; contado
             <span className="block truncate text-sm font-semibold">{perfil.nome || perfil.email}</span>
             <span className="block text-xs text-suave">{NOMES_PAPEIS[perfil.papel]}</span>
           </span>
-          <button onClick={sair} aria-label="Sair" title="Sair" className="grid size-9 shrink-0 place-items-center rounded-lg text-suave hover:bg-superficie hover:text-erro">
+          <button onClick={sair} aria-label="Sair" title="Sair" className="grid size-9 shrink-0 place-items-center rounded-lg text-suave pointer-coarse:size-11 hover:bg-superficie hover:text-erro">
             <LogOut className="size-5" />
           </button>
         </div>

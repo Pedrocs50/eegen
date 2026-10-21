@@ -4,6 +4,7 @@ import { ArrowLeft, Lightbulb, RotateCcw } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta } from "../lib/dados";
+import { LANG_HTML } from "../lib/idiomas";
 import { respondida, type Lista, type Questao, type Resposta, type Secao } from "../lib/exercicios";
 import QuestaoAluno, { type Correcao } from "../componentes/QuestaoAluno";
 import PlayerListening from "../componentes/PlayerListening";
@@ -115,9 +116,9 @@ export function ResponderLista() {
             {secao.instrucao && <p className="mt-1 text-suave">{secao.instrucao}</p>}
 
             {secao.tipo_estimulo === "texto" && secao.estimulo.texto && (
-              <div className="mt-4 rounded-xl border-l-4 border-marca bg-creme p-5 leading-relaxed whitespace-pre-line">{secao.estimulo.texto}</div>
+              <div lang={LANG_HTML[lista.idioma]} translate="no" className="mt-4 rounded-xl border-l-4 border-marca bg-creme p-5 leading-relaxed whitespace-pre-line">{secao.estimulo.texto}</div>
             )}
-            {secao.tipo_estimulo === "audio" && <PlayerListening estimulo={secao.estimulo} enviado={!!resultado} />}
+            {secao.tipo_estimulo === "audio" && <PlayerListening estimulo={secao.estimulo} enviado={!!resultado} idioma={lista.idioma} />}
             {secao.tipo_estimulo === "dica" && secao.estimulo.texto && (
               <div className="mt-4 flex gap-3 rounded-2xl bg-coral-suave p-5">
                 <Lightbulb className="size-6 shrink-0 text-coral" aria-hidden="true" />
@@ -139,6 +140,7 @@ export function ResponderLista() {
                     resposta={respostas[q.id]}
                     aoResponder={(r) => setRespostas((atual) => ({ ...atual, [q.id]: r }))}
                     correcao={resultado?.questoes[q.id]}
+                    idioma={lista.idioma}
                   />
                 );
               })}

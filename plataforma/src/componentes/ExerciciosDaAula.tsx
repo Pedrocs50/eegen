@@ -63,11 +63,11 @@ export default function ExerciciosDaAula({
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {lista ? lista.titulo : "Lista removida"}
                   {lista && <span className="ml-2 text-xs text-suave">{IDIOMAS[lista.idioma]} · {nomeNivel(lista.idioma, lista.nivel)}</span>}
-                  {lista?.status === "rascunho" && <span className="ml-2 rounded-full bg-coral-suave px-2 py-0.5 text-[10px] font-bold text-coral uppercase">Rascunho</span>}
+                  {lista?.status === "rascunho" && <span className="ml-2 rounded-full bg-coral-suave px-2 py-0.5 text-[11px] font-bold text-coral uppercase">Rascunho</span>}
                 </span>
-                <button type="button" onClick={() => mover(i, i - 1)} aria-label="Subir" className="grid size-8 place-items-center rounded-lg text-suave hover:bg-fundo"><ArrowUp className="size-4" /></button>
-                <button type="button" onClick={() => mover(i, i + 1)} aria-label="Descer" className="grid size-8 place-items-center rounded-lg text-suave hover:bg-fundo"><ArrowDown className="size-4" /></button>
-                <button type="button" onClick={() => aoMudar(selecionadas.filter((x) => x !== id))} aria-label="Tirar da aula" className="grid size-8 place-items-center rounded-lg text-suave hover:bg-erro-suave hover:text-erro"><X className="size-4" /></button>
+                <button type="button" onClick={() => mover(i, i - 1)} aria-label="Subir" className="grid size-8 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-fundo"><ArrowUp className="size-4" /></button>
+                <button type="button" onClick={() => mover(i, i + 1)} aria-label="Descer" className="grid size-8 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-fundo"><ArrowDown className="size-4" /></button>
+                <button type="button" onClick={() => aoMudar(selecionadas.filter((x) => x !== id))} aria-label="Tirar da aula" className="grid size-8 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-erro-suave hover:text-erro"><X className="size-4" /></button>
               </li>
             );
           })}

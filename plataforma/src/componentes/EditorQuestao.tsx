@@ -97,7 +97,7 @@ function Alternativas({ q, mudar }: PropsParte) {
             >
               {i === correta ? <Check className="size-4" /> : "ABCDE"[i]}
             </button>
-            <input className={CONTROLE} value={opcao} onChange={(e) => definir(opcoes.map((o, j) => (j === i ? e.target.value : o)))} placeholder={`Alternativa ${"ABCDE"[i]}`} />
+            <input className={CONTROLE} value={opcao} onChange={(e) => definir(opcoes.map((o, j) => (j === i ? e.target.value : o)))} placeholder={`Alternativa ${"ABCDE"[i]}`} aria-label={`Texto da alternativa ${"ABCDE"[i]}`} />
             {opcoes.length > 2 && (
               <button
                 type="button"
@@ -176,6 +176,7 @@ function RespostasDasLacunas({ q, mudar }: PropsParte) {
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-creme text-xs font-bold text-suave">{i + 1}</span>
           <input
             className={CONTROLE}
+            aria-label={`Respostas aceitas da lacuna ${i + 1}`}
             value={(lacunas[i] ?? []).join("|")}
             onChange={(e) => mudar({ gabarito: { ...q.gabarito, lacunas: lacunas.map((l, j) => (j === i ? e.target.value.split("|") : l)) } })}
             placeholder="went | did go"
@@ -214,6 +215,7 @@ function OpcoesDasLacunas({ q, mudar }: PropsParte) {
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-creme text-xs font-bold text-suave">{i + 1}</span>
             <input
               className={CONTROLE}
+              aria-label={`Opções da lacuna ${i + 1}`}
               value={daLacuna.join("/")}
               onChange={(e) => mudar({ conteudo: { ...q.conteudo, opcoes: opcoes.map((o, j) => (j === i ? e.target.value.split("/") : o)) } })}
               placeholder="y/e"

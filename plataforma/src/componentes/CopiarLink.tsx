@@ -26,7 +26,7 @@ export default function CopiarLink({ idLista, compacto = false, publicada = true
   const dica = publicada ? "Copiar o link para mandar aos alunos" : "Copiar o link (os alunos só abrem depois de publicada)";
   if (compacto) {
     return (
-      <button onClick={copiar} title={dica} aria-label={dica} className="grid size-9 shrink-0 place-items-center rounded-lg text-suave hover:bg-destaque-suave hover:text-marca">
+      <button onClick={copiar} title={dica} aria-label={dica} className="grid size-9 shrink-0 place-items-center pointer-coarse:size-11 rounded-lg text-suave hover:bg-destaque-suave hover:text-marca">
         {copiado ? <Check className="size-4 text-sucesso" /> : <Link2 className="size-4" />}
       </button>
     );
