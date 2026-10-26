@@ -50,6 +50,17 @@ export function mensagemDeExtras(listas: { id: string; titulo: string }[]) {
   ].join("\n");
 }
 
+/** Aviso dos exercícios do curso liberados, um link para cada. */
+export function mensagemDeExercicios(listas: { id: string; titulo: string }[]) {
+  return [
+    listas.length === 1 ? "📝 Exercício novo na plataforma:" : "📝 Exercícios novos na plataforma:",
+    "",
+    ...listas.map((l) => `• ${l.titulo}: ${window.location.origin}/praticar/${l.id}`),
+    "",
+    "Pode refazer quantas vezes quiser: vale a sua melhor nota!",
+  ].join("\n");
+}
+
 export type SituacaoMatricula = "pendente" | "aprovada";
 export type CursoResumo = { id: string; titulo: string; idioma: Idioma; nivel: number };
 
@@ -111,6 +122,8 @@ export type AulaDaTurma = {
 };
 export type ConteudoDaTurma = {
   aulas: AulaDaTurma[];
+  /** Exercícios do curso liberados para a turma, na ordem do curso. */
+  doCurso: (ListaDaTurma & { liberadaEm: string })[];
   extras: (ListaDaTurma & { liberadaEm: string })[];
   /** Melhor nota de cada lista (só das que a pessoa já fez). */
   notas: Record<string, number>;
@@ -122,16 +135,17 @@ type LinhaAula = {
   aula_listas: { ordem: number; listas: ListaDaTurma | null }[];
 };
 type LinhaConteudo = {
-  cursos: { aulas: LinhaAula[] } | null;
+  cursos: { aulas: LinhaAula[]; curso_listas: { ordem: number; listas: ListaDaTurma | null }[] } | null;
+  curso_listas_liberadas: { lista_id: string; liberada_em: string }[];
   aulas_liberadas: { aula_id: string; liberada_em: string }[];
   turma_listas: { ordem: number; liberada_em: string; listas: ListaDaTurma | null }[];
 };
 
-/** Só o que o aluno vê: aulas liberadas e listas publicadas (a equipe também recebe rascunhos e aulas bloqueadas, que ficam de fora). */
+/** Só o que o aluno vê: aulas e exercícios do curso liberados, e listas publicadas (a equipe também recebe rascunhos e aulas bloqueadas, que ficam de fora). */
 export async function buscarConteudoDaTurma(idTurma: string, idPessoa: string) {
   const { data, error } = await supabase
     .from("turmas")
-    .select(`cursos(aulas(id, numero, titulo, subtitulo, material_arquivo, material_url, aula_listas(ordem, listas(${CAMPOS_LISTA})))), aulas_liberadas(aula_id, liberada_em), turma_listas(ordem, liberada_em, listas(${CAMPOS_LISTA}))`)
+    .select(`cursos(aulas(id, numero, titulo, subtitulo, material_arquivo, material_url, aula_listas(ordem, listas(${CAMPOS_LISTA}))), curso_listas(ordem, listas(${CAMPOS_LISTA}))), curso_listas_liberadas(lista_id, liberada_em), aulas_liberadas(aula_id, liberada_em), turma_listas(ordem, liberada_em, listas(${CAMPOS_LISTA}))`)
     .eq("id", idTurma)
     .single();
   if (error) return { data: null, error };
@@ -151,18 +165,24 @@ export async function buscarConteudoDaTurma(idTurma: string, idPessoa: string) {
       liberadaEm: liberadas.get(a.id)!,
       listas: [...a.aula_listas].sort((x, y) => x.ordem - y.ordem).map((x) => x.listas).filter(publicada),
     }));
+  const exerciciosLiberados = new Map(linha.curso_listas_liberadas.map((l) => [l.lista_id, l.liberada_em]));
+  const doCurso = [...(linha.cursos?.curso_listas ?? [])]
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((x) => x.listas)
+    .filter((l): l is ListaDaTurma => publicada(l) && exerciciosLiberados.has(l.id))
+    .map((l) => ({ ...l, liberadaEm: exerciciosLiberados.get(l.id)! }));
   const extras = [...linha.turma_listas]
     .sort((a, b) => a.ordem - b.ordem || b.liberada_em.localeCompare(a.liberada_em))
     .filter((x) => publicada(x.listas))
     .map((x) => ({ ...x.listas!, liberadaEm: x.liberada_em }));
 
-  const ids = [...new Set([...aulas.flatMap((a) => a.listas.map((l) => l.id)), ...extras.map((l) => l.id)])];
+  const ids = [...new Set([...aulas.flatMap((a) => a.listas.map((l) => l.id)), ...doCurso.map((l) => l.id), ...extras.map((l) => l.id)])];
   const notas: Record<string, number> = {};
   if (ids.length) {
     const { data: tentativas } = await supabase.from("tentativas").select("lista_id, nota").eq("aluno_id", idPessoa).in("lista_id", ids);
     for (const t of tentativas ?? []) notas[t.lista_id] = Math.max(notas[t.lista_id] ?? 0, Number(t.nota));
   }
-  return { data: { aulas, extras, notas } satisfies ConteudoDaTurma, error: null };
+  return { data: { aulas, doCurso, extras, notas } satisfies ConteudoDaTurma, error: null };
 }
 
 /** Turma escolhida: a da URL, senão a última aberta, senão a primeira aprovada. */

@@ -17,6 +17,7 @@ export default function ExerciciosDaAula({
   rotulo = "Exercícios da aula",
   descricao = "Aparecem no fim da aula, em \"Hora de praticar!\". Cada um abre pelo próprio link.",
   porNivel,
+  doCurso,
 }: {
   selecionadas: string[];
   aoMudar: (ids: string[]) => void;
@@ -24,12 +25,22 @@ export default function ExerciciosDaAula({
   descricao?: string;
   /** Mostra "Adicionar por nível" (várias listas de uma vez); idioma e nível já marcados vêm do curso. */
   porNivel?: { idioma: Idioma; nivel: number };
+  /** Mostra só as listas do idioma do curso, agrupadas por nível (o nível do curso primeiro), em vez de todas misturadas. */
+  doCurso?: { idioma: Idioma; nivel: number };
 }) {
   const { dados: listas } = useConsulta<ListaResumo[]>(() =>
     supabase.from("listas").select("id, titulo, idioma, nivel, status").order("nivel").order("titulo"),
   );
   const porId = new Map((listas ?? []).map((l) => [l.id, l]));
-  const disponiveis = (listas ?? []).filter((l) => !selecionadas.includes(l.id));
+  const disponiveis = (listas ?? []).filter((l) => !selecionadas.includes(l.id) && (!doCurso || l.idioma === doCurso.idioma));
+  // Grupos do menu: por nível (com doCurso) ou por idioma.
+  const grupos = doCurso
+    ? [doCurso.nivel, ...[1, 2, 3, 4, 5, 6].filter((n) => n !== doCurso.nivel)].map((n) => ({
+        chave: `n${n}`,
+        rotulo: nomeNivel(doCurso.idioma, n) + (n === doCurso.nivel ? " (nível do curso)" : ""),
+        listas: disponiveis.filter((l) => l.nivel === n),
+      }))
+    : ORDEM_IDIOMAS.map((idioma) => ({ chave: idioma, rotulo: IDIOMAS[idioma], listas: disponiveis.filter((l) => l.idioma === idioma) }));
 
   const mover = (de: number, para: number) => {
     if (para < 0 || para >= selecionadas.length) return;
@@ -82,20 +93,18 @@ export default function ExerciciosDaAula({
           className="h-11 w-full rounded-xl border border-borda bg-superficie px-3 text-sm"
           disabled={!listas}
         >
-          <option value="">{listas ? (disponiveis.length ? "+ Adicionar exercício…" : "Todas as listas já estão nesta aula") : "Carregando listas…"}</option>
-          {ORDEM_IDIOMAS.map((idioma) => {
-            const doIdioma = disponiveis.filter((l) => l.idioma === idioma);
-            if (doIdioma.length === 0) return null;
-            return (
-              <optgroup key={idioma} label={IDIOMAS[idioma]}>
-                {doIdioma.map((l) => (
+          <option value="">{listas ? (disponiveis.length ? "+ Adicionar exercício…" : (doCurso ? "Nenhuma outra lista deste idioma" : "Todas as listas já estão aqui")) : "Carregando listas…"}</option>
+          {grupos.map((grupo) =>
+            grupo.listas.length === 0 ? null : (
+              <optgroup key={grupo.chave} label={grupo.rotulo}>
+                {grupo.listas.map((l) => (
                   <option key={l.id} value={l.id}>
-                    {l.titulo} · {nomeNivel(l.idioma, l.nivel)}{l.status === "rascunho" ? " (rascunho)" : ""}
+                    {l.titulo}{doCurso ? "" : ` · ${nomeNivel(l.idioma, l.nivel)}`}{l.status === "rascunho" ? " (rascunho)" : ""}
                   </option>
                 ))}
               </optgroup>
-            );
-          })}
+            ),
+          )}
         </select>
       </label>
       {selecionadas.some((id) => porId.get(id)?.status === "rascunho") && (

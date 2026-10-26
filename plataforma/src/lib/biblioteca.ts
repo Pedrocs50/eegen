@@ -74,7 +74,52 @@ export function nivelDoNome(nome: string): number | null {
 /** Ordem "natural": "Aula 2" vem antes de "Aula 10", e "1° Clase" antes de "2° Clase". */
 export const ordemNatural = (a: string, b: string) => a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" });
 
-export const tamanhoLegivel = (bytes: number) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+// "Aula", "practice", "quiz"... aparecem em qualquer título e não dizem o assunto.
+const PALAVRAS_GENERICAS = /^(aula|class|clase|classe|lesson|leccion|lecon|exercicios?|exercises?|ejercicios?|exercices?|practice|practise|pratica|practica|review|revisao|revision|quiz|test|teste|activity|activities|atividades?|actividad(es)?|worksheet|homework|part|parte|unit|unidade?|unidad)$/;
+
+/** Palavras que importam num título, sem acento nem caixa: "There Is / There Are" -> ["there", "is", "are"]. */
+function palavrasDoTitulo(titulo: string) {
+  const palavras = tituloDoArquivo(titulo)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((p) => p && !PALAVRAS_MENORES.has(p) && !PALAVRAS_GENERICAS.test(p));
+  return new Set(palavras);
+}
+
+/** Quanto dois títulos se parecem, de 0 a 1 (palavras em comum). "Verbo to do" x "Verb to do - exercises" ≈ 0,7. */
+export function semelhanca(a: string, b: string) {
+  const pa = palavrasDoTitulo(a);
+  const pb = palavrasDoTitulo(b);
+  if (pa.size === 0 || pb.size === 0) return 0;
+  let comuns = 0;
+  for (const p of pa) if (pb.has(p) || [...pb].some((q) => p.length > 3 && q.length > 3 && (p.startsWith(q) || q.startsWith(p)))) comuns += 1;
+  return (2 * comuns) / (pa.size + pb.size);
+}
+
+/**
+ * Casa cada item com o alvo de título mais parecido (os pares mais parecidos primeiro). Com `unico`, cada alvo é usado
+ * uma vez só (um PDF por aula). Devolve item -> alvo; quem não passa do mínimo fica de fora.
+ */
+export function casarPorTitulo<I extends { id: string; titulo: string }, A extends { id: string; titulo: string }>(
+  itens: I[],
+  alvos: A[],
+  { minimo = 0.5, unico = false }: { minimo?: number; unico?: boolean } = {},
+) {
+  const pares = itens.flatMap((i) => alvos.map((a) => ({ i, a, nota: semelhanca(i.titulo, a.titulo) }))).filter((p) => p.nota >= minimo);
+  pares.sort((x, y) => y.nota - x.nota);
+  const casados = new Map<string, A>();
+  const usados = new Set<string>();
+  for (const { i, a } of pares) {
+    if (casados.has(i.id) || (unico && usados.has(a.id))) continue;
+    casados.set(i.id, a);
+    usados.add(a.id);
+  }
+  return casados;
+}
+
+export const tamanhoLegivel =(bytes: number) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
 // ---------------------------------------------------------------------------
 // Envio

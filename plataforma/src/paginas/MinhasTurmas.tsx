@@ -16,7 +16,7 @@ function primeiroNome(nome: string) {
   return nome.trim().split(/\s+/)[0] || "";
 }
 
-const idsDasListas = (c: ConteudoDaTurma) => [...new Set([...c.aulas.flatMap((a) => a.listas.map((l) => l.id)), ...c.extras.map((l) => l.id)])];
+const idsDasListas = (c: ConteudoDaTurma) => [...new Set([...c.aulas.flatMap((a) => a.listas.map((l) => l.id)), ...c.doCurso.map((l) => l.id), ...c.extras.map((l) => l.id)])];
 
 /** Conteúdo e link ao vivo de uma turma, carregados juntos. */
 function useTurma(idTurma: string) {
@@ -90,7 +90,7 @@ function BlocoTurma({ turma }: { turma: TurmaDoAluno }) {
   const ids = dados ? idsDasListas(dados.conteudo) : [];
   const feitas = dados ? ids.filter((id) => dados.conteudo.notas[id] !== undefined).length : 0;
   const aulaNova = dados?.conteudo.aulas.some((a) => ehNova(a.liberadaEm));
-  const extrasNovos = dados?.conteudo.extras.filter((l) => ehNova(l.liberadaEm) && dados.conteudo.notas[l.id] === undefined).length ?? 0;
+  const extrasNovos = dados ? [...dados.conteudo.doCurso, ...dados.conteudo.extras].filter((l) => ehNova(l.liberadaEm) && dados.conteudo.notas[l.id] === undefined).length : 0;
   const aoVivo = dados ? resumoAoVivo(dados.encontros, agora) : null;
 
   return (
@@ -110,7 +110,7 @@ function BlocoTurma({ turma }: { turma: TurmaDoAluno }) {
               <Etiqueta tom={aoVivo.destaque ? "verde" : "azul"}><Video className="mr-1 size-3.5" /> {aoVivo.texto}</Etiqueta>
             )}
             {aulaNova && <Etiqueta tom="coral">Aula nova</Etiqueta>}
-            {extrasNovos > 0 && <Etiqueta tom="coral">{extrasNovos} {extrasNovos === 1 ? "extra novo" : "extras novos"}</Etiqueta>}
+            {extrasNovos > 0 && <Etiqueta tom="coral">{extrasNovos} {extrasNovos === 1 ? "exercício novo" : "exercícios novos"}</Etiqueta>}
           </div>
           {dados ? (
             <div>
@@ -238,21 +238,27 @@ export function TurmaDoAluno() {
 
 // ---------------------------------------------------------------- Início
 
-/** Primeira lista ainda não feita: começa pela aula mais recente (é o assunto da semana), depois as anteriores, depois os extras. */
-function proximoExercicio(conteudo: ConteudoDaTurma): { lista: ListaDaTurma; aula: AulaDaTurma | null } | null {
+/**
+ * Primeira lista ainda não feita: começa pela aula mais recente (é o assunto da semana), depois as anteriores, depois os
+ * exercícios do curso (na ordem do curso) e por fim os extras.
+ */
+function proximoExercicio(conteudo: ConteudoDaTurma): { lista: ListaDaTurma; aula: AulaDaTurma | null; doCurso: boolean } | null {
   for (const aula of [...conteudo.aulas].reverse()) {
     const lista = aula.listas.find((l) => conteudo.notas[l.id] === undefined);
-    if (lista) return { lista, aula };
+    if (lista) return { lista, aula, doCurso: false };
   }
+  const doCurso = conteudo.doCurso.find((l) => conteudo.notas[l.id] === undefined);
+  if (doCurso) return { lista: doCurso, aula: null, doCurso: true };
   const extra = conteudo.extras.find((l) => conteudo.notas[l.id] === undefined);
-  return extra ? { lista: extra, aula: null } : null;
+  return extra ? { lista: extra, aula: null, doCurso: false } : null;
 }
 
 function AbaInicio({ idTurma, conteudo, encontros, irPara }: { idTurma: string; conteudo: ConteudoDaTurma; encontros: Encontros | null; irPara: (aba: Aba) => void }) {
   const proximo = proximoExercicio(conteudo);
   const ultimaAula = conteudo.aulas[conteudo.aulas.length - 1];
   const extrasNovos = conteudo.extras.filter((l) => ehNova(l.liberadaEm));
-  const listasAulas = conteudo.aulas.flatMap((a) => a.listas);
+  // Exercícios das aulas e do curso contam juntos no atalho "Exercícios".
+  const listasAulas = [...conteudo.aulas.flatMap((a) => a.listas), ...conteudo.doCurso];
   const feitasAulas = listasAulas.filter((l) => conteudo.notas[l.id] !== undefined).length;
   const feitasExtras = conteudo.extras.filter((l) => conteudo.notas[l.id] !== undefined).length;
 
@@ -269,7 +275,7 @@ function AbaInicio({ idTurma, conteudo, encontros, irPara }: { idTurma: string; 
           <span className="min-w-0 flex-1">
             <span className="block text-[11px] font-bold tracking-[0.12em] text-destaque uppercase">Próximo exercício</span>
             <span className="block font-serif text-xl font-bold text-marca">{proximo.lista.titulo}</span>
-            <span className="text-sm text-suave">{proximo.aula ? `Aula ${proximo.aula.numero} · ${proximo.aula.titulo}` : "Exercício extra da turma"}</span>
+            <span className="text-sm text-suave">{proximo.aula ? `Aula ${proximo.aula.numero} · ${proximo.aula.titulo}` : proximo.doCurso ? "Exercício do curso" : "Exercício extra da turma"}</span>
           </span>
           <span className="inline-flex items-center gap-1.5 font-semibold text-marca">Começar <ArrowRight className="size-4" /></span>
         </Link>
@@ -293,7 +299,7 @@ function AbaInicio({ idTurma, conteudo, encontros, irPara }: { idTurma: string; 
         />
         <Atalho
           icone={ClipboardList}
-          titulo="Exercícios das aulas"
+          titulo={conteudo.doCurso.length ? "Exercícios" : "Exercícios das aulas"}
           numero={listasAulas.length}
           texto={`${feitasAulas} de ${listasAulas.length} feitos`}
           onClick={() => irPara("exercicios")}
@@ -384,10 +390,10 @@ function ListaDeAulas({ idTurma, conteudo }: { idTurma: string; conteudo: Conteu
 // ---------------------------------------------------------------- Exercícios
 
 type Situacao = "todas" | "pendentes" | "feitas";
-type Tipo = "aulas" | "extras";
+type Tipo = "aulas" | "curso" | "extras";
 
 function ExerciciosDaTurma({ idTurma, conteudo }: { idTurma: string; conteudo: ConteudoDaTurma }) {
-  const [tipo, setTipo] = useState<Tipo>("aulas");
+  const [tipo, setTipo] = useState<Tipo>(conteudo.doCurso.length > 0 && !conteudo.aulas.some((a) => a.listas.length) ? "curso" : "aulas");
   const [situacao, setSituacao] = useState<Situacao>("todas");
   const [busca, setBusca] = useState("");
   const { notas } = conteudo;
@@ -397,19 +403,20 @@ function ExerciciosDaTurma({ idTurma, conteudo }: { idTurma: string; conteudo: C
     (situacao === "todas" || (situacao === "feitas" ? notas[l.id] !== undefined : notas[l.id] === undefined)) &&
     (!termo || `${l.titulo} ${l.descricao}`.toLowerCase().includes(termo));
   const listasDasAulas = conteudo.aulas.flatMap((a) => a.listas);
-  const doTipo = tipo === "aulas" ? listasDasAulas : conteudo.extras;
+  const doTipo = tipo === "aulas" ? listasDasAulas : tipo === "curso" ? conteudo.doCurso : conteudo.extras;
   const feitas = doTipo.filter((l) => notas[l.id] !== undefined).length;
   const aulas = [...conteudo.aulas].reverse().map((a) => ({ ...a, visiveis: a.listas.filter(passa) })).filter((a) => a.visiveis.length > 0);
-  const extras = conteudo.extras.filter(passa);
-  const nadaComFiltro = tipo === "aulas" ? aulas.length === 0 : extras.length === 0;
+  const avulsas = (tipo === "curso" ? conteudo.doCurso : conteudo.extras).filter(passa);
+  const nadaComFiltro = tipo === "aulas" ? aulas.length === 0 : avulsas.length === 0;
 
   return (
     <>
       <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Tipo de exercício">
         {([
           ["aulas", "Das aulas", BookOpen, listasDasAulas.length],
+          ["curso", "Do curso", ClipboardList, conteudo.doCurso.length],
           ["extras", "Extras", Sparkles, conteudo.extras.length],
-        ] as const).map(([valor, rotulo, Icone, quantidade]) => (
+        ] as const).filter(([valor, , , quantidade]) => valor !== "curso" || quantidade > 0).map(([valor, rotulo, Icone, quantidade]) => (
           <button
             key={valor}
             onClick={() => setTipo(valor)}
@@ -427,7 +434,7 @@ function ExerciciosDaTurma({ idTurma, conteudo }: { idTurma: string; conteudo: C
         <>
           <div className="mb-5 rounded-2xl border border-borda bg-superficie p-5">
             <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold">{tipo === "aulas" ? "Exercícios das aulas" : "Exercícios extras"}</span>
+              <span className="font-semibold">{{ aulas: "Exercícios das aulas", curso: "Exercícios do curso", extras: "Exercícios extras" }[tipo]}</span>
               <span className="text-suave">{feitas} de {doTipo.length} feitos</span>
             </div>
             <BarraProgresso feitas={feitas} total={doTipo.length} rotulo="Progresso" />
@@ -483,7 +490,7 @@ function ExerciciosDaTurma({ idTurma, conteudo }: { idTurma: string; conteudo: C
         </div>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {extras.map((l) => <CartaoLista key={l.id} lista={l} nota={notas[l.id]} idTurma={idTurma} contexto={ehNova(l.liberadaEm) ? <Etiqueta tom="coral">Novo</Etiqueta> : undefined} />)}
+          {avulsas.map((l) => <CartaoLista key={l.id} lista={l} nota={notas[l.id]} idTurma={idTurma} contexto={ehNova(l.liberadaEm) ? <Etiqueta tom="coral">Novo</Etiqueta> : undefined} />)}
         </ul>
       )}
     </>

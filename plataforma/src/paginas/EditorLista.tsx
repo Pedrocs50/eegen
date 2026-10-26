@@ -71,15 +71,17 @@ type AulaDestino = {
 type Usos = {
   aula_listas: { aulas: { id: string; numero: number; titulo: string; curso_id: string; cursos: { titulo: string } | null } | null }[];
   turma_listas: { turmas: { id: string; nome: string } | null }[];
+  curso_listas: { cursos: { id: string; titulo: string } | null }[];
 };
+type CursoDestino = { id: string; titulo: string; idioma: Idioma; nivel: number };
 
-/** Onde a lista está em uso (aulas e extras de turma). Sem nenhum, nenhum aluno a vê. */
+/** Onde a lista está em uso (aulas, exercícios do curso e extras de turma). Sem nenhum, nenhum aluno a vê. */
 function OndeAparece({ idLista, atualizar }: { idLista: string; atualizar: number }) {
   const [usos, setUsos] = useState<Usos | null>(null);
   useEffect(() => {
     supabase
       .from("listas")
-      .select("aula_listas(aulas(id, numero, titulo, curso_id, cursos(titulo))), turma_listas(turmas(id, nome))")
+      .select("aula_listas(aulas(id, numero, titulo, curso_id, cursos(titulo))), turma_listas(turmas(id, nome)), curso_listas(cursos(id, titulo))")
       .eq("id", idLista)
       .single()
       .then(({ data }) => setUsos(data as unknown as Usos | null));
@@ -87,16 +89,22 @@ function OndeAparece({ idLista, atualizar }: { idLista: string; atualizar: numbe
   if (!usos) return null;
   const aulas = usos.aula_listas.map((u) => u.aulas).filter((a): a is NonNullable<typeof a> => !!a);
   const turmas = usos.turma_listas.map((u) => u.turmas).filter((t): t is NonNullable<typeof t> => !!t);
+  const cursos = usos.curso_listas.map((u) => u.cursos).filter((c): c is NonNullable<typeof c> => !!c);
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-borda bg-superficie px-4 py-3 text-sm">
       <MapPin className="size-4 shrink-0 text-suave" />
-      {aulas.length === 0 && turmas.length === 0 ? (
+      {aulas.length === 0 && turmas.length === 0 && cursos.length === 0 ? (
         <span className="text-suave">
-          Esta lista ainda não está em nenhuma aula nem nos extras de uma turma, então nenhum aluno a vê. Coloque-a numa aula (em Cursos e aulas) ou nos extras de uma turma.
+          Esta lista ainda não está em nenhum curso, aula ou extra de turma, então nenhum aluno a vê. Coloque-a nos exercícios de um curso (em Cursos e aulas) ou nos extras de uma turma.
         </span>
       ) : (
         <>
           <span className="text-suave">Aparece em:</span>
+          {cursos.map((c) => (
+            <Link key={c.id} to={`/cursos/${c.id}`} className="rounded-full bg-destaque-suave px-3 py-1 font-semibold text-marca hover:underline">
+              Exercícios do curso · {c.titulo}
+            </Link>
+          ))}
           {aulas.map((a) => (
             <Link key={a.id} to={`/cursos/${a.curso_id}`} className="rounded-full bg-destaque-suave px-3 py-1 font-semibold text-marca hover:underline">
               Aula {a.numero} · {a.titulo}{a.cursos ? ` (${a.cursos.titulo})` : ""}
@@ -121,6 +129,9 @@ export default function EditorLista() {
   const [parametros] = useSearchParams();
   const idAulaDestino = nova ? parametros.get("aula") : null;
   const [aulaDestino, setAulaDestino] = useState<AulaDestino | null>(null);
+  // /exercicios/nova?curso=ID: a lista entra nos exercícios do curso no primeiro salvamento.
+  const idCursoDestino = nova && !idAulaDestino ? parametros.get("curso") : null;
+  const [cursoDestino, setCursoDestino] = useState<CursoDestino | null>(null);
   const [usosAtualizados, setUsosAtualizados] = useState(0);
   const [lista, setLista] = useState<Lista | null>(nova ? novaLista() : null);
   const [abertas, setAbertas] = useState<Set<string>>(new Set());
@@ -169,6 +180,23 @@ export default function EditorLista() {
         );
       });
   }, [idAulaDestino]);
+
+  useEffect(() => {
+    if (!idCursoDestino) return;
+    supabase
+      .from("cursos")
+      .select("id, titulo, idioma, nivel")
+      .eq("id", idCursoDestino)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        const curso = data as CursoDestino;
+        setCursoDestino(curso);
+        setLista((atual) =>
+          atual && !atual.titulo && atual.secoes.every((s) => s.questoes.length === 0) ? { ...atual, idioma: curso.idioma, nivel: curso.nivel } : atual,
+        );
+      });
+  }, [idCursoDestino]);
 
   // Avisa antes de sair da página com alterações não salvas.
   useEffect(() => {
@@ -279,6 +307,13 @@ export default function EditorLista() {
         else setAviso(`Lista criada e colocada na Aula ${aulaDestino.numero} · ${aulaDestino.titulo}. Os alunos a veem quando ela estiver publicada e a aula liberada.`);
         setUsosAtualizados((n) => n + 1);
       }
+      if (cursoDestino) {
+        const { count } = await supabase.from("curso_listas").select("lista_id", { count: "exact", head: true }).eq("curso_id", cursoDestino.id);
+        const { error: erroCurso } = await supabase.from("curso_listas").insert({ curso_id: cursoDestino.id, lista_id: lista.id, ordem: count ?? 0 });
+        if (erroCurso) setErro(`A lista foi salva, mas não entrou no curso: ${traduzirErro(erroCurso.message)}`);
+        else setAviso(`Lista criada e colocada nos exercícios do curso ${cursoDestino.titulo}. Os alunos a veem quando ela estiver publicada e a turma liberar.`);
+        setUsosAtualizados((n) => n + 1);
+      }
     }
     return true;
   }
@@ -308,11 +343,19 @@ export default function EditorLista() {
   return (
     <div className="pb-24">
       <Link
-        to={aulaDestino ? `/cursos/${aulaDestino.curso_id}` : "/exercicios"}
+        to={aulaDestino ? `/cursos/${aulaDestino.curso_id}` : cursoDestino ? `/cursos/${cursoDestino.id}` : "/exercicios"}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-suave hover:text-texto"
       >
-        <ArrowLeft className="size-4" /> {aulaDestino ? `Voltar ao curso ${aulaDestino.cursos.titulo}` : "Exercícios"}
+        <ArrowLeft className="size-4" /> {aulaDestino ? `Voltar ao curso ${aulaDestino.cursos.titulo}` : cursoDestino ? `Voltar ao curso ${cursoDestino.titulo}` : "Exercícios"}
       </Link>
+      {cursoDestino && !persistida && (
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-destaque/40 bg-destaque-suave p-4 text-sm">
+          <BookOpen className="mt-0.5 size-5 shrink-0 text-marca" />
+          <p>
+            Esta lista vai entrar nos <strong>exercícios do curso {cursoDestino.titulo}</strong> assim que for salva. Idioma e nível já vieram do curso.
+          </p>
+        </div>
+      )}
       {aulaDestino && !persistida && (
         <div className="mb-4 flex items-start gap-3 rounded-2xl border border-destaque/40 bg-destaque-suave p-4 text-sm">
           <BookOpen className="mt-0.5 size-5 shrink-0 text-marca" />

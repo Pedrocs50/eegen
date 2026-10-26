@@ -2,6 +2,33 @@
 
 **Status (19/10/2026):** ativo. É a espinha da plataforma: o aluno só vê o que foi liberado para a turma dele.
 
+## Exercícios do curso (migração `0018`)
+Os exercícios ficam **no curso**, numa lista própria e em ordem, separados das aulas. Cada turma libera os que quiser, no ritmo dela.
+
+- **No curso** (`/cursos/:id`, seção "Exercícios do curso"):
+  - "Adicionar vários exercícios de uma vez": marca o nível (ex.: Elementary) e entram todos de uma vez;
+  - publicados vêm marcados e rascunhos desmarcados;
+  - a ordem é automática: primeiro os que combinam com uma aula pelo nome, na ordem das aulas, e depois o resto em ordem natural;
+  - depois dá para subir, descer, tirar do curso ou usar "Organizar na ordem das aulas";
+  - "Criar exercício novo neste curso" abre o editor em `/exercicios/nova?curso=ID`, e a lista entra no curso no primeiro salvamento.
+- **Na turma** (`/turmas/:id`, aba **Exercícios**):
+  - "Liberar" um a um ou "Liberar todos";
+  - o aluno recebe um aviso só por comando ("5 exercícios novos");
+  - "Copiar aviso para o grupo" traz os links.
+- **Para o aluno:** em Exercícios, o filtro "Do curso" aparece ao lado de "Das aulas" e "Extras". O "Próximo exercício" passa pelos do curso depois das aulas.
+- **Regra:** o aluno vê o exercício se ele estiver publicado, no curso da turma e liberado na turma. Tirar do curso esconde de novo, mesmo já liberado.
+- **Diferença dos extras:** o extra é escolhido turma por turma. O exercício do curso é montado uma vez e serve a todas as turmas do curso.
+
+## Colocar PDFs e aulas mais rápido
+- **PDFs nas aulas que já existem** (página do curso, "Colocar os PDFs nas aulas"):
+  - aparece quando alguma aula está sem material;
+  - para cada aula, o site sugere o PDF da biblioteca pelo nome (ex.: "Regular and Irregular Plurals" ↔ `ENGLISH CLASS - REGULAR AND IRREGULAR PLURALS.pdf`);
+  - a professora confere e salva tudo de uma vez;
+  - "Enviar PDFs do computador" manda vários de uma vez para a biblioteca, já com o idioma e o nível do curso, e eles entram nas sugestões.
+- **Nova aula pela turma:** o botão "Nova aula" na aba Aulas abre o formulário no curso (`/cursos/:id?nova=aula`). A aula entra no curso e fica bloqueada em todas as turmas até cada uma liberar.
+- **Escolher exercício numa aula ou nos extras:** o menu mostra só o idioma do curso, agrupado por nível, com o nível do curso primeiro.
+- **Página Exercícios:** filtros por idioma, nível e "Fora dos cursos" (listas que nenhum aluno vê).
+
 ## Registro de exclusões (migração `0016`)
 Tudo o que for apagado de **cursos, turmas, aulas e matrículas** fica anotado: o que era (com uma cópia do conteúdo), quando, quem pediu e por onde. Só o admin vê, em **Configurações → Exclusões recentes**.
 
@@ -65,17 +92,17 @@ Quem já tem conta abre o mesmo link (ou digita o código em Minha turma) e o pe
 | Rota | Quem | O que faz |
 |---|---|---|
 | `/turmas` | professor, admin | Turmas com alunos, aulas liberadas e selo de pedidos |
-| `/turmas/:id` | professor, admin | Abas Aulas (liberar), Extras (listas avulsas, salva sozinho) e Alunos (pedidos, alunos e convite). Atalhos para Resultados e "Ver como aluno" |
-| `/cursos`, `/cursos/:id` | professor, admin | Biblioteca: cursos e aulas, com PDF ou link e os exercícios de cada aula. Mostra as turmas que seguem o curso |
+| `/turmas/:id` | professor, admin | Abas Aulas (liberar e "Nova aula"), Exercícios (liberar os do curso), Extras (listas avulsas, salva sozinho) e Alunos (pedidos, alunos e convite). Atalhos para Resultados e "Ver como aluno" |
+| `/cursos`, `/cursos/:id` | professor, admin | Biblioteca: cursos e aulas, com PDF ou link e os exercícios de cada aula, e os exercícios do curso. Mostra as turmas que seguem o curso |
 | `/aluno` | aluno (e a equipe, como visão do aluno) | **Minhas turmas**: um bloco por turma, com curso, progresso, a próxima aula ao vivo e os selos "Aula nova" e "extras novos". Pedidos pendentes aparecem como blocos à parte. Embaixo, entrar em outra turma |
-| `/aluno/turmas/:id` | aluno (e equipe) | Página da turma: topo com o progresso e "Entrar na aula", e as abas **Início** (aula ao vivo, próximo exercício, atalhos, aula mais recente), **Aulas**, **Exercícios** ("Das aulas", agrupados por aula, e "Extras", com filtro e busca) e **Ao vivo** |
+| `/aluno/turmas/:id` | aluno (e equipe) | Página da turma: topo com o progresso e "Entrar na aula", e as abas **Início** (aula ao vivo, próximo exercício, atalhos, aula mais recente), **Aulas**, **Exercícios** ("Das aulas", agrupados por aula, "Do curso" e "Extras", com filtro e busca) e **Ao vivo** |
 | `/aulas/:id` | aluno, equipe | Capa, PDF dentro do site e "Hora de praticar!" |
 | `/convite/:codigo` | todos | Cadastro com o código (sem login) ou pedido de entrada (logado) |
 
 Cada turma fica separada: o aluno escolhe o bloco e tudo o que vê dentro é daquela turma. Os links de aula e de exercício levam `?turma=`, então o "voltar" leva de volta à turma certa. Os endereços antigos `/praticar` e `/aluno?turma=` redirecionam para a página nova.
 
 ## Banco
-Migrações `0002` (cursos, aulas, turmas, matrículas, aulas liberadas), `0009` (PDF e exercícios da aula) e `0011` (aprovação, extras e a nova regra de visibilidade).
+Migrações `0002` (cursos, aulas, turmas, matrículas, aulas liberadas), `0009` (PDF e exercícios da aula), `0011` (aprovação, extras e a nova regra de visibilidade) e `0018` (exercícios do curso).
 
 | Tabela | Para que serve |
 |---|---|
@@ -86,6 +113,8 @@ Migrações `0002` (cursos, aulas, turmas, matrículas, aulas liberadas), `0009`
 | `matriculas` | Aluno na turma, com `situacao` (`pendente`/`aprovada`) e `aprovada_em` |
 | `aulas_liberadas` | Aulas que cada turma já vê |
 | `turma_listas` | Exercícios extras de cada turma, na ordem |
+| `curso_listas` | Exercícios do curso, na ordem |
+| `curso_listas_liberadas` | Exercícios do curso que cada turma já liberou |
 
 **Funções:**
 - `entrar_na_turma(codigo)` cria o pedido.
@@ -122,7 +151,7 @@ Rode depois de `listas_de_exemplo.sql`.
 ## Montar tudo de uma vez (migração `0014`)
 Para a professora criar todos os cursos e turmas antes de chamar os alunos:
 - **Criar e já abrir:** ao criar um curso ou uma turma, o site abre a página do que foi criado (o curso, para adicionar as aulas; a turma, com o código e o convite). Se já existir um curso ou uma turma com o mesmo nome, avisa antes de criar outro.
-- **Montar aulas com os exercícios que já existem** (página do curso): cada exercício publicado do idioma, nos níveis marcados, vira uma aula já com o exercício dentro. Pula os que já estão em alguma aula do curso, e a numeração continua de onde parou.
+- **Exercícios do curso em lote:** veja "Exercícios do curso" acima. Substituiu o antigo "montar aulas com os exercícios", que criava uma aula por exercício.
 - **Adicionar vários exercícios por nível** (aba Extras da turma): marca os níveis (ex.: Beginner e Elementary) e entram de uma vez todas as listas publicadas deles. Rascunhos ficam de fora e as que já estão na turma não repetem.
 - **Liberar todas as aulas** (aba Aulas da turma): para turmas que já estão adiantadas.
 - **Um aviso só por aluno:** liberar várias aulas ou vários extras no mesmo comando gera uma notificação ("5 exercícios extras novos"), não uma por item.

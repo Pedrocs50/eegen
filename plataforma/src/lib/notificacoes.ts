@@ -17,6 +17,7 @@ export const TIPOS_EQUIPE: Record<string, Tipo> = {
 export const TIPOS_ALUNO: Record<string, Tipo> = {
   entrada_aprovada: { rotulo: "Entrada aprovada", descricao: "A professora aprovou a sua entrada numa turma.", icone: CheckCircle2, padrao: true },
   aula_liberada: { rotulo: "Aula nova", descricao: "Uma aula foi liberada, com o material e os exercícios.", icone: BookOpen, padrao: true },
+  exercicio_liberado: { rotulo: "Exercício do curso", descricao: "A professora liberou exercícios do curso para a turma.", icone: ClipboardCheck, padrao: true },
   extra_liberado: { rotulo: "Exercício extra", descricao: "A professora liberou um exercício extra para a turma.", icone: Sparkles, padrao: true },
 };
 export const tiposDoPapel = (papel: Papel) => (papel === "aluno" ? TIPOS_ALUNO : TIPOS_EQUIPE);

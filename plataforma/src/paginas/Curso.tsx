@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { ArrowDown, ArrowLeft, ArrowUp, ClipboardList, Eye, FileText, GripVertical, Link2, NotebookPen, Pencil, Plus, Trash2, Upload, UsersRound } from "lucide-react";
 import { supabase, traduzirErro } from "../lib/supabase";
 import { IDIOMAS, nomeNivel, useConsulta, type Aula, type Curso as TipoCurso } from "../lib/dados";
@@ -8,6 +8,8 @@ import { Aviso, Botao, Campo, Cartao, Etiqueta, EstadoVazio, TextoCarregando } f
 import { FormularioCurso } from "./Cursos";
 import ExerciciosDaAula from "../componentes/ExerciciosDaAula";
 import AulasDaBiblioteca from "../componentes/AulasDaBiblioteca";
+import ExerciciosDoCurso from "../componentes/ExerciciosDoCurso";
+import PdfsDasAulas from "../componentes/PdfsDasAulas";
 import EscolherPdf from "../componentes/EscolherPdf";
 import { TAMANHO_MAXIMO_MB } from "../lib/materiais";
 import { adicionarABiblioteca } from "../lib/biblioteca";
@@ -163,7 +165,7 @@ function FormularioAula({ cursoId, idioma, nivel, inicial, proximoNumero, aoSalv
       </fieldset>
 
       <div>
-        <ExerciciosDaAula selecionadas={exercicios} aoMudar={setExercicios} />
+        <ExerciciosDaAula selecionadas={exercicios} aoMudar={setExercicios} doCurso={{ idioma, nivel }} />
         {inicial ? (
           <Link to={`/exercicios/nova?aula=${inicial.id}`} className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-destaque hover:underline">
             <Plus className="size-4" /> Criar um exercício novo para esta aula
@@ -184,8 +186,10 @@ function FormularioAula({ cursoId, idioma, nivel, inicial, proximoNumero, aoSalv
 export default function Curso() {
   const { id = "" } = useParams();
   const navegar = useNavigate();
+  // /cursos/ID?nova=aula (botão "Nova aula" da turma) já abre o formulário.
+  const [parametros] = useSearchParams();
   const [editandoCurso, setEditandoCurso] = useState(false);
-  const [aulaEmEdicao, setAulaEmEdicao] = useState<string | "nova" | null>(null);
+  const [aulaEmEdicao, setAulaEmEdicao] = useState<string | "nova" | null>(parametros.get("nova") === "aula" ? "nova" : null);
   const [erroAcao, setErroAcao] = useState("");
   // Reordenar: enquanto arrasta, a ordem nova fica só na tela; ao soltar, os números são gravados.
   const [arrastando, setArrastando] = useState<string | null>(null);
@@ -312,6 +316,7 @@ export default function Curso() {
       </div>
 
       <AulasDaBiblioteca curso={curso} aulas={curso.aulas} aoCriar={recarregar} />
+      <PdfsDasAulas curso={curso} aulas={curso.aulas} aoSalvar={recarregar} />
 
       {aulaEmEdicao === "nova" && (
         <Cartao className="mb-4">
@@ -416,6 +421,10 @@ export default function Curso() {
           )}
         </ol>
       )}
+
+      <div className="mt-12">
+        <ExerciciosDoCurso curso={curso} aulas={curso.aulas} />
+      </div>
     </>
   );
 }

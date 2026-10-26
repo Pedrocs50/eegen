@@ -412,5 +412,39 @@ conferir(await falhaComo(PROFESSOR, "update public.turma_encontros set link = 'j
 await como(PROFESSOR, "update public.turma_encontros set aviso = 'Hoje às 20h', aviso_ate = current_date where turma_id = $1", [idTurmaBase]);
 conferir((await numero(ALUNO, "select count(*) from public.turma_encontros where aviso = 'Hoje às 20h'")) === 1, "aluno vê o aviso do dia");
 
+// ----------------------------------------------------------------------------- exercícios do curso
+console.log("Exercícios do curso");
+const novaListaDoCurso = async (titulo, status = "publicada") => {
+  const dados = {
+    titulo, idioma: "ingles", nivel: 2, status,
+    secoes: [{ id: crypto.randomUUID(), titulo: "S1", tipo_estimulo: "nenhum", estimulo: {}, questoes: [{ id: crypto.randomUUID(), formato: "verdadeiro_falso", enunciado: "VF", gabarito: { valor: true } }] }],
+  };
+  return (await como(PROFESSOR, "select public.salvar_lista($1::jsonb)", [JSON.stringify(dados)])).rows[0].salvar_lista;
+};
+const [plurais, thereIs, foraDoCurso] = [await novaListaDoCurso("Plurals"), await novaListaDoCurso("There is / there are"), await novaListaDoCurso("Fora do curso")];
+const { rows: [{ id: cursoElem }] } = await como(PROFESSOR, "insert into public.cursos (titulo, idioma, nivel) values ('Inglês Elementary', 'ingles', 2) returning id");
+const { rows: [{ id: turmaElem }] } = await como(PROFESSOR, "insert into public.turmas (nome, curso_id) values ('Elementary · segunda', $1) returning id", [cursoElem]);
+await db.query("insert into public.matriculas (turma_id, aluno_id, situacao) values ($1, $2, 'aprovada')", [turmaElem, OUTRO_ALUNO]);
+const veQuantas = (uid) => numero(uid, "select count(*) from public.listas where id = any($1::uuid[])", [[plurais, thereIs, foraDoCurso]]);
+
+await como(PROFESSOR, "insert into public.curso_listas (curso_id, lista_id, ordem) values ($1, $2, 0), ($1, $3, 1)", [cursoElem, plurais, thereIs]);
+conferir((await numero(PROFESSOR, "select count(*) from public.curso_listas where curso_id = $1", [cursoElem])) === 2, "professora coloca vários exercícios no curso de uma vez");
+conferir((await veQuantas(OUTRO_ALUNO)) === 0, "exercício do curso não liberado: o aluno da turma ainda não vê");
+conferir(await falhaComo(OUTRO_ALUNO, "insert into public.curso_listas (curso_id, lista_id) values ($1, $2)", [cursoElem, foraDoCurso]), "aluno não coloca exercício no curso");
+conferir(await falhaComo(OUTRO_ALUNO, "insert into public.curso_listas_liberadas (turma_id, lista_id) values ($1, $2)", [turmaElem, plurais]), "aluno não libera exercício do curso");
+conferir(await falhaComo(PROFESSOR, "insert into public.curso_listas_liberadas (turma_id, lista_id) values ($1, $2)", [turmaElem, foraDoCurso]), "não dá para liberar na turma um exercício que não está no curso dela");
+
+const antesCurso = await contarNotif(OUTRO_ALUNO, "exercicio_liberado");
+await como(PROFESSOR, "insert into public.curso_listas_liberadas (turma_id, lista_id) values ($1, $2), ($1, $3)", [turmaElem, plurais, thereIs]);
+conferir((await veQuantas(OUTRO_ALUNO)) === 2, "liberados na turma: o aluno vê os exercícios do curso");
+conferir((await numero(OUTRO_ALUNO, "select count(*) from public.curso_listas where curso_id = $1", [cursoElem])) === 2, "o aluno vê a ordem dos exercícios do curso");
+conferir((await contarNotif(OUTRO_ALUNO, "exercicio_liberado")) - antesCurso === 1, "liberar vários de uma vez gera um aviso só");
+conferir((await veQuantas(ALUNO)) === 0, "aluno de outra turma não vê os exercícios liberados");
+
+await como(PROFESSOR, "delete from public.curso_listas_liberadas where turma_id = $1 and lista_id = $2", [turmaElem, thereIs]);
+conferir((await veQuantas(OUTRO_ALUNO)) === 1, "recolher na turma esconde o exercício de novo");
+await como(PROFESSOR, "delete from public.curso_listas where curso_id = $1 and lista_id = $2", [cursoElem, plurais]);
+conferir((await veQuantas(OUTRO_ALUNO)) === 0, "tirar o exercício do curso também esconde (mesmo já liberado)");
+
 console.log(falhas === 0 ? "\nTudo certo." : `\n${falhas} verificação(ões) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);
