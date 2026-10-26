@@ -46,6 +46,14 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar, su
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [restantes, setRestantes] = useState<number | null>(null);
+  // Segundos desde o pedido: mostra que o assistente está trabalhando (e quanto costuma levar).
+  const [segundos, setSegundos] = useState(0);
+  useEffect(() => {
+    if (!enviando) return;
+    setSegundos(0);
+    const relogio = setInterval(() => setSegundos((s) => s + 1), 1000);
+    return () => clearInterval(relogio);
+  }, [enviando]);
   const fim = useRef<HTMLDivElement>(null);
   // Novas ideias a cada abertura e quando o idioma ou o nível mudam.
   const [sugestoes, setSugestoes] = useState(() => sortearSugestoes(lista.idioma, lista.nivel));
@@ -175,7 +183,10 @@ export default function PainelAssistente({ lista, aberto, aoAlternar, aoUsar, su
             {enviando && (
               <div className="flex gap-2.5" role="status">
                 <span className="grid size-8 shrink-0 place-items-center rounded-full bg-destaque-suave text-marca"><Bot className="size-4 animate-pulse" /></span>
-                <p className="rounded-2xl rounded-tl-md bg-fundo px-4 py-2.5 text-sm text-suave">Criando a lista… costuma levar de 15 a 40 segundos.</p>
+                <p className="rounded-2xl rounded-tl-md bg-fundo px-4 py-2.5 text-sm text-suave">
+                  {conversa.length > 1 ? "Ajustando a lista…" : "Criando a lista…"} <span className="tabular-nums">{segundos} s</span>
+                  {segundos >= 20 && " · listas grandes ou com listening demoram mais"}
+                </p>
               </div>
             )}
             <div ref={fim} />

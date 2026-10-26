@@ -16,7 +16,30 @@ Editor (chat)  ──►  Edge Function "assistente"  ──►  Gemini (grátis
 ```
 - **Conversa:** a resposta do assistente volta para ele como JSON, então dá para pedir ajustes ("troque as lacunas por lacunas com opções").
 - **Qual IA:** o provedor e o modelo ficam na tabela `config_ia`, que o admin muda em **Usuários → Assistente de IA**. Padrão: Gemini, `gemini-flash-latest`, 30 pedidos por professor por dia.
-- **Código:** a função está em [`supabase/functions/assistente/index.ts`](../supabase/functions/assistente/index.ts), num arquivo só e sem dependências. A tabela de configuração e o histórico estão na migração [`0004_assistente_ia.sql`](../supabase/migrations/0004_assistente_ia.sql).
+- **Código** (sem dependências), em `supabase/functions/`:
+
+  | Arquivo | O que tem |
+  |---|---|
+  | `assistente/regras.ts` | As regras de ensino da escola e os exemplos. **É aqui que se muda o estilo dos exercícios.** |
+  | `assistente/provedores.ts` | Gemini e Groq, o modelo de reserva e o ajuste de "pensamento" |
+  | `assistente/resposta.ts` | Leitura do JSON do modelo e conversão das listas publicadas em exemplos |
+  | `assistente/index.ts` | O atendimento: login, cota, chamada e registro |
+  | `_shared/http.ts` | Partes comuns com a função de áudio (erros, Supabase, registro em `geracoes_ia`) |
+  | `testes.ts` | Testes das duas funções com o Supabase e o Gemini simulados (`deno test testes.ts`) |
+
+  A tabela de configuração e o histórico estão na migração [`0004_assistente_ia.sql`](../supabase/migrations/0004_assistente_ia.sql).
+
+## Velocidade (26/10/2026)
+- **Menos "pensamento":** os modelos Flash do Gemini raciocinam bastante antes de responder, e essa era a maior parte da espera de 15 a 40 s. O pedido agora vai com `thinkingLevel: "low"`. Se o modelo configurado não aceitar esse ajuste, a função manda de novo sem ele, sozinha.
+- **Reserva sem espera:** se o modelo principal estiver sobrecarregado (503) ou sem cota (429), a função vai direto para o `gemini-3.5-flash-lite`. Antes, ela esperava e tentava o mesmo modelo de novo.
+- **Consultas juntas:** login, papel, configuração, cota e listas de exemplo saem num lote só ao banco, em vez de cinco consultas em fila.
+- **No editor:** enquanto a lista é criada, aparece um contador de segundos.
+- **Medir:** o tempo de cada geração fica em `geracoes_ia.segundos`. Para comparar antes e depois, rode no SQL Editor:
+  ```sql
+  select modelo, count(*), round(avg(segundos), 1) as media_s, round(max(segundos), 1) as max_s
+  from public.geracoes_ia where habilidade = 'gerar_lista' and ok and criado_em > now() - interval '14 days'
+  group by modelo order by 2 desc;
+  ```
 
 ## Testes feitos (18/10/2026)
 - **Modelos do Gemini com o pedido da escola**, cada lista validada pelo conversor da plataforma:
@@ -44,19 +67,17 @@ A chave fica só no Supabase. Ela nunca vai para o site nem para o GitHub.
 
 > A chave usada nos testes apareceu no histórico do chat. Por segurança, gere uma nova no AI Studio, cadastre a nova aqui e apague a antiga.
 
-### 3. Publicar a função
-**Opção A, pelo painel (sem instalar nada):**
-1. **Edge Functions → Deploy a new function → Via Editor**.
-2. Nome: `assistente`.
-3. Apague o código de exemplo e cole todo o conteúdo de `supabase/functions/assistente/index.ts`.
-4. **Deploy function**. Deixe a verificação de JWT ligada (o padrão).
+### 3. Publicação automática (GitHub Actions)
+As funções `assistente` e `audio` são testadas e publicadas sozinhas a cada push na `main` que mexa em `supabase/functions/` (workflow `.github/workflows/funcoes.yml`). Não é mais preciso colar o código no painel. A publicação já sai com o "Verify JWT with legacy secret" desligado, como estava no painel: a própria função confere o login.
 
-**Opção B, pelo terminal:**
+Configuração, uma vez:
+1. No Supabase: avatar (canto superior direito) → **Account preferences → Access Tokens → Generate new token**. Dê um nome (ex.: "GitHub eegen") e copie o token.
+2. No GitHub: repositório **eegen → Settings → Secrets and variables → Actions → New repository secret**. Name: `SUPABASE_ACCESS_TOKEN`; Value: o token.
+3. Em **Actions → Funções do Supabase → Run workflow**, publique pela primeira vez (ou faça um push que mexa nas funções).
+
+Pelo terminal também funciona:
 ```bash
-npx supabase login
-```
-```bash
-npx supabase functions deploy assistente --project-ref txzjjmufcevisnsvtjwt
+npx supabase functions deploy assistente --project-ref txzjjmufcevisnsvtjwt --no-verify-jwt
 ```
 
 ### 4. Usar

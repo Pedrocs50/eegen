@@ -41,10 +41,6 @@ Consequências:
 
 ## Como publicar
 1. **SQL Editor** → rodar `supabase/migrations/0005_audios.sql` e depois `0006_leitura_audios.sql` (permissão de leitura que o upload com substituição exige). Ele cria o bucket `audios`, as permissões, a configuração de voz e a cota por habilidade.
-2. **Edge Functions → Deploy a new function → Via Editor**:
-   - nome **`audio`**;
-   - colar `supabase/functions/audio/index.ts`;
-   - **Deploy**.
-   - Depois, em **Settings**, **desligar "Verify JWT with legacy secret"** e salvar, como no assistente.
-3. Republicar a função **`assistente`**: abrir a função → aba **Code** → colar o novo `supabase/functions/assistente/index.ts` → **Deploy**. Isso faz o assistente criar listenings.
+2. **Publicar as funções:** é automático a cada push (GitHub Actions `funcoes.yml`, veja "Publicação automática" em [assistente-ia.md](assistente-ia.md)). A publicação já deixa desligado o "Verify JWT with legacy secret", porque a própria função confere o login.
+3. O código fica em `supabase/functions/audio/`: `index.ts` (atendimento) e `voz.ts` (roteiro, Gemini TTS e WAV), mais as partes comuns em `supabase/functions/_shared/`.
 4. O segredo `GEMINI_API_KEY` já existe e serve para as duas funções.
