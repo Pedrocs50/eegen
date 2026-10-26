@@ -16,6 +16,8 @@ import { CAMPOS_PUBLICADAS, interpretarResposta, paraImportacao, type LinhaLista
 const CONFIG_PADRAO: Config = { provedor: "gemini", modelo: "gemini-flash-latest", limite_diario: 30 };
 const MAX_MENSAGENS = 10;
 const MAX_CARACTERES_PEDIDO = 1500;
+/** Depois disso, uma resposta fora do formato vira erro em vez de uma segunda chamada ao modelo. */
+const TEMPO_PARA_SEGUNDA_CHANCE_MS = 60_000;
 
 /** Lê e confere o pedido do editor: idioma, nível e a conversa (a última mensagem é do professor). */
 async function lerPedido(req: Request) {
@@ -72,6 +74,8 @@ export async function atender(req: Request, env: LerAmbiente, fetchFn: typeof fe
     try {
       resposta = interpretarResposta(resultado.texto);
     } catch (erro) {
+      // Sem tempo para outra chamada antes do corte do Supabase (150 s): melhor avisar que deixar o professor esperando.
+      if (Date.now() - inicio > TEMPO_PARA_SEGUNDA_CHANCE_MS) throw erro;
       // Uma segunda chance, dizendo ao modelo o que estava errado.
       const correcao: Mensagem[] = [
         ...mensagens,

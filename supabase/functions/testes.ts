@@ -19,7 +19,7 @@ const LISTA = {
   secoes: [{ tipo: "questoes", titulo: "S1", questoes: [{ formato: "verdadeiro_falso", enunciado: "x", resposta: true, explicacao: "y" }] }],
 };
 
-type Simulacao = { equipe?: boolean; usadas?: number; gemini?: (modelo: string, corpo: Record<string, unknown>) => Response };
+type Simulacao = { equipe?: boolean; usadas?: number; gemini?: (modelo: string, corpo: Record<string, unknown>, sinal?: AbortSignal | null) => Response | Promise<Response> };
 type Chamada = { url: string; corpo: Record<string, unknown> | null };
 
 /** fetch falso: responde como o Supabase e o Gemini e guarda o que foi pedido. */
@@ -37,7 +37,7 @@ function simular({ equipe = true, usadas = 0, gemini }: Simulacao) {
     if (url.includes("/rest/v1/listas")) return ok([]);
     if (url.includes("/rest/v1/geracoes_ia")) return new Response("", { status: 201 });
     const modelo = /models\/([^:]+):/.exec(url)?.[1];
-    if (modelo && gemini) return gemini(modelo, corpo ?? {});
+    if (modelo && gemini) return gemini(modelo, corpo ?? {}, init.signal);
     return new Response("{}", { status: 404 });
   };
   return { chamadas, fetchFalso: fetchFalso as typeof fetch };
@@ -78,6 +78,37 @@ Deno.test("assistente: modelo principal sobrecarregado vai direto para o de rese
   semelhante((await resposta.json()).modelo, "gemini-3.5-flash-lite");
   semelhante(modelos, ["gemini-flash-latest", "gemini-3.5-flash-lite"]);
   if (Date.now() - inicio > 1000) throw new Error("esperou à toa antes de usar o modelo de reserva");
+});
+
+Deno.test("assistente: modelo principal travado perde a vez para o de reserva quando estoura o prazo", async () => {
+  const modelos: string[] = [];
+  const { chamadas, fetchFalso } = simular({
+    gemini: (modelo, _corpo, sinal) => {
+      modelos.push(modelo);
+      if (modelo !== "gemini-flash-latest") return respostaGemini(JSON.stringify({ mensagem: "ok", lista: LISTA }));
+      // Nunca responde: só termina quando a função desiste (como o Gemini travado de 26/10/2026).
+      return new Promise((_, rejeitar) => sinal?.addEventListener("abort", () => rejeitar(sinal.reason)));
+    },
+  });
+  const envRapido = (n: string) => (n === "LIMITE_PRINCIPAL_S" ? "0.2" : env(n));
+  const inicio = Date.now();
+  const resposta = await assistente(pedidoAssistente(), envRapido, fetchFalso);
+  semelhante(resposta.status, 200);
+  semelhante((await resposta.json()).modelo, "gemini-3.5-flash-lite");
+  semelhante(modelos, ["gemini-flash-latest", "gemini-3.5-flash-lite"]);
+  if (Date.now() - inicio > 2000) throw new Error("não respeitou o prazo do modelo principal");
+  semelhante(chamadas.filter((c) => c.url.includes("/geracoes_ia")).length, 1);
+});
+
+Deno.test("assistente: os dois modelos travados viram um erro claro (e registrado), antes do corte do Supabase", async () => {
+  const { chamadas, fetchFalso } = simular({
+    gemini: (_modelo, _corpo, sinal) => new Promise((_, rejeitar) => sinal?.addEventListener("abort", () => rejeitar(sinal.reason))),
+  });
+  const envRapido = (n: string) => (n.startsWith("LIMITE_") ? "0.2" : env(n));
+  const resposta = await assistente(pedidoAssistente(), envRapido, fetchFalso);
+  semelhante(resposta.status, 504);
+  semelhante((await resposta.json()).erro, "O assistente não conseguiu gerar a resposta agora. Tente de novo.");
+  semelhante(chamadas.filter((c) => c.url.includes("/geracoes_ia")).length, 1);
 });
 
 Deno.test("assistente: JSON torto ganha uma segunda chance", async () => {

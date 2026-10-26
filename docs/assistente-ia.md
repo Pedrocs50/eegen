@@ -32,6 +32,7 @@ Editor (chat)  ──►  Edge Function "assistente"  ──►  Gemini (grátis
 ## Velocidade (26/10/2026)
 - **Menos "pensamento":** os modelos Flash do Gemini raciocinam bastante antes de responder, e essa era a maior parte da espera de 15 a 40 s. O pedido agora vai com `thinkingLevel: "low"`. Se o modelo configurado não aceitar esse ajuste, a função manda de novo sem ele, sozinha.
 - **Reserva sem espera:** se o modelo principal estiver sobrecarregado (503) ou sem cota (429), a função vai direto para o `gemini-3.5-flash-lite`. Antes, ela esperava e tentava o mesmo modelo de novo.
+- **Prazo para cada modelo:** o principal tem 35 s; se não responder, a função passa para o reserva, que tem 60 s. Antes não havia prazo: um Gemini travado prendia o professor até o Supabase cortar a função (150 s), sem resposta e sem registro (26/10/2026). Os prazos mudam pelos segredos `LIMITE_PRINCIPAL_S` e `LIMITE_RESERVA_S`, sem mexer no código. A coluna `segundos` de `geracoes_ia` soma o tempo dos dois modelos.
 - **Consultas juntas:** login, papel, configuração, cota e listas de exemplo saem num lote só ao banco, em vez de cinco consultas em fila.
 - **No editor:** enquanto a lista é criada, aparece um contador de segundos.
 - **Medir:** o tempo de cada geração fica em `geracoes_ia.segundos`. Para comparar antes e depois, rode no SQL Editor:
